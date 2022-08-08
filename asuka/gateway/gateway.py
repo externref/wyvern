@@ -1,3 +1,27 @@
+# MIT License
+
+# Copyright (c) 2022 Sarthak
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+from __future__ import annotations
+
 import asyncio
 import json
 import sys
@@ -6,19 +30,18 @@ import typing
 
 import aiohttp
 
-from clyde import events
+from asuka import events
 
 from .enums import WSEventEnums
 from .keep_alive import KeepAlive
 
 if typing.TYPE_CHECKING:
-    from clyde.bot import Bot
+    from asuka.bot import Bot
 
 
-class DiscordWebSocket:
+class Gateway:
     def __init__(self, bot: "Bot") -> None:
         self._bot = bot
-        self._enums = WSEventEnums
         self._keep_alive = KeepAlive()
         self._latency: float = 0
         self._heartbeat_interval: float = 0
@@ -66,8 +89,7 @@ class DiscordWebSocket:
         loop.create_task(self.keep_alive.start(self))
 
     async def _dispatch_events(self, payload: typing.Dict[str, typing.Any]) -> None:
-        op, type, data = payload["op"], payload["t"], payload["d"]
-        if type == "MESSAGE_CREATE":
+        if payload["op"] == "MESSAGE_CREATE":
             self._bot._event_handler.dispatch(events.MessageCreate, payload)
             return
 
@@ -75,13 +97,13 @@ class DiscordWebSocket:
         self, payload: typing.Dict[str, typing.Any]
     ) -> None:
         op, t, d = payload["op"], payload["t"], payload["d"]
-        if op == self._enums.HEARTBEAT_ACK:
+        if op == WSEventEnums.HEARTBEAT_ACK:
             self._latency = time.perf_counter() - self.keep_alive.last_heartbeat
             return
 
-        if op == self._enums.HELLO:
+        if op == WSEventEnums.HELLO:
             await self._hello_res(d)
 
-        elif op == self._enums.DISPATCH:
+        elif op == WSEventEnums.DISPATCH:
             self.keep_alive.sequence += 1
             await self._dispatch_events(payload)
