@@ -66,32 +66,3 @@ class MessageCreate(GatewayEvent):
         self.author_id = int(self.data["author"]["id"])
         self.channel_id = int(self.data["channel_id"])
         self.created_at = datetime.datetime.fromisoformat(self.data["timestamp"])
-
-
-{
-    "type": 0,
-    "tts": False,
-    "timestamp": "2022-08-06T05:46:36.204000+00:00",
-    "referenced_message": None,
-    "pinned": False,
-    "nonce": "1005351163752611840",
-    "mentions": [],
-    "mention_roles": [],
-    "mention_everyone": False,
-    "id": "1005351164776304702",
-    "flags": 0,
-    "embeds": [],
-    "edited_timestamp": None,
-    "content": ".",
-    "components": [],
-    "channel_id": "964215816696529026",
-    "author": {
-        "username": "sarth",
-        "public_flags": 256,
-        "id": "580034015759826944",
-        "discriminator": "0460",
-        "avatar_decoration": None,
-        "avatar": "f6836db8bae44b223ec0929b892e5e71",
-    },
-    "attachments": [],
-}
