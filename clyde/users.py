@@ -1,5 +1,0 @@
-import typing
-
-
-class PartialUser:
-    ...
