@@ -20,49 +20,68 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 from __future__ import annotations
 
-import dataclasses
-import datetime
 import typing
 
-from .base_events import GatewayEvent
 
-if typing.TYPE_CHECKING:
-    from asuka.bot import Bot
+class AsukaException(Exception):
+    ...
 
 
-@dataclasses.dataclass
-class MessageCreate(GatewayEvent):
-    bot: "Bot"
-    id: int
-    author_id: int
-    message_id: int
-    created_at: datetime.datetime
-    from_bot: bool
-    from_human: bool
-    from_webhook: bool
-    shard: int
-    channel_id: int | None
-    webhook_id: int | None
-    reference_message_id: int | None
+class HTTPException(AsukaException):
+    message: str | None
+    code: int | None = None
 
-    message: typing.Any
+    def __init__(self, message: str = None):
+        self.message = message
+        super().__init__(self.message or "A HTTP error occured.")
 
-    def __init__(
-        self, bot: "Bot", payload: typing.Dict[typing.Any, typing.Any]
-    ) -> None:
-        super().__init__(bot)
+    @classmethod
+    def with_code(cls, code: int, message: str) -> "HTTPException":
+        exc = HTTPException(message)
+        exc.code = code
+        return exc
 
-        self._payload_data = payload
-        self._initialize_event_from_payload()
 
-    @property
-    def data(self) -> typing.Dict[str, typing.Any]:
-        return self._payload_data["d"]
+class BadRequest(HTTPException):
+    ...
 
-    def _initialize_event_from_payload(self) -> None:
-        self.id = int(self.data["id"])
-        self.author_id = int(self.data["author"]["id"])
-        self.channel_id = int(self.data["channel_id"])
-        self.created_at = datetime.datetime.fromisoformat(self.data["timestamp"])
+
+class Unauthorized(HTTPException):
+    ...
+
+
+class Forbidden(HTTPException):
+    ...
+
+
+class NotFound(HTTPException):
+    ...
+
+
+class InvalidMethod(HTTPException):
+    ...
+
+
+class Ratelimited(HTTPException):
+    ...
+
+
+class UnknownError(HTTPException):
+    ...
+
+
+excs: typing.Dict[int, typing.Type[HTTPException]] = {
+    400: BadRequest,
+    401: Unauthorized,
+    403: Forbidden,
+    404: NotFound,
+    405: InvalidMethod,
+    429: Ratelimited,
+}
+
+
+def get_exception(code: int) -> typing.Type[AsukaException]:
+    return excs.get(code, UnknownError)

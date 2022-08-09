@@ -20,10 +20,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import dataclasses
 import typing
 
 import aiohttp
 import multidict
+
+from asuka.exceptions import HTTPException, get_exception
+from asuka.models.users import BotUser
+
+
+@dataclasses.dataclass
+class RequestRoute:
+    url: str
+    type: str
+
+    def __init__(self, *, type: str = "GET", url: str, api_version=10) -> None:
+        self.url = f"https://discord.com/api/v{api_version}/{url}"
+        self.type = type
 
 
 class RESTClient:
@@ -49,3 +63,22 @@ class RESTClient:
         return await self._session.ws_connect(
             f"wss://gateway.discord.gg/?v={self._api_version}&encoding=json"
         )
+
+    async def request(self, route: RequestRoute) -> typing.Any:
+        headers = self._headers.copy()
+        headers["Content-Type"] = multidict.istr("application/json")
+        res = await self._session.request(route.type, route.url, headers=headers)
+        if res.status in (200, 201):
+            return await res.json()
+        if res.status in (204, 304):
+            return
+        else:
+            raise HTTPException.with_code(res.status, "Failed Request.")
+
+    async def fetch_bot_user(self) -> BotUser:
+        try:
+            res = await self.request(RequestRoute(url="users/@me"))
+        except Exception as e:
+            if isinstance(e, HTTPException) and e.code is not None:
+                raise get_exception(e.code)("Improper token was passed.")
+        return BotUser(res)

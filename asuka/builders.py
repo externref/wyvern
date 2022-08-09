@@ -26,14 +26,13 @@ import datetime
 import typing
 
 
-@typing.final
 class DiscordObject:
     def __init__(
         self,
         *,
         id: int,
     ) -> None:
-        self._id = id
+        self.id = id
         self._created_at = self.get_created_at(id)
 
     @classmethod
@@ -46,10 +45,6 @@ class DiscordObject:
         self,
     ) -> datetime.datetime:
         return self._created_at
-
-    @property
-    def id(self) -> int:
-        return self._id
 
 
 @typing.final
