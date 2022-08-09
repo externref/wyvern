@@ -25,6 +25,31 @@ from __future__ import annotations
 
 import typing
 
+from asuka.builders import DiscordObject
 
-class PartialUser:
+
+class BotUser(DiscordObject):
+    id: int
+    username: str
+    discriminator: str
+    mfa_enabled: bool
+    about_me: str | None
+
+    def __init__(self, data: typing.Dict[str, typing.Any]) -> None:
+        self.id = data["id"]
+        self.username = data["username"]
+        self.discriminator = data["discriminator"]
+        self.mfa_enabled = data["mfa_enabled"]
+        self.about_me = data["bio"]
+
+    def __repr__(self) -> str:
+        return f"{self.username}#{self.discriminator}"
+
+    def __eq__(self, obj: object) -> bool:
+        if not isinstance(obj, DiscordObject):
+            raise NotImplemented
+        return self.id == obj.id
+
+
+class PartialUser(DiscordObject):
     ...
