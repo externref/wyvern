@@ -93,9 +93,7 @@ class Gateway:
             self._bot._event_handler.dispatch(events.MessageCreate, payload)
             return
 
-    async def _parse_payload_response(
-        self, payload: typing.Dict[str, typing.Any]
-    ) -> None:
+    async def _parse_payload_response(self, payload: typing.Dict[str, typing.Any]) -> None:
         op, t, d = payload["op"], payload["t"], payload["d"]
         if op == WSEventEnums.HEARTBEAT_ACK:
             self._latency = time.perf_counter() - self.keep_alive.last_heartbeat

@@ -28,21 +28,14 @@ if typing.TYPE_CHECKING:
     from asuka.bot import Bot
 
 
-class GatewayEvent:
-    bot: "Bot"
+class Asset:
+    url: str
 
-    def __init__(self, bot: "Bot", payload: typing.Dict[typing.Any, typing.Any] | None = None) -> None:
-        self._payload_data = payload or {}
-        self.bot = bot
+    def __init__(self, url: str, bot: "Bot") -> None:
+        self._bot = bot
+        self.url = url
 
-
-class StartingEvent(GatewayEvent):
-    ...
-
-
-class StartedEvent(GatewayEvent):
-    ...
-
-
-class ClosingEvent(GatewayEvent):
-    ...
+    async def get_bytes(
+        self,
+    ) -> None:
+        ...

@@ -38,8 +38,6 @@ class KeepAlive:
 
     async def start(self, ws: "Gateway") -> None:
         while True:
-            await ws.socket.send_json(
-                {"op": WSEventEnums.HEARTBEAT, "d": self.sequence}
-            )
+            await ws.socket.send_json({"op": WSEventEnums.HEARTBEAT, "d": self.sequence})
             self.last_heartbeat = time.perf_counter()
             await asyncio.sleep(ws._heartbeat_interval)

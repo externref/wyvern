@@ -20,29 +20,5 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import annotations
-
-import typing
-
-if typing.TYPE_CHECKING:
-    from asuka.bot import Bot
-
-
-class GatewayEvent:
-    bot: "Bot"
-
-    def __init__(self, bot: "Bot", payload: typing.Dict[typing.Any, typing.Any] | None = None) -> None:
-        self._payload_data = payload or {}
-        self.bot = bot
-
-
-class StartingEvent(GatewayEvent):
-    ...
-
-
-class StartedEvent(GatewayEvent):
-    ...
-
-
-class ClosingEvent(GatewayEvent):
-    ...
+from .base_objs import *
+from .intents import *

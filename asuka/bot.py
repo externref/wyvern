@@ -89,16 +89,10 @@ class Bot:
     ) -> None:
         self.description = description
         self._boot_log = log_self_info
-        self._rest = RESTClient(
-            token=token, api_version=api_version, client_session=client_session
-        )
+        self._rest = RESTClient(token=token, api_version=api_version, client_session=client_session)
         self._gateway = Gateway(self)
         self._event_handler = EventHandler()
-        self._intents = (
-            intents
-            if isinstance(intents, Intents)
-            else Intents.from_value(int(intents or 98045))
-        )
+        self._intents = intents if isinstance(intents, Intents) else Intents.from_value(int(intents or 98045))
 
     @property
     def intents(self) -> Intents:
@@ -157,9 +151,7 @@ class Bot:
 
         return inner
 
-    def listen_once(
-        self, event: typing.Type[GatewayEvent] | None = None
-    ) -> typing.Callable:
+    def listen_once(self, event: typing.Type[GatewayEvent] | None = None) -> typing.Callable:
         """Same as the .listen() decorator, but gets triggered only once in the complete runtime."""
 
         def inner(callback: typing.Callable) -> typing.Callable:

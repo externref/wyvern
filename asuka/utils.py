@@ -25,24 +25,8 @@ from __future__ import annotations
 import typing
 
 if typing.TYPE_CHECKING:
-    from asuka.bot import Bot
+    from models.users import BotUser, PartialUser
 
 
-class GatewayEvent:
-    bot: "Bot"
-
-    def __init__(self, bot: "Bot", payload: typing.Dict[typing.Any, typing.Any] | None = None) -> None:
-        self._payload_data = payload or {}
-        self.bot = bot
-
-
-class StartingEvent(GatewayEvent):
-    ...
-
-
-class StartedEvent(GatewayEvent):
-    ...
-
-
-class ClosingEvent(GatewayEvent):
-    ...
+def default_avatar_for(user: "PartialUser") -> str:
+    return f"{user.discriminator%5}.png"

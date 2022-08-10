@@ -49,9 +49,7 @@ class MessageCreate(GatewayEvent):
 
     message: typing.Any
 
-    def __init__(
-        self, bot: "Bot", payload: typing.Dict[typing.Any, typing.Any]
-    ) -> None:
+    def __init__(self, bot: "Bot", payload: typing.Dict[typing.Any, typing.Any]) -> None:
         super().__init__(bot)
 
         self._payload_data = payload

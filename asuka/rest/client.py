@@ -52,17 +52,13 @@ class RESTClient:
             self._session = client_session
         self._token = token
         self._api_version = api_version
-        self._headers: typing.Dict[str, multidict.istr] = {
-            "Authorization": multidict.istr(f"Bot {token}")
-        }
+        self._headers: typing.Dict[str, multidict.istr] = {"Authorization": multidict.istr(f"Bot {token}")}
 
     async def _create_session(self) -> None:
         self._session = aiohttp.ClientSession(headers=self._headers)
 
     async def _create_websocket(self) -> aiohttp.ClientWebSocketResponse:
-        return await self._session.ws_connect(
-            f"wss://gateway.discord.gg/?v={self._api_version}&encoding=json"
-        )
+        return await self._session.ws_connect(f"wss://gateway.discord.gg/?v={self._api_version}&encoding=json")
 
     async def request(self, route: RequestRoute) -> typing.Any:
         headers = self._headers.copy()

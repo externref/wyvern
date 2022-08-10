@@ -28,19 +28,19 @@ import typing
 from asuka.builders import DiscordObject
 
 
-class BotUser(DiscordObject):
+class PartialUser(DiscordObject):
     id: int
     username: str
     discriminator: str
-    mfa_enabled: bool
-    about_me: str | None
+    is_mfa_enabled: bool
+    email: str
 
     def __init__(self, data: typing.Dict[str, typing.Any]) -> None:
         self.id = data["id"]
         self.username = data["username"]
         self.discriminator = data["discriminator"]
         self.mfa_enabled = data["mfa_enabled"]
-        self.about_me = data["bio"]
+        self.email = data["email"]
 
     def __repr__(self) -> str:
         return f"{self.username}#{self.discriminator}"
@@ -51,5 +51,5 @@ class BotUser(DiscordObject):
         return self.id == obj.id
 
 
-class PartialUser(DiscordObject):
+class BotUser(PartialUser):
     ...

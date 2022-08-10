@@ -73,9 +73,7 @@ class EventHandler:
     ) -> None:
         event = event_type(self.bot, payload)
         to_call = []
-        to_call.extend(
-            [listener(event) for listener in self.listeners.get(event_type, [])]
-        )
+        to_call.extend([listener(event) for listener in self.listeners.get(event_type, [])])
         for listener in self.once_listeners.get(event_type, []):
             to_call.append(listener(event))
         self.once_listeners[event_type] = []
