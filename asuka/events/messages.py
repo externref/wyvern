@@ -26,13 +26,13 @@ import dataclasses
 import datetime
 import typing
 
+from ..models.users import PartialUser
 from .base_events import GatewayEvent
 
 if typing.TYPE_CHECKING:
     from asuka.bot import Bot
 
 
-@dataclasses.dataclass
 class MessageCreate(GatewayEvent):
     bot: "Bot"
     id: int
@@ -46,6 +46,7 @@ class MessageCreate(GatewayEvent):
     channel_id: int | None
     webhook_id: int | None
     reference_message_id: int | None
+    user: PartialUser
 
     message: typing.Any
 
@@ -64,3 +65,7 @@ class MessageCreate(GatewayEvent):
         self.author_id = int(self.data["author"]["id"])
         self.channel_id = int(self.data["channel_id"])
         self.created_at = datetime.datetime.fromisoformat(self.data["timestamp"])
+        self.is_human = not self.data["author"].get("bot")
+        self.is_bot = not self.is_human
+        self.user = PartialUser(self.data["author"])
+        self.guild_id = self.data.get("guild_id")

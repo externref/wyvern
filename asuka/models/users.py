@@ -33,14 +33,12 @@ class PartialUser(DiscordObject):
     username: str
     discriminator: str
     is_mfa_enabled: bool
-    email: str
 
     def __init__(self, data: typing.Dict[str, typing.Any]) -> None:
         self.id = data["id"]
         self.username = data["username"]
         self.discriminator = data["discriminator"]
-        self.mfa_enabled = data["mfa_enabled"]
-        self.email = data["email"]
+        self.mfa_enabled = data.get("mfa_enabled")
 
     def __repr__(self) -> str:
         return f"{self.username}#{self.discriminator}"

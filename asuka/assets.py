@@ -37,5 +37,6 @@ class Asset:
 
     async def get_bytes(
         self,
-    ) -> None:
-        ...
+    ) -> bytes:
+        res = await self._bot.rest._session.get(self.url)
+        return await res.read()

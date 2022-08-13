@@ -40,6 +40,8 @@ if typing.TYPE_CHECKING:
 
 
 class Gateway:
+    __slots__: typing.Tuple[str, ...] = ("_bot", "_keep_alive", "_latency", "_heartbeat_interval", "_socket")
+
     def __init__(self, bot: "Bot") -> None:
         self._bot = bot
         self._keep_alive = KeepAlive()
@@ -89,7 +91,7 @@ class Gateway:
         loop.create_task(self.keep_alive.start(self))
 
     async def _dispatch_events(self, payload: typing.Dict[str, typing.Any]) -> None:
-        if payload["op"] == "MESSAGE_CREATE":
+        if payload["t"] == "MESSAGE_CREATE":
             self._bot._event_handler.dispatch(events.MessageCreate, payload)
             return
 

@@ -30,6 +30,10 @@ if typing.TYPE_CHECKING:
 
 class GatewayEvent:
     bot: "Bot"
+    guild_id: int | None
+    is_human: bool
+    is_bot: bool
+    author_id: int | None
 
     def __init__(self, bot: "Bot", payload: typing.Dict[typing.Any, typing.Any] | None = None) -> None:
         self._payload_data = payload or {}

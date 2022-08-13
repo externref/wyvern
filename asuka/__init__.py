@@ -20,9 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from . import events
 from .bot import *
 from .builders import *
-from .events import *
+from .event_handler import listener_config
 from .exceptions import *
 from .gateway import *
 from .models.users import *

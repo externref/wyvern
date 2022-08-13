@@ -23,6 +23,7 @@
 from __future__ import annotations
 
 import asyncio
+import dataclasses
 import typing
 
 from .events.base_events import GatewayEvent
@@ -31,46 +32,119 @@ if typing.TYPE_CHECKING:
     from asuka.bot import Bot
 
 
+@dataclasses.dataclass
+class ListenerConfig:
+    guild_only: bool
+    dms_only: bool
+    bots_only: bool
+    humans_only: bool
+    ignore_self: bool
+
+
+class Listener:
+    def __init__(self, callback: typing.Callable[[GatewayEvent], typing.Any]) -> None:
+        self._bot: "Bot"
+        self._configs: ListenerConfig
+        self._callback = callback
+
+    async def __call__(self, event: GatewayEvent) -> typing.Any:
+        if self._listener_checks(event) is True:
+            await self._callback(event)
+        else:
+            pass
+
+    def _listener_checks(self, event: GatewayEvent) -> bool:
+        if getattr(self, "_configs", None) is None:
+            return True
+        if self._configs.guild_only is True and event.guild_id is None:
+            return False
+        if self._configs.dms_only is True and event.guild_id is not None:
+            return False
+        if self._configs.bots_only is True and event.is_bot is False:
+            return False
+        if self._configs.humans_only is True and event.is_human is False:
+            return False
+        if self._configs.ignore_self is True and event.author_id is not None and event.author_id == self._bot.user.id:
+            return False
+
+        return True
+
+    def set_configs(self, configs: ListenerConfig) -> None:
+        self._configs = configs
+
+    @property
+    def configs(self) -> ListenerConfig | None:
+        return getattr(self, "_configs", None)
+
+
+def listener_config(
+    guild_only=False,
+    dms_only=False,
+    bots_only=False,
+    humans_only=False,
+    ignore_self=False,
+) -> typing.Callable[[Listener], Listener]:
+    def inner(listener: Listener) -> Listener:
+        nonlocal guild_only, bots_only, dms_only, humans_only, ignore_self
+        if guild_only is True and dms_only is True:
+            raise ValueError("You can not have both guild_only and dms_only set to True.")
+        if bots_only is True and humans_only is True:
+            raise ValueError("You can not have both bots_only and dms_only set to True")
+        configs = ListenerConfig(
+            guild_only=guild_only,
+            dms_only=dms_only,
+            bots_only=bots_only,
+            humans_only=humans_only,
+            ignore_self=ignore_self,
+        )
+        listener.set_configs(configs)
+        return listener
+
+    return inner
+
+
 class EventHandler:
     bot: "Bot"
     listeners: typing.Dict[
         typing.Type[GatewayEvent],
-        typing.List[
-            typing.Callable[[GatewayEvent], typing.Any],
-        ],
+        typing.List[Listener],
     ] = {}
     once_listeners: typing.Dict[
         typing.Type[GatewayEvent],
         typing.List[
-            typing.Callable[[GatewayEvent], typing.Any],
+            Listener,
         ],
     ] = {}
 
     def add_listener(
         self,
         event_class: typing.Type[GatewayEvent],
-        callback: typing.Callable[[GatewayEvent], typing.Any],
+        listener: Listener,
     ) -> None:
+        listener._bot = self.bot
         if (lsnrs := self.listeners.get(event_class)) is not None:
-            lsnrs.append(callback)
+            lsnrs.append(listener)
         else:
-            self.listeners[event_class] = [callback]
+            self.listeners[event_class] = [listener]
 
     def add_once_listener(
         self,
         event_class: typing.Type[GatewayEvent],
-        callback: typing.Callable[[GatewayEvent], typing.Any],
+        listener: Listener,
     ) -> None:
+
+        listener._bot = self.bot
         if (lsnrs := self.once_listeners.get(event_class)) is not None:
-            lsnrs.append(callback)
+            lsnrs.append(listener)
         else:
-            self.once_listeners[event_class] = [callback]
+            self.once_listeners[event_class] = [listener]
 
     def dispatch(
         self,
         event_type: typing.Type[GatewayEvent],
         payload: typing.Dict[typing.Any, typing.Any],
     ) -> None:
+
         event = event_type(self.bot, payload)
         to_call = []
         to_call.extend([listener(event) for listener in self.listeners.get(event_type, [])])

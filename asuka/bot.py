@@ -31,7 +31,7 @@ import typing
 import aiohttp
 
 from asuka.builders import Intents
-from asuka.event_handler import EventHandler
+from asuka.event_handler import EventHandler, Listener
 from asuka.events.base_events import GatewayEvent
 from asuka.exceptions import Unauthorized
 from asuka.gateway.gateway import Gateway
@@ -92,6 +92,8 @@ class Bot:
         self._rest = RESTClient(token=token, api_version=api_version, client_session=client_session)
         self._gateway = Gateway(self)
         self._event_handler = EventHandler()
+
+        self._event_handler.bot = self
         self._intents = intents if isinstance(intents, Intents) else Intents.from_value(int(intents or 98045))
 
     @property
@@ -114,7 +116,13 @@ class Bot:
         """An event handler which dispatches and manage gateway and other events"""
         return self._event_handler
 
-    def listen(self, event: typing.Type[GatewayEvent] | None = None) -> typing.Callable:
+    @property
+    def user(self) -> BotUser:
+        ...
+
+    def listen(
+        self, event: typing.Type[GatewayEvent] | None = None
+    ) -> typing.Callable[[typing.Callable[..., typing.Any]], Listener]:
         """This decorator is used to add an event listener to the bot.
         To create a listener, you can pass the event type in this decorator, or
         optionally annotated the first argument of the function with the event.
@@ -142,30 +150,31 @@ class Bot:
 
         """
 
-        def inner(callback: typing.Callable) -> typing.Callable:
+        def inner(callback: typing.Callable) -> Listener:
             nonlocal event
             if event is None:
                 event = list(callback.__annotations__.values())[0]
-            self._event_handler.add_listener(event, callback)
-            return callback
+            self._event_handler.add_listener(event, lsnr := Listener(callback))
+            return lsnr
 
         return inner
 
-    def listen_once(self, event: typing.Type[GatewayEvent] | None = None) -> typing.Callable:
+    def listen_once(
+        self, event: typing.Type[GatewayEvent] | None = None
+    ) -> typing.Callable[[typing.Callable[..., typing.Any]], Listener]:
         """Same as the .listen() decorator, but gets triggered only once in the complete runtime."""
 
-        def inner(callback: typing.Callable) -> typing.Callable:
+        def inner(callback: typing.Callable) -> Listener:
             nonlocal event
             if event is None:
                 event = list(callback.__annotations__.values())[0]
-            self._event_handler.add_once_listener(event, callback)
-            return callback
+            self._event_handler.add_once_listener(event, lsnr := Listener(callback))
+            return lsnr
 
         return inner
 
     async def start(self) -> None:
         """Connects the bot with gateway and starts listening to events."""
-        self._event_handler.bot = self
         if getattr(self._rest, "_session", None) is None:
             await self._rest._create_session()
 
