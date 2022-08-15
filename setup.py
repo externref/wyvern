@@ -1,15 +1,13 @@
 # type: ignore
 from setuptools import setup, find_packages
 
-# The version of this tool is based on the following steps:
-# https://packaging.python.org/guides/single-sourcing-package-version/
 VERSION = {}
 
 with open("./asuka/__init__.py") as fp:
     exec(fp.read(), VERSION)
 
     setup(
-        name="asuk",
+        name="asuka",
         author="sarth",
         author_email="shiva02939@gmail.com",
         description="A statically typed Discord API wrapper .",
