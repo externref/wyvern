@@ -28,5 +28,5 @@ if typing.TYPE_CHECKING:
     from models.users import BotUser, PartialUser
 
 
-def default_avatar_for(user: "PartialUser") -> str:
-    return f"{user.discriminator%5}.png"
+def default_avatar_for(user: "PartialUser") -> int:
+    return user.discriminator % 5
