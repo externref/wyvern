@@ -22,18 +22,20 @@
 
 from __future__ import annotations
 
+import dataclasses
 import typing
 
 if typing.TYPE_CHECKING:
     from asuka.bot import Bot
 
 
+@dataclasses.dataclass
 class Asset:
     url: str
+    _bot: "Bot"
 
-    def __init__(self, url: str, bot: "Bot") -> None:
-        self._bot = bot
-        self.url = url
+    def __str__(self) -> str:
+        return self.url
 
     async def get_bytes(
         self,
