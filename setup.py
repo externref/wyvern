@@ -1,5 +1,5 @@
 # type: ignore
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 # The version of this tool is based on the following steps:
 # https://packaging.python.org/guides/single-sourcing-package-version/
