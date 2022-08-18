@@ -32,7 +32,7 @@ import aiohttp
 
 from asuka.builders import Intents
 from asuka.event_handler import EventHandler, Listener
-from asuka.events.base_events import GatewayEvent
+from asuka.events.base_events import Event
 from asuka.exceptions import Unauthorized
 from asuka.gateway.gateway import Gateway
 from asuka.models.users import BotUser
@@ -89,7 +89,7 @@ class Bot:
     ) -> None:
         self.description = description
         self._boot_log = log_self_info
-        self._rest = RESTClient(token=token, api_version=api_version, client_session=client_session)
+        self._rest = RESTClient(bot=self, token=token, api_version=api_version, client_session=client_session)
         self._gateway = Gateway(self)
         self._event_handler = EventHandler()
 
@@ -120,8 +120,8 @@ class Bot:
     def user(self) -> BotUser:
         ...
 
-    def listen(
-        self, event: typing.Type[GatewayEvent] | None = None
+    def listener(
+        self, event: typing.Type[Event] | None = None
     ) -> typing.Callable[[typing.Callable[..., typing.Any]], Listener]:
         """This decorator is used to add an event listener to the bot.
         To create a listener, you can pass the event type in this decorator, or
@@ -133,20 +133,23 @@ class Bot:
         Parameters
         ----------
 
-            event: :class:`Type[.GatewayEvent]`
+            event: :class:`Type[.Event]`
                 The gateway event to listen to.
 
         Example
         -------
 
-            > import asuka
-            > bot = asuka.Bot("TOKEN")
-            >
-            > @bot.listen(asuka.MessageCreate)
-            > async def message_create(event: asuka.MessageCreate) -> None:
-            >     print(f"Message created in channel with ID: {event.channel_id}")
-            >
-            > bot.run()
+            >>> import os
+            >>>
+            >>> import asuka
+            >>>
+            >>> bot = asuka.Bot(os.getenv('TOKEN'))
+            >>>
+            >>> @bot.listener(asuka.MessageCreate)
+            >>> async def hello(event: asuka.MessageCreate) -> None:
+            >>>     print(f"Message sent by {event.user.username}")
+            >>>
+            >>> bot.run()
 
         """
 
@@ -160,9 +163,9 @@ class Bot:
         return inner
 
     def listen_once(
-        self, event: typing.Type[GatewayEvent] | None = None
+        self, event: typing.Type[Event] | None = None
     ) -> typing.Callable[[typing.Callable[..., typing.Any]], Listener]:
-        """Same as the .listen() decorator, but gets triggered only once in the complete runtime."""
+        """Same as the .listener() decorator, but gets triggered only once in the complete runtime."""
 
         def inner(callback: typing.Callable) -> Listener:
             nonlocal event
@@ -175,8 +178,6 @@ class Bot:
 
     async def start(self) -> None:
         """Connects the bot with gateway and starts listening to events."""
-        if getattr(self._rest, "_session", None) is None:
-            await self._rest._create_session()
 
         await self._gateway._get_socket_ready()
         try:

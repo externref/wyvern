@@ -28,16 +28,16 @@ if typing.TYPE_CHECKING:
     from asuka.bot import Bot
 
 
-class GatewayEvent:
+class Event:
+    ...
+
+
+class GatewayEvent(Event):
     bot: "Bot"
     guild_id: int | None
-    is_human: bool
-    is_bot: bool
+    from_human: bool
+    from_bot: bool
     author_id: int | None
-
-    def __init__(self, bot: "Bot", payload: typing.Dict[typing.Any, typing.Any] | None = None) -> None:
-        self._payload_data = payload or {}
-        self.bot = bot
 
 
 class StartingEvent(GatewayEvent):

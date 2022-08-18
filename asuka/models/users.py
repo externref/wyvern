@@ -23,31 +23,56 @@
 
 from __future__ import annotations
 
+import dataclasses
 import typing
 
-from asuka.builders import DiscordObject
+from asuka.assets import Asset
+from asuka.builders.base_objs import DiscordObject
+from asuka.utils import default_avatar_for
+
+if typing.TYPE_CHECKING:
+    from asuka.bot import Bot
 
 
+@dataclasses.dataclass
 class PartialUser(DiscordObject):
+    _raw_data: typing.Dict[str, typing.Any]
+    _bot: "Bot"
     id: int
     username: str
     discriminator: str
     is_mfa_enabled: bool
 
-    def __init__(self, data: typing.Dict[str, typing.Any]) -> None:
-        self.id = data["id"]
-        self.username = data["username"]
-        self.discriminator = data["discriminator"]
-        self.mfa_enabled = data.get("mfa_enabled")
-
     def __repr__(self) -> str:
         return f"{self.username}#{self.discriminator}"
 
     def __eq__(self, obj: object) -> bool:
-        if not isinstance(obj, DiscordObject):
+        if not isinstance(obj, PartialUser):
             raise NotImplemented
         return self.id == obj.id
 
+    @classmethod
+    def from_payload(cls, bot: "Bot", data: typing.Dict[str, typing.Any]) -> "PartialUser":
+        return cls(
+            _raw_data=data,
+            _bot=bot,
+            id=data["author"]["id"],
+            username=data["author"]["username"],
+            discriminator=data["author"]["discriminator"],
+            is_mfa_enabled=data["author"].get("mfa_enabled", False),
+        )
+
+    @property
+    def avatar(self) -> Asset | None:
+        return Asset(url, self._bot) if (url := self._raw_data["author"].get("avatar")) else None
+
+    @property
+    def default_avatar(self) -> Asset:
+        return Asset(f"https://cdn.discordapp.com/embed/avatars/{default_avatar_for(self)}.png", self._bot)
+
 
 class BotUser(PartialUser):
-    ...
+    @classmethod
+    def from_payload(cls, bot: "Bot", data: typing.Dict[str, typing.Any]) -> "BotUser":
+        base = typing.cast(BotUser, super().from_payload(bot, data))
+        return base

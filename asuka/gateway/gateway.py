@@ -33,6 +33,7 @@ import aiohttp
 from asuka import events
 
 from .enums import WSEventEnums
+from .events import EventParser
 from .keep_alive import KeepAlive
 
 if typing.TYPE_CHECKING:
@@ -92,7 +93,7 @@ class Gateway:
 
     async def _dispatch_events(self, payload: typing.Dict[str, typing.Any]) -> None:
         if payload["t"] == "MESSAGE_CREATE":
-            self._bot._event_handler.dispatch(events.MessageCreate, payload)
+            self._bot._event_handler.dispatch(events.MessageCreate, EventParser.message_create(self._bot, payload))
             return
 
     async def _parse_payload_response(self, payload: typing.Dict[str, typing.Any]) -> None:

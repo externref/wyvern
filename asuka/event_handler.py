@@ -26,7 +26,7 @@ import asyncio
 import dataclasses
 import typing
 
-from .events.base_events import GatewayEvent
+from .events.base_events import Event, GatewayEvent
 
 if typing.TYPE_CHECKING:
     from asuka.bot import Bot
@@ -42,27 +42,29 @@ class ListenerConfig:
 
 
 class Listener:
-    def __init__(self, callback: typing.Callable[[GatewayEvent], typing.Any]) -> None:
+    def __init__(self, callback: typing.Callable[[Event], typing.Any]) -> None:
         self._bot: "Bot"
         self._configs: ListenerConfig
         self._callback = callback
 
-    async def __call__(self, event: GatewayEvent) -> typing.Any:
+    async def __call__(self, event: Event) -> typing.Any:
         if self._listener_checks(event) is True:
             await self._callback(event)
         else:
             pass
 
-    def _listener_checks(self, event: GatewayEvent) -> bool:
+    def _listener_checks(self, event: Event) -> bool:
         if getattr(self, "_configs", None) is None:
             return True
+        if not isinstance(event, GatewayEvent):
+            return False
         if self._configs.guild_only is True and event.guild_id is None:
             return False
         if self._configs.dms_only is True and event.guild_id is not None:
             return False
-        if self._configs.bots_only is True and event.is_bot is False:
+        if self._configs.bots_only is True and event.from_bot is False:
             return False
-        if self._configs.humans_only is True and event.is_human is False:
+        if self._configs.humans_only is True and event.from_human is False:
             return False
         if self._configs.ignore_self is True and event.author_id is not None and event.author_id == self._bot.user.id:
             return False
@@ -105,33 +107,17 @@ def listener_config(
 
 class EventHandler:
     bot: "Bot"
-    listeners: typing.Dict[
-        typing.Type[GatewayEvent],
-        typing.List[Listener],
-    ] = {}
-    once_listeners: typing.Dict[
-        typing.Type[GatewayEvent],
-        typing.List[
-            Listener,
-        ],
-    ] = {}
+    listeners: typing.Dict[typing.Type[Event], typing.List[Listener]] = {}
+    once_listeners: typing.Dict[typing.Type[Event], typing.List[Listener]] = {}
 
-    def add_listener(
-        self,
-        event_class: typing.Type[GatewayEvent],
-        listener: Listener,
-    ) -> None:
+    def add_listener(self, event_class: typing.Type[Event], listener: Listener) -> None:
         listener._bot = self.bot
         if (lsnrs := self.listeners.get(event_class)) is not None:
             lsnrs.append(listener)
         else:
             self.listeners[event_class] = [listener]
 
-    def add_once_listener(
-        self,
-        event_class: typing.Type[GatewayEvent],
-        listener: Listener,
-    ) -> None:
+    def add_once_listener(self, event_class: typing.Type[Event], listener: Listener) -> None:
 
         listener._bot = self.bot
         if (lsnrs := self.once_listeners.get(event_class)) is not None:
@@ -139,13 +125,7 @@ class EventHandler:
         else:
             self.once_listeners[event_class] = [listener]
 
-    def dispatch(
-        self,
-        event_type: typing.Type[GatewayEvent],
-        payload: typing.Dict[typing.Any, typing.Any],
-    ) -> None:
-
-        event = event_type(self.bot, payload)
+    def dispatch(self, event_type: typing.Type[Event], event: Event) -> None:
         to_call = []
         to_call.extend([listener(event) for listener in self.listeners.get(event_type, [])])
         for listener in self.once_listeners.get(event_type, []):

@@ -20,11 +20,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from . import events
 from .bot import *
 from .builders import *
 from .event_handler import listener_config
+from .events import *
 from .exceptions import *
 from .gateway import *
 from .models.users import *
 from .rest import *
+
+
+class Events:
+    MESSAGE_CREATE: MessageCreate
