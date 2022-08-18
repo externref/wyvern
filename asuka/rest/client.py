@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import asyncio
 import dataclasses
 import typing
 
@@ -28,6 +29,9 @@ import multidict
 
 from asuka.exceptions import HTTPException, get_exception
 from asuka.models.users import BotUser
+
+if typing.TYPE_CHECKING:
+    from asuka.bot import Bot
 
 
 @dataclasses.dataclass
@@ -44,15 +48,22 @@ class RESTClient:
     def __init__(
         self,
         *,
+        bot: "Bot",
         token: str,
         api_version: int = 10,
         client_session: aiohttp.ClientSession | None = None,
     ) -> None:
-        if client_session is not None:
-            self._session = client_session
+        self._bot = bot
+        self._session: aiohttp.ClientSession
         self._token = token
         self._api_version = api_version
         self._headers: typing.Dict[str, multidict.istr] = {"Authorization": multidict.istr(f"Bot {token}")}
+
+        if client_session is not None:
+            self._session = client_session
+        else:
+            loop = asyncio.get_event_loop()
+            loop.create_task(self._create_session())
 
     async def _create_session(self) -> None:
         self._session = aiohttp.ClientSession(headers=self._headers)
@@ -74,7 +85,7 @@ class RESTClient:
     async def fetch_bot_user(self) -> BotUser:
         try:
             res = await self.request(RequestRoute(url="users/@me"))
-        except Exception as e:
-            if isinstance(e, HTTPException) and e.code is not None:
+        except HTTPException as e:
+            if e.code is not None:
                 raise get_exception(e.code)("Improper token was passed.")
-        return BotUser(res)
+        return BotUser.from_payload(self._bot, {"author": res})
