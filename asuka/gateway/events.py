@@ -20,35 +20,39 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import annotations
-
-import dataclasses
 import datetime
 import typing
 
-from asuka.events.base_events import GatewayEvent
+from asuka.events.messages import MessageCreate
 from asuka.models.users import PartialUser
 
 if typing.TYPE_CHECKING:
     from asuka.bot import Bot
 
 
-@dataclasses.dataclass(
-    repr=True,
-)
-class MessageCreate(GatewayEvent):
-    bot: "Bot"
-    author_id: int
-    message_id: int
-    created_at: datetime.datetime
-    from_bot: bool
-    from_human: bool
-    channel_id: int | None
-    guild_id: int
-    user: PartialUser
+class EventParser:
+    @staticmethod
+    def message_create(bot: "Bot", payload: typing.Dict[str, typing.Any]) -> MessageCreate:
+        data = payload["d"]
+        from_bot: bool = data["author"].get("bot")
+        from_human: bool = not bot
+        user = PartialUser(
+            _raw_data=data,
+            _bot=bot,
+            id=data["author"]["id"],
+            username=data["author"]["username"],
+            discriminator=data["author"]["discriminator"],
+            is_mfa_enabled=data["author"].get("mfa_enabled", False),
+        )
 
-    shard: int = 0
-
-    webhook_id: int | None = None
-
-    reference_message_id: int | None = None
+        return MessageCreate(
+            bot=bot,
+            author_id=data["author"]["id"],
+            message_id=data["id"],
+            guild_id=data.get("guild_id"),
+            created_at=datetime.datetime.fromisoformat(data["timestamp"]),
+            from_bot=from_bot,
+            from_human=from_human,
+            channel_id=data["channel_id"],
+            user=user,
+        )
