@@ -1,0 +1,35 @@
+name: Code formatter and linter
+
+on:
+  push:
+    branches: ["rewrite"]
+
+permissions:
+  contents: write
+
+jobs:
+
+  build:
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
+
+      - name: Format with isort and black
+        run: |
+          poetry run isort .
+          poetry run black .
+
+      - name: Linting with mypy
+        run: |
+          poetry run mypy .
