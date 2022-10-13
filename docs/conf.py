@@ -1,17 +1,15 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+import os
+import sys
 
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+sys.path.insert(0, os.path.abspath(".")) 
+sys.path.insert(0, os.path.abspath("..")) 
+sys.path.insert(0, os.path.abspath("../"))
 
 project = "wyvern"
 copyright = "2022, sarthhh & FallenDeity"
 author = "sarthhh, FallenDeity"
 release = __import__("wyvern").__version__
 
-# -- General configuration ---------------------------------------------------
 extensions = [
     "myst_parser",
     "sphinx.ext.napoleon",
