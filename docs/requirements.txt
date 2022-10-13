@@ -1,0 +1,4 @@
+myst-parser
+sphinx
+furo
+aiohttp 
