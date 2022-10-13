@@ -2,7 +2,7 @@ name: Code formatter and linter
 
 on:
   push:
-    branches: ["rewrite"]
+    branches: ["master"]
 
 permissions:
   contents: write
