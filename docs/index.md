@@ -6,6 +6,3 @@
 ![](https://img.shields.io/github/last-commit/sarthhh/asuka?style=flat-square)
 
 A flexible and easy to use Discord API wrapper for python 🚀.
-
-
-

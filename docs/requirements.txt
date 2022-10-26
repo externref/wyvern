@@ -1,4 +1,4 @@
 myst-parser
 sphinx
 furo
-aiohttp 
+aiohttp
