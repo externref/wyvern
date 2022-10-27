@@ -23,9 +23,7 @@
 from __future__ import annotations
 
 import asyncio
-import datetime
 import logging
-import sys
 import typing
 
 from wyvern.exceptions import Unauthorized
@@ -50,17 +48,15 @@ class GatewayClient:
 
     async def start(self) -> None:
         """Connects the bot with gateway and starts listening to events."""
+
+        await self.gateway._get_socket_ready()
+        _LOGGER.debug("Logging in with static token.")
         try:
-            await self.gateway._get_socket_ready()
-            _LOGGER.debug("Logging in with static token.")
-            try:
-                res = await self.rest.fetch_client_user()
-            except Unauthorized as e:
-                await self.rest._session.close()
-                raise e
-            await self.gateway.listen_gateway()
-        except KeyboardInterrupt:
-            print("yo")
+            res = await self.rest.fetch_client_user()
+        except Unauthorized as e:
+            await self.rest._session.close()
+            raise e
+        await self.gateway.listen_gateway()
 
     def run(self) -> None:
         """A non-async method which call ``GatewayClient.start``."""
