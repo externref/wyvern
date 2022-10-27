@@ -20,6 +20,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .client import GatewayClient
-from .enums import *
-from .rest import RESTClient
+from __future__ import annotations
+
+import asyncio
+import time
+import typing
+
+from wyvern.enums import WSEventEnums
+
+if typing.TYPE_CHECKING:
+    from wyvern.gateway import Gateway
+
+
+class KeepAlive:
+    sequence: int = 0
+    last_heartbeat: float
+
+    async def start(self, ws: "Gateway") -> None:
+        while True:
+            await ws.socket.send_json({"op": WSEventEnums.HEARTBEAT, "d": self.sequence})
+            self.last_heartbeat = time.perf_counter()
+            await asyncio.sleep(ws._heartbeat_interval)

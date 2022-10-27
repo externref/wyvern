@@ -28,35 +28,41 @@ import logging
 import sys
 import typing
 
-from wyvern.api.gateway.gateway import Gateway
-from wyvern.api.rest import RESTClient
 from wyvern.exceptions import Unauthorized
+from wyvern.gateway import Gateway
 from wyvern.intents import Intents
+from wyvern.rest import RESTClient
 
 if typing.TYPE_CHECKING:
     import aiohttp
+
+_LOGGER = logging.getLogger("wyvern")
 
 
 class GatewayClient:
     def __init__(
         self, token: str, intents: typing.SupportsInt | Intents, rest_client: RESTClient | None = None
     ) -> None:
+
+        self.rest = rest_client or RESTClient(client=self, token=token)
         self.intents = intents if isinstance(intents, Intents) else Intents(int(intents))
         self.gateway = Gateway(self)
-        self.rest = rest_client or RESTClient(client=self, token=token)
 
     async def start(self) -> None:
         """Connects the bot with gateway and starts listening to events."""
-
-        await self.gateway._get_socket_ready()
         try:
-            res = await self.rest.fetch_client_user()
-        except Unauthorized as e:
-            await self.rest._session.close()
-            raise e
-        await self.gateway.listen_gateway()
+            await self.gateway._get_socket_ready()
+            _LOGGER.debug("Logging in with static token.")
+            try:
+                res = await self.rest.fetch_client_user()
+            except Unauthorized as e:
+                await self.rest._session.close()
+                raise e
+            await self.gateway.listen_gateway()
+        except KeyboardInterrupt:
+            print("yo")
 
     def run(self) -> None:
-        """A non-async method which call ``Bot.start``."""
+        """A non-async method which call ``GatewayClient.start``."""
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.start())

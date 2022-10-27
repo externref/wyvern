@@ -27,7 +27,7 @@ import typing
 
 
 @typing.final
-class Intents(enum.Flag):
+class Intents:
     value: int
     NONE = 0
     GUILDS = 1 << 0
@@ -47,6 +47,21 @@ class Intents(enum.Flag):
     DM_MESSAGE_TYPING = 1 << 14
     MESSAGE_CONTENT = 1 << 15
     GUILD_SCHEDULED_EVENTS = 1 << 16
+    UNPRIVILEGED = (
+        GUILDS
+        | GUILD_EMOJIS
+        | GUILD_INTEGRATIONS
+        | GUILD_WEBHOOKS
+        | GUILD_INVITES
+        | GUILD_VOICE_STATES
+        | GUILD_MESSAGE_REACTIONS
+        | GUILD_MESSAGE_TYPING
+        | GUILD_MESSAGES
+        | DM_MESSAGES
+        | DM_MESSAGE_TYPING
+        | DM_MESSAGE_REACTIONS
+    )
+    PRIVILEGED = MESSAGE_CONTENT | GUILD_MEMBERS | GUILD_PRESENCES
 
     def __init__(self, value: int = NONE) -> None:
         self.value = value

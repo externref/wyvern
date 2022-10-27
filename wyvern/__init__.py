@@ -21,3 +21,8 @@
 # SOFTWARE.
 
 __version__ = "0.0.1a"
+
+from .client import *
+from .exceptions import *
+from .intents import *
+from .rest import *

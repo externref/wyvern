@@ -29,10 +29,13 @@ import typing
 import aiohttp
 import multidict
 
-from wyvern.exceptions import HTTPException, get_exception
+from wyvern.exceptions import HTTPException, Unauthorized, get_exception
+from wyvern.models.user import BotUser
+
+from .endpoints import Endpoints
 
 if typing.TYPE_CHECKING:
-    from wyvern.api.client import GatewayClient
+    from wyvern.client import GatewayClient
 
 
 @dataclasses.dataclass
@@ -40,6 +43,7 @@ class RequestRoute:
     _url: str
     api_version: int = 10
     type: str = "GET"
+    json: dict[str, typing.Any] | None = None
 
     @property
     def url(self) -> str:
@@ -63,30 +67,37 @@ class RESTClient:
 
         if client_session is not None:
             self._session = client_session
-        else:
-            loop = asyncio.get_event_loop()
-            loop.create_task(self._create_session())
-
-    async def _create_session(self) -> None:
-        self._session = aiohttp.ClientSession(headers=self._headers)
 
     async def _create_websocket(self) -> aiohttp.ClientWebSocketResponse:
+        if getattr(self, "_session", None) is None:
+            self._session = aiohttp.ClientSession(headers=self._headers)
         return await self._session.ws_connect(f"wss://gateway.discord.gg/?v={self._api_version}&encoding=json")
 
     async def request(self, route: RequestRoute) -> typing.Any:
         headers = self._headers.copy()
         headers["Content-Type"] = multidict.istr("application/json")
-        res = await self._session.request(route.type, route.url, headers=headers)
+        res = await self._session.request(route.type, route.url, headers=headers, json=route.json)
         if res.status in (200, 201):
             return await res.json()
         if res.status in (204, 304):
             return
         else:
-            raise HTTPException.with_code(res.status, "Failed Request.")
+            raise HTTPException.with_code(res.status, await res.text())
 
     async def fetch_client_user(self) -> typing.Any:
         try:
-            res = await self.request(RequestRoute("users/@me"))
+            res = await self.request(RequestRoute(Endpoints.fetch_client_user()))
         except HTTPException as e:
-            if e.code is not None:
-                raise get_exception(e.code)("Improper token was passed.")
+            if e.code == 401:
+                raise Unauthorized("Improper token passed.")
+
+    async def edit_client_user(self, username: str | None = None, avatar: bytes | None = None) -> None:
+        payload: dict[str, bytes | str] = {}
+        if username is not None:
+            payload["username"] = username
+        if avatar is not None:
+            payload["avatar"] = avatar
+        res: dict[str, int | str | bool] = await self.request(
+            RequestRoute(Endpoints.fetch_client_user(), type="PATCH", json=payload)
+        )
+        print(res)

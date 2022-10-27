@@ -24,18 +24,22 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import sys
 import time
 import typing
 
 import aiohttp
 
-from wyvern.api.enums.ws_events import WSEventEnums
+from wyvern.enums.ws_events import WSEventEnums
 
 from .keep_alive import KeepAlive
 
 if typing.TYPE_CHECKING:
-    from wyvern.api.client import GatewayClient
+    from wyvern.client import GatewayClient
+
+
+_LOGGER = logging.getLogger("wyvern.api.gateway")
 
 
 class Gateway:
@@ -76,6 +80,7 @@ class Gateway:
         }
 
     async def listen_gateway(self) -> None:
+        _LOGGER.debug("Starting listening to gateway.")
         async for message in self.socket:
             if message.type == aiohttp.WSMsgType.TEXT:
                 await self._parse_payload_response(json.loads(message.data))
@@ -84,6 +89,7 @@ class Gateway:
         self._socket = await self._client.rest._create_websocket()
 
     async def _hello_res(self, d: typing.Dict[str, typing.Any]) -> None:
+        _LOGGER.debug("Sending identify payload.")
         await self.socket.send_json(self.identify_payload)
         self._heartbeat_interval = d["heartbeat_interval"] / 1000
         loop = asyncio.get_event_loop()
