@@ -16,6 +16,8 @@ if typing.TYPE_CHECKING:
 
 
 class Gateway:
+    socket: typing.Any
+
     def __init__(self, bot: "Bot") -> None:
         self._bot = bot
         self._keep_alive = KeepAlive()
