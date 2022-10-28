@@ -30,12 +30,13 @@ import aiohttp
 import multidict
 
 from wyvern.exceptions import HTTPException, Unauthorized, get_exception
-from wyvern.models.user import BotUser
+from wyvern.models import converters
 
 from .endpoints import Endpoints
 
 if typing.TYPE_CHECKING:
     from wyvern.client import GatewayClient
+    from wyvern.models.user import BotUser
 
 
 @dataclasses.dataclass
@@ -84,14 +85,21 @@ class RESTClient:
         else:
             raise HTTPException.with_code(res.status, await res.text())
 
-    async def fetch_client_user(self) -> typing.Any:
+    async def fetch_client_user(self) -> BotUser:
+        """
+        Fetch's the bot's user object.
+
+        Returns:
+            [BotUser] object representating the bot's user.
+        """
         try:
             res = await self.request(RequestRoute(Endpoints.fetch_client_user()))
         except HTTPException as e:
             if e.code == 401:
                 raise Unauthorized("Improper token passed.")
+        return converters.payload_to_botuser(self._client, res)
 
-    async def edit_client_user(self, username: str | None = None, avatar: bytes | None = None) -> None:
+    async def edit_client_user(self, username: str | None = None, avatar: bytes | None = None) -> BotUser:
         payload: dict[str, bytes | str] = {}
         if username is not None:
             payload["username"] = username
@@ -100,4 +108,4 @@ class RESTClient:
         res: dict[str, int | str | bool] = await self.request(
             RequestRoute(Endpoints.fetch_client_user(), type="PATCH", json=payload)
         )
-        print(res)
+        return converters.payload_to_botuser(self._client, res)

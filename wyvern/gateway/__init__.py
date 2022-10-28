@@ -32,6 +32,7 @@ import typing
 import aiohttp
 
 from wyvern.enums.ws_events import WSEventEnums
+from wyvern.models import converters
 
 from .keep_alive import KeepAlive
 
@@ -97,7 +98,7 @@ class Gateway:
 
     async def _dispatch_events(self, payload: typing.Dict[str, typing.Any]) -> None:
         if payload["t"] == "MESSAGE_CREATE":
-            ...
+            self._client.event_handler.dispatch(payload["t"], converters.payload_to_message(self._client, payload["d"]))
 
     async def _parse_payload_response(self, payload: typing.Dict[str, typing.Any]) -> None:
         op, t, d = payload["op"], payload["t"], payload["d"]

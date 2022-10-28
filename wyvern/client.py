@@ -26,6 +26,7 @@ import asyncio
 import logging
 import typing
 
+from wyvern.events import EventHandler
 from wyvern.exceptions import Unauthorized
 from wyvern.gateway import Gateway
 from wyvern.intents import Intents
@@ -38,11 +39,40 @@ _LOGGER = logging.getLogger("wyvern")
 
 
 class GatewayClient:
-    def __init__(
-        self, token: str, intents: typing.SupportsInt | Intents, rest_client: RESTClient | None = None
-    ) -> None:
+    """The main bot class which acts as an interface between the Discord API and your bot.
 
-        self.rest = rest_client or RESTClient(client=self, token=token)
+    Parameters
+    ----------
+
+    token : str
+        The bot token to use.
+    intents : typing.SupportsInt | wyvern.intents.Intents
+        The intents to use while logging in to the gateway.
+    event_handler type[EventHandler]
+        A EventHandler subclass ( not instance ), if any.
+    rest_client : RESTClient | None
+        A custom RESTClient subclass to use, if any.
+    api_version : int
+        Discord API version to use.
+    client_session : aiohttp.ClientSession | None
+        ClientSession subclass to use, if any.
+
+    """
+
+    def __init__(
+        self,
+        token: str,
+        *,
+        intents: typing.SupportsInt | Intents = Intents.UNPRIVILEGED,
+        event_handler: type[EventHandler] = EventHandler,
+        rest_client: RESTClient | None = None,
+        api_version: int = 10,
+        client_session: "aiohttp.ClientSession" | None = None,
+    ) -> None:
+        self.event_handler = event_handler(self)
+        self.rest = rest_client or RESTClient(
+            client=self, token=token, api_version=api_version, client_session=client_session
+        )
         self.intents = intents if isinstance(intents, Intents) else Intents(int(intents))
         self.gateway = Gateway(self)
 
@@ -52,13 +82,13 @@ class GatewayClient:
         await self.gateway._get_socket_ready()
         _LOGGER.debug("Logging in with static token.")
         try:
-            res = await self.rest.fetch_client_user()
+            await self.rest.fetch_client_user()
         except Unauthorized as e:
             await self.rest._session.close()
             raise e
         await self.gateway.listen_gateway()
 
     def run(self) -> None:
-        """A non-async method which call ``GatewayClient.start``."""
+        """A non-async method which call [wyvern.client.GatewayClient.start][]."""
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.start())
