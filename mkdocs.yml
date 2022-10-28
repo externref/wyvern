@@ -1,0 +1,50 @@
+site_name: wyvern 
+repo_url: https://github.com/sarthhh/wyvern
+site_description: Documentation for the Discord API wrapper, wyvern.
+site_author: sarth
+copyright: Copyright sarthhh ( 2022 - present )
+
+
+theme:
+  name: "material"
+  palette:
+    - scheme: light
+      toggle:
+        icon: material/weather-sunny
+        name: Light Mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Dark Mode
+
+extra:
+    version: 0.0.1a
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+          import:
+            - https://docs.python.org/3.9/objects.inv
+  - search
+
+
+nav: 
+  - Getting Started: index.md
+  - API Reference:
+    - client: api_reference/client.md
+    - rest: api_reference/rest.md
+    - events: api_reference/events.md
+    - intents: api_reference/intents.md
+    - constructors:
+      - embed: api_reference/constructors/embed.md
+
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/sarthhh/wyvern
+    - icon: fontawesome/brands/discord
+      link: ...

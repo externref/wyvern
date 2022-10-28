@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "Wyvern"
-version = "0.0.1"
-description = ""
+name = "wyvern"
+version = "0.0.1a"
+description = "A flexible and easy to use Discord API wrapper for python 🚀."
 authors = ["FallenDeity", "sarthhh"]
 license = "MIT License"
 
@@ -15,9 +15,10 @@ mypy = "^0.982"
 isort = "^5.10.1"
 black = "^22.6.0"
 pre-commit = "^2.20.0"
-sphinx = "^5.3.0"
-furo = "^2022.9.29"
-myst-parser = "^0.18.1"
+mkdocs = "^1.4.1"
+mkdocstrings = {extras = ["python"], version = "^0.19.0"}
+mkdocs-material = "^8.5.7"
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -25,7 +26,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 120
-target-version = ['py310']
+target-version = ['py38']
 
 [tool.isort]
 line_length = 120
