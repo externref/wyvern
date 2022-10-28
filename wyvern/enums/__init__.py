@@ -20,12 +20,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
-from .client import *
-from .events import *
-from .exceptions import *
-from .intents import *
-from .models import *
-from .rest import *
-
-__version__ = "0.0.1a"
+from .ws_events import *

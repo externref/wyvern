@@ -21,11 +21,67 @@
 # SOFTWARE.
 
 
-from .client import *
-from .events import *
-from .exceptions import *
-from .intents import *
-from .models import *
-from .rest import *
+from __future__ import annotations
 
-__version__ = "0.0.1a"
+import typing
+
+
+class AsukaException(Exception):
+    ...
+
+
+class HTTPException(AsukaException):
+    message: str | None
+    code: int | None = None
+
+    def __init__(self, message: str | None = None):
+        self.message = message
+        super().__init__(self.message or "A HTTP error occured.")
+
+    @classmethod
+    def with_code(cls, code: int, message: str) -> "HTTPException":
+        exc = HTTPException(message)
+        exc.code = code
+        return exc
+
+
+class BadRequest(HTTPException):
+    ...
+
+
+class Unauthorized(HTTPException):
+    ...
+
+
+class Forbidden(HTTPException):
+    ...
+
+
+class NotFound(HTTPException):
+    ...
+
+
+class InvalidMethod(HTTPException):
+    ...
+
+
+class Ratelimited(HTTPException):
+    ...
+
+
+class UnknownError(HTTPException):
+    ...
+
+
+excs: typing.Dict[int, typing.Type[HTTPException]] = {
+    400: BadRequest,
+    401: Unauthorized,
+    403: Forbidden,
+    404: NotFound,
+    405: InvalidMethod,
+    429: Ratelimited,
+}
+
+
+def get_exception(code: int) -> typing.Type[AsukaException]:
+    return excs.get(code, UnknownError)

@@ -20,12 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import enum
 
-from .client import *
-from .events import *
-from .exceptions import *
-from .intents import *
-from .models import *
-from .rest import *
 
-__version__ = "0.0.1a"
+class Endpoints(enum.Enum):
+    @classmethod
+    def fetch_client_user(cls) -> str:
+        return "users/@me"
