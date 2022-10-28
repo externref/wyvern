@@ -26,11 +26,11 @@ from __future__ import annotations
 import typing
 
 
-class AsukaException(Exception):
+class WyvernException(Exception):
     ...
 
 
-class HTTPException(AsukaException):
+class HTTPException(WyvernException):
     message: str | None
     code: int | None = None
 
@@ -83,5 +83,5 @@ excs: typing.Dict[int, typing.Type[HTTPException]] = {
 }
 
 
-def get_exception(code: int) -> typing.Type[AsukaException]:
+def get_exception(code: int) -> typing.Type[WyvernException]:
     return excs.get(code, UnknownError)

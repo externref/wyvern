@@ -22,14 +22,13 @@
 
 from __future__ import annotations
 
-import asyncio
 import dataclasses
 import typing
 
 import aiohttp
 import multidict
 
-from wyvern.exceptions import HTTPException, Unauthorized, get_exception
+from wyvern.exceptions import HTTPException, Unauthorized
 from wyvern.models import converters
 
 from .endpoints import Endpoints
@@ -94,10 +93,11 @@ class RESTClient:
         """
         try:
             res = await self.request(RequestRoute(Endpoints.fetch_client_user()))
+            return converters.payload_to_botuser(self._client, res)
         except HTTPException as e:
             if e.code == 401:
                 raise Unauthorized("Improper token passed.")
-        return converters.payload_to_botuser(self._client, res)
+            raise e
 
     async def edit_client_user(self, username: str | None = None, avatar: bytes | None = None) -> BotUser:
         payload: dict[str, bytes | str] = {}
