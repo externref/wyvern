@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import enum
-import inspect
 import typing
 
 import attrs
@@ -111,10 +109,10 @@ class EventHandler:
 
         return inner
 
-    def add_listener(self, listener: EventListener) -> None:
-        self.listeners.setdefault(listener.event_type, []).append(listener)
+    def add_listener(self, event_listener: EventListener) -> None:
+        self.listeners.setdefault(event_listener.event_type, []).append(event_listener)
 
-    def dispatch(self, event: str, *args: typing.Any) -> None:
+    def dispatch(self, event: str | Event, *args: typing.Any) -> None:
         """
         Dispatches events from the gateway.
         This method runs all the listeners registered in the container
@@ -123,7 +121,7 @@ class EventHandler:
         Parameters
         ----------
 
-        event: str
+        event: str | wyvern.events.Event
             Name of the event to be dispatched.
         *args: tuple[typing.Any, ...]
             Arguments to provide in callbacks.
@@ -132,9 +130,9 @@ class EventHandler:
         """
 
         invokes = [
-            (listener(self, *args) if (len(str(listener.callback).split(".")) > 1) else listener(*args))
-            for listener in self.listeners.get(event, [])
-            if listener.max_trigger > listener.trigger_count
+            (lsnr(self, *args) if (len(str(lsnr.callback).split(".")) > 1) else lsnr(*args))
+            for lsnr in self.listeners.get(event, [])
+            if lsnr.max_trigger > lsnr.trigger_count
         ]
         asyncio.gather(*invokes)
 

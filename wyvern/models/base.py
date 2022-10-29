@@ -21,10 +21,6 @@
 # SOFTWARE.
 
 import datetime
-import typing
-
-if typing.TYPE_CHECKING:
-    from .user import User
 
 
 def default_avatar_for(discriminator: int) -> str:
@@ -32,10 +28,10 @@ def default_avatar_for(discriminator: int) -> str:
 
 
 class DiscordObject:
-    def __init__(self, id: int) -> None:
-        self.id = id
+    def __init__(self, _id: int) -> None:
+        self.id = _id
 
     @classmethod
-    def get_created_at(cls, id: int) -> datetime.datetime:
-        timestamp = ((id >> 22) + 1420070400000) / 1000
+    def get_created_at(cls, _id: int) -> datetime.datetime:
+        timestamp = ((_id >> 22) + 1420070400000) / 1000
         return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)

@@ -23,7 +23,6 @@ class EmbedFooter:
     proxy_icon_url: str | None = None
 
     def to_payload(self) -> dict[str, str | None]:
-        print("aaa")
         return {"text": self.text, "icon_url": self.icon_url}
 
 
@@ -39,12 +38,12 @@ class EmbedField:
 
 class EmbedConstructor:
     """
-    Creates an sendable disocrd embed.
+    Creates an sendable discord embed.
 
     Parameters
     ----------
 
-    name : str
+    title : str
         Name of the embed.
     description : str
         Description of the embed
@@ -91,7 +90,7 @@ class EmbedConstructor:
 
     @property
     def color(self) -> int:
-        """Colour of the embed."""
+        """Color of the embed."""
         return self._payload.get("color", 0)
 
     @property

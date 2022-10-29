@@ -83,10 +83,10 @@ class GatewayClient:
         _LOGGER.debug("Logging in with static token.")
         try:
             await self.rest.fetch_client_user()
+            await self.gateway.listen_gateway()
         except Unauthorized as e:
             await self.rest._session.close()
             raise e
-        await self.gateway.listen_gateway()
 
     def run(self) -> None:
         """A non-async method which call [wyvern.client.GatewayClient.start][]."""
