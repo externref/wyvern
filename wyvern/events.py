@@ -109,8 +109,8 @@ class EventHandler:
 
         return inner
 
-    def add_listener(self, event: EventListener) -> None:
-        self.listeners.setdefault(event.event_type, []).append(event)
+    def add_listener(self, event_listener: EventListener) -> None:
+        self.listeners.setdefault(event_listener.event_type, []).append(event_listener)
 
     def dispatch(self, event: str | Event, *args: typing.Any) -> None:
         """
@@ -130,9 +130,9 @@ class EventHandler:
         """
 
         invokes = [
-            (listeners(self, *args) if (len(str(listeners.callback).split(".")) > 1) else listeners(*args))
-            for listeners in self.listeners.get(event, [])
-            if listeners.max_trigger > listeners.trigger_count
+            (lsnr(self, *args) if (len(str(lsnr.callback).split(".")) > 1) else lsnr(*args))
+            for lsnr in self.listeners.get(event, [])
+            if lsnr.max_trigger > lsnr.trigger_count
         ]
         asyncio.gather(*invokes)
 
