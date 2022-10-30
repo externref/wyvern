@@ -18,6 +18,7 @@ theme:
     - navigation.tabs
     - navigation.top
     - toc.integrate
+    - content.code.annotate
   palette:
     - scheme: light
       toggle:
@@ -37,25 +38,41 @@ plugins:
           import:
             - https://docs.python.org/3.9/objects.inv
   - search
+  
 
 nav:
   - Getting Started: index.md
   - API Reference:
-      - client: api_reference/client.md
-      - rest: api_reference/rest.md
+      
+ 
+      - clients: api_reference/clients.md
+      - colors: api_reference/colors.md
+      - components:
+        - base: api_reference/components/base.md
+        - buttons: api_reference/components/buttons.md
+        - container: api_reference/components/container.md
+      - constructors:
+        - embed: api_reference/constructors/embeds.md
       - events: api_reference/events.md
       - intents: api_reference/intents.md
-      - color: api_reference/color.md
-      - constructors:
-          - embed: api_reference/constructors/embed.md
       - models:
           - base: api_reference/models/base.md
-          - message: api_reference/models/message.md
+          - messages: api_reference/models/messages.md
+        
+      - rest: api_reference/rest.md
+  - Examples:
+      - Basic Bot: examples/basic_bot.md
+      - Custom Event Handler: examples/custom_event_handler.md
 
 markdown_extensions:
-  - footnotes
+  - attr_list
   - md_in_html
-  - pymdownx.betterem
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
 
 extra:
   version: 0.0.1a
