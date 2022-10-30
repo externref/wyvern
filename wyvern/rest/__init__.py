@@ -34,8 +34,9 @@ from wyvern.exceptions import HTTPException, Unauthorized
 from .endpoints import Endpoints
 
 if typing.TYPE_CHECKING:
-    from wyvern.client import GatewayClient
-    from wyvern.constructors.embed import EmbedConstructor
+    from wyvern.clients import GatewayClient
+    from wyvern.components.container import ActionRowContainer
+    from wyvern.constructors.embeds import EmbedConstructor
 
 
 @dataclasses.dataclass
@@ -119,10 +120,15 @@ class RESTClient:
         content: str | None = None,
         *,
         embeds: typing.Sequence["EmbedConstructor"] = (),
+        components: typing.Sequence[ActionRowContainer] = (),
         reference: int | models.MessageReference | None = None,
-    ) -> "models.message.Message":
-        payload: dict[str, typing.Any] = {"content": content, "embeds": []}
-        [payload["embeds"].append(embed._payload) for embed in embeds]
+    ) -> "models.messages.Message":
+        payload: dict[str, typing.Any] = {
+            "content": content,
+            "embeds": [embed._payload for embed in embeds],
+            "components": [comp.to_payload() for comp in components],
+        }
+
         if reference is not None:
             if isinstance(reference, models.MessageReference):
                 payload["message_reference"] = reference.to_payload()

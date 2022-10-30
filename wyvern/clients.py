@@ -96,6 +96,22 @@ class GatewayClient:
         wyvern.events.EventListener
             A EventListener object.
 
+        Example
+        -------
+
+            import wyvern
+           
+            client = wyvern.GatewayClient("TOKEN")
+           
+           
+            @client.listener(wyvern.Event.MESSAGE_CREATE)
+            async def message_create(message: wyvern.Message) -> None:
+               if message.content == ".ping":
+                   await message.reply("pong")
+          
+                   
+            client.run()
+
         """
 
         def inner(callback: typing.Callable[..., typing.Awaitable[typing.Any]]) -> EventListener:
@@ -118,6 +134,6 @@ class GatewayClient:
             raise e
 
     def run(self) -> None:
-        """A non-async method which call [wyvern.client.GatewayClient.start][]."""
+        """A non-async method which call [wyvern.clients.GatewayClient.start][]."""
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.start())

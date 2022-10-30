@@ -20,4 +20,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .ws_events import *
+from __future__ import annotations
+
+import datetime
+import typing
+
+import attrs
+
+from .base import DiscordObject
+
+
+@attrs.define(kw_only=True, slots=True, repr=True)
+class CustomEmoji(DiscordObject):
+    name: str | None
+    id: int
+    is_animated: bool
+    is_available: bool
+    is_managed: bool
+
+    def __str__(self) -> str:
+        return f"<a:{self.name}:{self.id}>" if self.is_animated else f"<:{self.name}:{self.id}>"
+
+    @property
+    def created_at(self) -> datetime.datetime:
+        """Datetime at which which emoji was created."""
+        return super().created_at

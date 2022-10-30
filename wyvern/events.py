@@ -6,7 +6,7 @@ import typing
 import attrs
 
 if typing.TYPE_CHECKING:
-    from wyvern.client import GatewayClient
+    from wyvern.clients import GatewayClient
 
 
 class Event:
@@ -55,7 +55,7 @@ class EventHandler:
     Parameters
     ----------
 
-    client : wyvern.client.GatewayClient
+    client : wyvern.clients.GatewayClient
         The client binded with the event handler.
 
     Attributes

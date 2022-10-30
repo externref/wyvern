@@ -22,40 +22,54 @@
 
 from __future__ import annotations
 
-import datetime
+import enum
 import typing
 
-import attrs
 
-from .base import DiscordObject
+class ButtonStyle(enum.IntEnum):
+    """Enums for Button style."""
 
-if typing.TYPE_CHECKING:
-    from wyvern.clients import GatewayClient
-
-
-@attrs.define(kw_only=True, slots=True, repr=True, eq=True)
-class User(DiscordObject):
-    _client: "GatewayClient"
-    id: int
-    username: str
-    discriminator: int
-    avatar_hash: str | None
-    is_bot: bool
-    is_system: bool
-    is_mfa_enabled: bool
-    banner_hash: str | None
-    accent_color: int | None
-    locale: str | None
-    flags_value: int | None
-    premium_type_value: int | None
-    public_flags_value: int | None
-
-    @property
-    def created_at(self) -> datetime.datetime:
-        return self.get_created_at(self.id)
+    PRIMARY = 1
+    """A primary blurple discord button."""
+    SECONDARY = 2
+    """A secondary gray discord button."""
+    SUCCESS = 3
+    """Green discord button."""
+    DANGER = 4
+    """Red discord button."""
+    LINK = 5
+    """Button pointing to an URL"""
+    BLURPLE = PRIMARY
+    """Alias for PRIMARY"""
+    GRAY = SECONDARY
+    """Alias for SECONDARY"""
+    GREY = SECONDARY
+    """Alias for SECONDARY"""
+    GREEN = SUCCESS
+    """Alias for SUCCESS"""
+    RED = DANGER
+    """Alias for DANGER"""
+    URL = LINK
+    """Alias for LINK"""
 
 
-@typing.final
-class BotUser(User):
-    async def edit(self, username: str | None = None, avatar: bytes | None = None) -> "BotUser":
-        return await self._client.rest.edit_client_user(username, avatar)
+class ComponentType(enum.IntEnum):
+    ACTION_ROW = 1
+    BUTTON = 2
+    STRING_SELECT = 3
+    TEXT_INPUT = 4
+    USER_SELECT = 5
+    ROLE_SELECT = 6
+    MENTIONABLE_SELECT = 7
+    CHANNEL_SELECT = 8
+
+
+class Component:
+    """Represents a discord component.
+    Is the base class for other components."""
+
+    type: ComponentType
+    """Type of the component."""
+
+    def to_payload(self) -> dict[str, typing.Any]:
+        return {}

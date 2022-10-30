@@ -31,13 +31,13 @@ import typing
 
 import aiohttp
 
-from wyvern.enums.ws_events import WSEventEnums
 from wyvern.models import converters
 
+from .enums import WSEventEnums
 from .keep_alive import KeepAlive
 
 if typing.TYPE_CHECKING:
-    from wyvern.client import GatewayClient
+    from wyvern.clients import GatewayClient
 
 
 _LOGGER = logging.getLogger("wyvern.api.gateway")

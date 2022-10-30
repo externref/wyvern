@@ -26,7 +26,7 @@ import asyncio
 import time
 import typing
 
-from wyvern.enums import WSEventEnums
+from .enums import WSEventEnums
 
 if typing.TYPE_CHECKING:
     from wyvern.gateway import Gateway

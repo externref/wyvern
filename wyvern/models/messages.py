@@ -8,8 +8,9 @@ import attrs
 from .base import DiscordObject
 
 if typing.TYPE_CHECKING:
-    from wyvern.client import GatewayClient
-    from wyvern.constructors.embed import Embed, EmbedConstructor
+    from wyvern.clients import GatewayClient
+    from wyvern.components.container import ActionRowContainer
+    from wyvern.constructors.embeds import Embed, EmbedConstructor
 
     from .user import User
 
@@ -82,8 +83,11 @@ class Message(DiscordObject):
         *,
         embed: "EmbedConstructor" | None = None,
         embeds: typing.Sequence["EmbedConstructor"] = (),
+        components: typing.Sequence["ActionRowContainer"] = (),
     ) -> "Message":
         if all([embed, embeds]):
             raise ValueError("You cannot use both embed and embeds kwarg.")
         embeds = [embed] if embed else embeds
-        return await self._client.rest.create_message(self.channel_id, content, embeds=embeds, reference=self.id)
+        return await self._client.rest.create_message(
+            self.channel_id, content, embeds=embeds, reference=self.id, components=components
+        )

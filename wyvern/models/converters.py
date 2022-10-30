@@ -25,11 +25,11 @@ from __future__ import annotations
 import datetime
 import typing
 
-from .message import Message, MessageReference
+from .messages import Message, MessageReference
 from .user import BotUser, User
 
 if typing.TYPE_CHECKING:
-    from wyvern.client import GatewayClient
+    from wyvern.clients import GatewayClient
 
 
 def payload_to_user(client: "GatewayClient", payload: dict[str, typing.Any]) -> "User":

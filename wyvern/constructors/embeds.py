@@ -138,7 +138,7 @@ class EmbedConstructor:
         Returns
         -------
 
-        wyvern.constructors.embed.EmbedConstructor
+        wyvern.constructors.embeds.EmbedConstructor
             The constructor.
         """
         field = EmbedField(name, value, inline)
@@ -162,7 +162,7 @@ class EmbedConstructor:
         Returns
         -------
 
-        wyvern.constructors.embed.EmbedConstructor
+        wyvern.constructors.embeds.EmbedConstructor
             The constructor.
         """
         author = EmbedAuthor(name, url, icon_url)
@@ -184,7 +184,7 @@ class EmbedConstructor:
         Returns
         -------
 
-        wyvern.constructors.embed.EmbedConstructor
+        wyvern.constructors.embeds.EmbedConstructor
             The constructor.
         """
         footer = EmbedFooter(text, icon_url)
@@ -226,7 +226,7 @@ class EmbedConstructor:
 class Embed:
     """
     Read-only Embed class returned while parsing message objects.
-    To create a sendable embed, use [wyvern.constructors.embed.EmbedConstructor][] instead.
+    To create a sendable embed, use [wyvern.constructors.embeds.EmbedConstructor][] instead.
     """
 
     payload: dict[str, typing.Any]

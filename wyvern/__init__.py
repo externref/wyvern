@@ -21,7 +21,8 @@
 # SOFTWARE.
 
 
-from .client import *
+from .clients import *
+from .components import *
 from .constructors import *
 from .events import *
 from .exceptions import *

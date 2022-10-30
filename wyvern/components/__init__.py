@@ -20,42 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import annotations
-
-import datetime
-import typing
-
-import attrs
-
-from .base import DiscordObject
-
-if typing.TYPE_CHECKING:
-    from wyvern.clients import GatewayClient
-
-
-@attrs.define(kw_only=True, slots=True, repr=True, eq=True)
-class User(DiscordObject):
-    _client: "GatewayClient"
-    id: int
-    username: str
-    discriminator: int
-    avatar_hash: str | None
-    is_bot: bool
-    is_system: bool
-    is_mfa_enabled: bool
-    banner_hash: str | None
-    accent_color: int | None
-    locale: str | None
-    flags_value: int | None
-    premium_type_value: int | None
-    public_flags_value: int | None
-
-    @property
-    def created_at(self) -> datetime.datetime:
-        return self.get_created_at(self.id)
-
-
-@typing.final
-class BotUser(User):
-    async def edit(self, username: str | None = None, avatar: bytes | None = None) -> "BotUser":
-        return await self._client.rest.edit_client_user(username, avatar)
+from .base import *
+from .buttons import *
+from .container import *
