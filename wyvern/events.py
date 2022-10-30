@@ -79,37 +79,16 @@ class EventHandler:
     def __init__(self, client: "GatewayClient") -> None:
         self.client = client
 
-    def listen(self) -> typing.Callable[[EventListener], EventListener]:
-        """
-        This decorator adds a listener object to the handler's container
-
-        Example
-        -------
-
-            >>> import wyvern
-            >>>
-            >>> client = wyvern.GatewayClient("TOKEN")
-            >>>
-            >>> @client.event_handler.listen()
-            >>> @wyvern.listener(wyvern.Event.MESSAGE_CREATE)
-            >>> async def message_create(message: wyvern.Message) -> None:
-            >>>     ...
-            >>>
-            >>> client.run()
-
-        Returns
-        -------
-        wyvern.events.EventListener
-            The listener that was created using @listener decorator.
-        """
-
-        def inner(listener_obj: EventListener) -> EventListener:
-            self.add_listener(listener_obj)
-            return listener_obj
-
-        return inner
-
     def add_listener(self, event_listener: EventListener) -> None:
+        """
+        Adds a listener to the handler.
+
+        Arguments
+        ---------
+
+        event_listener: wyvern.events.EventListener
+            The listener to be added.
+        """
         self.listeners.setdefault(event_listener.event_type, []).append(event_listener)
 
     def dispatch(self, event: str | Event, *args: typing.Any) -> None:

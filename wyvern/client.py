@@ -26,7 +26,7 @@ import asyncio
 import logging
 import typing
 
-from wyvern.events import EventHandler
+from wyvern.events import Event, EventHandler, EventListener, listener
 from wyvern.exceptions import Unauthorized
 from wyvern.gateway import Gateway
 from wyvern.intents import Intents
@@ -75,6 +75,34 @@ class GatewayClient:
         )
         self.intents = intents if isinstance(intents, Intents) else Intents(int(intents))
         self.gateway = Gateway(self)
+
+    def listener(
+        self, event: str | Event, *, max_trigger: int | float = float("inf")
+    ) -> typing.Callable[[typing.Callable[..., typing.Awaitable[typing.Any]]], EventListener]:
+        """
+        Creates and adds a new listenet to the client's event handler.
+
+        Parameters
+        ----------
+        
+        event: str | wyvern.events.Event
+            The event to listen.
+        max_trigger: int | float
+            Maximum number of times this listener has to be triggered.
+
+        Returns
+        -------
+
+        wyvern.events.EventListener
+            A EventListener object.
+
+        """
+        def inner(callback: typing.Callable[..., typing.Awaitable[typing.Any]]) -> EventListener:
+            lsnr = listener(event, max_trigger=max_trigger)(callback)
+            self.event_handler.add_listener(lsnr)
+            return lsnr
+
+        return inner
 
     async def start(self) -> None:
         """Connects the bot with gateway and starts listening to events."""
