@@ -1,0 +1,1 @@
+::: wyvern.models.base

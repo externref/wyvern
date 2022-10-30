@@ -1,12 +1,23 @@
-site_name: wyvern 
+site_name: wyvern
 repo_url: https://github.com/sarthhh/wyvern
 site_description: Documentation for the Discord API wrapper, wyvern.
 site_author: sarth
 copyright: Copyright sarthhh ( 2022 - present )
 
-
 theme:
   name: "material"
+  logo: assets/wyvern.png
+  favicon: assets/wyvern.png
+
+  font:
+    text: Ubuntu
+
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.top
+    - toc.integrate
   palette:
     - scheme: light
       toggle:
@@ -27,17 +38,23 @@ plugins:
             - https://docs.python.org/3.9/objects.inv
   - search
 
-
-nav: 
+nav:
   - Getting Started: index.md
   - API Reference:
-    - client: api_reference/client.md
-    - rest: api_reference/rest.md
-    - events: api_reference/events.md
-    - intents: api_reference/intents.md
-    - constructors:
-      - embed: api_reference/constructors/embed.md
+      - client: api_reference/client.md
+      - rest: api_reference/rest.md
+      - events: api_reference/events.md
+      - intents: api_reference/intents.md
+      - constructors:
+          - embed: api_reference/constructors/embed.md
+      - models:
+          - base: api_reference/models/base.md
+          - message: api_reference/models/message.md
 
+markdown_extensions:
+  - footnotes
+  - md_in_html
+  - pymdownx.betterem
 
 extra:
   version: 0.0.1a
