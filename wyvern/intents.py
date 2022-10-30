@@ -45,7 +45,7 @@ class Intents:
     No intents.
     """
     GUILDS = 1 << 0
-    """Required for these gateway events: 
+    """Required for these gateway events:
 
     * `GUILD_CREATE`
     * `GUILD_UPDATE`
@@ -68,20 +68,20 @@ class Intents:
     * `STAGE_INSTANCE_DELETE`
     """
     GUILD_MEMBERS = 1 << 1
-    """Required for these gateway events: 
+    """Required for these gateway events:
 
-    * `GUILD_MEMBER_ADD`  
-    * `GUILD_MEMBER_UPDATE`  
-    * `GUILD_MEMBER_REMOVE`  
+    * `GUILD_MEMBER_ADD`
+    * `GUILD_MEMBER_UPDATE`
+    * `GUILD_MEMBER_REMOVE`
     * `THREAD_MEMBERS_UPDATE`
 
     !!! note
         This is a privileged intent.
     """
     GUILD_BANS = 1 << 2
-    """Required for these gateway events: 
+    """Required for these gateway events:
 
-    * `GUILD_BAN_ADD`  
+    * `GUILD_BAN_ADD`
     * `GUILD_BAN_REMOVE`
     """
     GUILD_EMOJIS = 1 << 3
@@ -101,24 +101,24 @@ class Intents:
     GUILD_WEBHOOKS = 1 << 5
     """Required for these gateway events:
 
-    * `WEBHOOKS_UPDATE`    
+    * `WEBHOOKS_UPDATE`
     """
     GUILD_INVITES = 1 << 6
     """Required for these gateway events:
-    
+
     * `INVITE_CREATE`
     * `INVITE_DELETE`
     """
     GUILD_VOICE_STATES = 1 << 7
     """Required for these gateway events:
-    
+
     * `VOICE_STATE_UPDATE`
     """
     GUILD_PRESENCES = 1 << 8
     """Required for these gateway events:
-    
+
     * `PRESENCE_UPDATE`
-    
+
     !!! note
         This is a privileged intent.
     """
@@ -131,7 +131,7 @@ class Intents:
     * `MESSAGE_DELETE_BULK`
     """
     GUILD_MESSAGE_REACTIONS = 1 << 10
-    """Required for these gateway events:  
+    """Required for these gateway events:
 
     * `MESSAGE_REACTION_ADD`
     * `MESSAGE_REACTION_REMOVE`
@@ -140,12 +140,12 @@ class Intents:
     """
     GUILD_MESSAGE_TYPING = 1 << 11
     """Required for these gateway events:
-    
+
     * `TYPING_START`
     """
     DIRECT_MESSAGES = 1 << 12
     """Required for these gateway events:
-    
+
     * `MESSAGE_CREATE`
     * `MESSAGE_UPDATE`
     * `MESSAGE_DELETE`
@@ -161,12 +161,12 @@ class Intents:
     """
     DIRECT_MESSAGE_TYPING = 1 << 14
     """Required for these gateway events:
-    
+
     * `TYPING_START`
     """
     MESSAGE_CONTENT = 1 << 15
     """Required for guild message's content.
-    
+
     !!! note
         This is a privileged intent.
     """

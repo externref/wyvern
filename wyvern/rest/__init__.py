@@ -28,8 +28,8 @@ import typing
 import aiohttp
 import multidict
 
-from wyvern.exceptions import HTTPException, Unauthorized
 from wyvern import models
+from wyvern.exceptions import HTTPException, Unauthorized
 
 from .endpoints import Endpoints
 
@@ -49,7 +49,9 @@ class RequestRoute:
     def url(self) -> str:
         return f"https://discord.com/api/v{self.api_version}/{self._url}"
 
-__all__: tuple[str, ...] = ("RESTClient", )
+
+__all__: tuple[str, ...] = ("RESTClient",)
+
 
 class RESTClient:
     def __init__(
@@ -121,7 +123,7 @@ class RESTClient:
     ) -> "models.message.Message":
         payload: dict[str, typing.Any] = {"content": content, "embeds": []}
         [payload["embeds"].append(embed._payload) for embed in embeds]
-        if reference is not None :
+        if reference is not None:
             if isinstance(reference, models.MessageReference):
                 payload["message_reference"] = reference.to_payload()
             else:

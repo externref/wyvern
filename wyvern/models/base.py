@@ -47,11 +47,11 @@ class DiscordObject:
 
     def __init__(self, _id: int) -> None:
         self.id = _id
-        
-    def __eq__(self, obj: object) -> bool :
+
+    def __eq__(self, obj: object) -> bool:
         if not isinstance(obj, DiscordObject):
             return NotImplemented
-        return self.id == obj.id 
+        return self.id == obj.id
 
     @property
     def created_at(self) -> datetime.datetime:

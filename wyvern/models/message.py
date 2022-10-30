@@ -46,7 +46,7 @@ class Message(DiscordObject):
     """
     Represents a discord message.
     """
-    
+
     _client: "GatewayClient"
     id: int
     """ID of the message."""
@@ -76,8 +76,14 @@ class Message(DiscordObject):
     attachments: list[typing.Any]
     """File attachments in this message."""
 
-    async def reply(self, content: str | None = None, *, embed: "EmbedConstructor"| None = None, embeds: typing.Sequence["EmbedConstructor"] = ()) -> "Message":
+    async def reply(
+        self,
+        content: str | None = None,
+        *,
+        embed: "EmbedConstructor" | None = None,
+        embeds: typing.Sequence["EmbedConstructor"] = (),
+    ) -> "Message":
         if all([embed, embeds]):
             raise ValueError("You cannot use both embed and embeds kwarg.")
-        embeds = [embed] if embed else embeds 
+        embeds = [embed] if embed else embeds
         return await self._client.rest.create_message(self.channel_id, content, embeds=embeds, reference=self.id)

@@ -85,5 +85,5 @@ def payload_to_message(client: "GatewayClient", payload: dict[str, typing.Any]) 
         channel_id=payload["channel_id"],
         author=payload_to_user(client, payload["author"]),
         attachments=payload["attachments"],
-        message_reference= MessageReference(**data) if (data:= payload.get("message_reference") ) else None 
+        message_reference=MessageReference(**data) if (data := payload.get("message_reference")) else None,
     )

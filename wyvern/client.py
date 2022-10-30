@@ -84,7 +84,7 @@ class GatewayClient:
 
         Parameters
         ----------
-        
+
         event: str | wyvern.events.Event
             The event to listen.
         max_trigger: int | float
@@ -97,6 +97,7 @@ class GatewayClient:
             A EventListener object.
 
         """
+
         def inner(callback: typing.Callable[..., typing.Awaitable[typing.Any]]) -> EventListener:
             lsnr = listener(event, max_trigger=max_trigger)(callback)
             self.event_handler.add_listener(lsnr)
