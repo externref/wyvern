@@ -27,3 +27,7 @@ class Endpoints(enum.Enum):
     @classmethod
     def fetch_client_user(cls) -> str:
         return "users/@me"
+
+    @classmethod
+    def create_message(cls, channel_id: int) -> str:
+        return f"channels/{channel_id}/messages"

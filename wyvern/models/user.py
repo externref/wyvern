@@ -33,7 +33,7 @@ if typing.TYPE_CHECKING:
     from wyvern.client import GatewayClient
 
 
-@attrs.define(kw_only=True)
+@attrs.define(kw_only=True, slots=True, repr=True, eq=True)
 class User(DiscordObject):
     _client: "GatewayClient"
     id: int
@@ -55,6 +55,7 @@ class User(DiscordObject):
         return self.get_created_at(self.id)
 
 
+@typing.final
 class BotUser(User):
     async def edit(self, username: str | None = None, avatar: bytes | None = None) -> "BotUser":
         return await self._client.rest.edit_client_user(username, avatar)

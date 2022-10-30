@@ -25,7 +25,7 @@ from __future__ import annotations
 import datetime
 import typing
 
-from .message import Message
+from .message import Message, MessageReference
 from .user import BotUser, User
 
 if typing.TYPE_CHECKING:
@@ -85,4 +85,5 @@ def payload_to_message(client: "GatewayClient", payload: dict[str, typing.Any]) 
         channel_id=payload["channel_id"],
         author=payload_to_user(client, payload["author"]),
         attachments=payload["attachments"],
+        message_reference= MessageReference(**data) if (data:= payload.get("message_reference") ) else None 
     )

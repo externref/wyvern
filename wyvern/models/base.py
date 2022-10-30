@@ -28,10 +28,47 @@ def default_avatar_for(discriminator: int) -> str:
 
 
 class DiscordObject:
+    """
+    Represents a discord object.
+
+    Parameters
+    ----------
+
+    _id: int
+        ID of the entity.
+
+    Attributes
+    ----------
+
+    id: int
+        ID of the entity.
+
+    """
+
     def __init__(self, _id: int) -> None:
         self.id = _id
+        
+    def __eq__(self, obj: object) -> bool :
+        if not isinstance(obj, DiscordObject):
+            return NotImplemented
+        return self.id == obj.id 
+
+    @property
+    def created_at(self) -> datetime.datetime:
+        """
+        The datetime at which this entity was created.
+
+        Returns
+        -------
+
+        datetime.datetime
+        """
+        return self.get_created_at(self.id)
 
     @classmethod
     def get_created_at(cls, _id: int) -> datetime.datetime:
+        """
+        Get creation time of an entity using it's ID.
+        """
         timestamp = ((_id >> 22) + 1420070400000) / 1000
         return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)
