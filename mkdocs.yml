@@ -45,6 +45,7 @@ nav:
       - rest: api_reference/rest.md
       - events: api_reference/events.md
       - intents: api_reference/intents.md
+      - color: api_reference/color.md
       - constructors:
           - embed: api_reference/constructors/embed.md
       - models:
