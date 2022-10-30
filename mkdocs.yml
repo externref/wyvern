@@ -1,0 +1,83 @@
+site_name: wyvern
+repo_url: https://github.com/sarthhh/wyvern
+site_description: Documentation for the Discord API wrapper, wyvern.
+site_author: sarth
+copyright: Copyright sarthhh ( 2022 - present )
+
+theme:
+  name: "material"
+  logo: assets/wyvern.png
+  favicon: assets/wyvern.png
+
+  font:
+    text: Ubuntu
+
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.top
+    - toc.integrate
+    - content.code.annotate
+  palette:
+    - scheme: light
+      toggle:
+        icon: material/weather-sunny
+        name: Light Mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Dark Mode
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+          import:
+            - https://docs.python.org/3.9/objects.inv
+  - search
+  
+
+nav:
+  - Getting Started: index.md
+  - API Reference:
+      
+ 
+      - clients: api_reference/clients.md
+      - colors: api_reference/colors.md
+      - components:
+        - base: api_reference/components/base.md
+        - buttons: api_reference/components/buttons.md
+        - container: api_reference/components/container.md
+      - constructors:
+        - embed: api_reference/constructors/embeds.md
+      - events: api_reference/events.md
+      - intents: api_reference/intents.md
+      - models:
+          - base: api_reference/models/base.md
+          - messages: api_reference/models/messages.md
+        
+      - rest: api_reference/rest.md
+  - Examples:
+      - Basic Bot: examples/basic_bot.md
+      - Custom Event Handler: examples/custom_event_handler.md
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+
+extra:
+  version: 0.0.1a
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/sarthhh/wyvern
+    - icon: fontawesome/brands/discord
+      link: ...
