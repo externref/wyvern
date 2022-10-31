@@ -31,6 +31,9 @@ if typing.TYPE_CHECKING:
     from wyvern.models.emojis import CustomEmoji
 
 
+__all__: tuple[str, ...] = ("ActionRowContainer",)
+
+
 class ActionRowContainer(Component):
     """Interface to create an Action Row.
     This class accepts and stores. other discord components.
@@ -60,8 +63,8 @@ class ActionRowContainer(Component):
     ) -> Button:
         """Adds a button to the container.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
 
         style : wyvern.components.base.ButtonStyle
             The style of button.

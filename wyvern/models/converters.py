@@ -26,7 +26,7 @@ import datetime
 import typing
 
 from .messages import Message, MessageReference
-from .user import BotUser, User
+from .users import BotUser, User
 
 if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient

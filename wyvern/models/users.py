@@ -29,19 +29,35 @@ import attrs
 
 from .base import DiscordObject
 
-__all__: tuple[str, ...] = ("CustomEmoji",)
-@attrs.define(kw_only=True, slots=True, repr=True)
-class CustomEmoji(DiscordObject):
-    name: str | None
-    id: int
-    is_animated: bool
-    is_available: bool
-    is_managed: bool
+if typing.TYPE_CHECKING:
+    from wyvern.clients import GatewayClient
 
-    def __str__(self) -> str:
-        return f"<a:{self.name}:{self.id}>" if self.is_animated else f"<:{self.name}:{self.id}>"
+__all__ : tuple[str, ...] = ("User", "BotUser")
+
+
+@attrs.define(kw_only=True, slots=True, repr=True)
+class User(DiscordObject):
+    _client: "GatewayClient"
+    id: int
+    username: str
+    discriminator: int
+    avatar_hash: str | None
+    is_bot: bool
+    is_system: bool
+    is_mfa_enabled: bool
+    banner_hash: str | None
+    accent_color: int | None
+    locale: str | None
+    flags_value: int | None
+    premium_type_value: int | None
+    public_flags_value: int | None
 
     @property
     def created_at(self) -> datetime.datetime:
-        """Datetime at which which emoji was created."""
-        return super().created_at
+        return self.get_created_at(self.id)
+
+
+@typing.final
+class BotUser(User):
+    async def edit(self, username: str | None = None, avatar: bytes | None = None) -> "BotUser":
+        return await self._client.rest.edit_client_user(username, avatar)

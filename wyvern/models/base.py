@@ -19,6 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
 
 import datetime
 
@@ -26,6 +27,7 @@ import datetime
 def default_avatar_for(discriminator: int) -> str:
     return f"embed/avatars{discriminator % 5}.png"
 
+__all__: tuple[str, ...] = ("DiscordObject",)
 
 class DiscordObject:
     """

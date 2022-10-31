@@ -22,26 +22,44 @@
 
 from __future__ import annotations
 
-import datetime
 import typing
 
 import attrs
 
-from .base import DiscordObject
+from .base import Interaction, InteractionCommandOptionType, InteractionCommandType, InteractionType
 
-__all__: tuple[str, ...] = ("CustomEmoji",)
-@attrs.define(kw_only=True, slots=True, repr=True)
-class CustomEmoji(DiscordObject):
-    name: str | None
-    id: int
-    is_animated: bool
-    is_available: bool
-    is_managed: bool
+if typing.TYPE_CHECKING:
+    from wyvern.clients import GatewayClient
+
+    
+__all__: tuple[str, ...] = ("ApplicationCommandInteraction", "ApplicationCommandInteractionData", "InteractionOption")
+
+
+@typing.final
+@attrs.define(kw_only=True, slots=True)
+class InteractionOption:
+    name: str
+    type: InteractionCommandOptionType
+    value: int | str | None
+    options: list["InteractionOption"]
+    is_focused: bool
 
     def __str__(self) -> str:
-        return f"<a:{self.name}:{self.id}>" if self.is_animated else f"<:{self.name}:{self.id}>"
+        return self.name
 
-    @property
-    def created_at(self) -> datetime.datetime:
-        """Datetime at which which emoji was created."""
-        return super().created_at
+
+@typing.final
+@attrs.define(kw_only=True, slots=True, repr=True)
+class ApplicationCommandInteractionData:
+    payload: dict[str, typing.Any]
+    type = InteractionType.APPLICATION_COMMAND
+    command_id: int
+    command_name: str
+    command_type: InteractionCommandType
+    guild_id: int | None
+    target_id: int | None
+    options: list[InteractionOption]
+
+
+class ApplicationCommandInteraction(Interaction):
+    ...
