@@ -38,27 +38,25 @@ plugins:
           import:
             - https://docs.python.org/3.9/objects.inv
   - search
-  
 
 nav:
   - Getting Started: index.md
   - API Reference:
-      
- 
       - clients: api_reference/clients.md
       - colors: api_reference/colors.md
       - components:
-        - base: api_reference/components/base.md
-        - buttons: api_reference/components/buttons.md
-        - container: api_reference/components/container.md
+          - base: api_reference/components/base.md
+          - buttons: api_reference/components/buttons.md
+          - container: api_reference/components/container.md
       - constructors:
-        - embed: api_reference/constructors/embeds.md
+          - embed: api_reference/constructors/embeds.md
       - events: api_reference/events.md
       - intents: api_reference/intents.md
+      - presences: api_reference/presences.md
       - models:
           - base: api_reference/models/base.md
           - messages: api_reference/models/messages.md
-        
+
       - rest: api_reference/rest.md
   - Examples:
       - Basic Bot: examples/basic_bot.md
@@ -72,7 +70,6 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
-
 
 extra:
   version: 0.0.1a

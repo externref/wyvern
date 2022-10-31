@@ -15,7 +15,7 @@ client = wyvern.GatewayClient("TOKEN", intents=wyvern.Intents.UNPRIVILEGED | wyv
 async def message_create(message: wyvern.Message) -> None:
     """This coroutine is triggerd whenever the MESSAGE_CREATE event gets dispatched."""
     if message.content and message.content.lower() == "!ping":
-        await message.reply("pong!")
+        await message.respond("pong!")
 
 
 # runs the bot.

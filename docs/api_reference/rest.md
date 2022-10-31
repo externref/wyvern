@@ -1,3 +1,1 @@
-# RESTClient
-
-::: wyvern.rest
+::: wyvern.rest.RESTClient
