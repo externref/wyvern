@@ -20,10 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import enum
+from __future__ import annotations
 
-
-class Endpoints(enum.Enum):
+__all__: tuple[str, ...] = ("Endpoints", )
+class Endpoints:
     @classmethod
     def fetch_client_user(cls) -> str:
         return "users/@me"

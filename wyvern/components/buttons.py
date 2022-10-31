@@ -31,6 +31,8 @@ from .base import ButtonStyle, Component, ComponentType
 if typing.TYPE_CHECKING:
     from wyvern.models.emojis import CustomEmoji
 
+__all__: tuple[str, ...] = ("Button",)
+
 
 @attrs.define(kw_only=True, slots=True, repr=True)
 class Button(Component):

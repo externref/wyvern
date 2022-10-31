@@ -30,6 +30,7 @@ import multidict
 
 from wyvern import models
 from wyvern.exceptions import HTTPException, Unauthorized
+from wyvern.models.messages import AllowedMentions
 
 from .endpoints import Endpoints
 
@@ -37,6 +38,8 @@ if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient
     from wyvern.components.container import ActionRowContainer
     from wyvern.constructors.embeds import EmbedConstructor
+
+__all__: tuple[str, ...] = ("RESTClient",)
 
 
 @dataclasses.dataclass
@@ -51,10 +54,9 @@ class RequestRoute:
         return f"https://discord.com/api/v{self.api_version}/{self._url}"
 
 
-__all__: tuple[str, ...] = ("RESTClient",)
-
-
 class RESTClient:
+    """The REST Client that deals with disocrd REST Api requests."""
+
     def __init__(
         self,
         *,
@@ -122,11 +124,38 @@ class RESTClient:
         embeds: typing.Sequence["EmbedConstructor"] = (),
         components: typing.Sequence[ActionRowContainer] = (),
         reference: int | models.MessageReference | None = None,
+        allowed_mentions: models.AllowedMentions | None = None,
     ) -> "models.messages.Message":
+        """Create a new message.
+
+        Parameters
+        ----------
+
+        channel_id : int
+            ID of the channel where the message is to be sent.
+        content : str | None
+            The text content of the message.
+        embeds : typing.Sequence[wyvern.constructors.embeds.EmbedConstructor]
+            Sequence of embeds to send.
+        components : typing.Sequence[wyvern.components.container.ActionRowContainer]
+            Sequence of action rows to send.
+        reference : int | wyvern.models.messages.MessageReference | None
+            ID or a message reference to which this is a response to.
+        allowed_mentions : wyvern.models.messages.AllowedMentions | None
+            Allowed mentions configs.
+
+        Returns
+        -------
+
+        wyvern.models.messages.Message
+            The message object that got created.
+
+        """
         payload: dict[str, typing.Any] = {
             "content": content,
             "embeds": [embed._payload for embed in embeds],
             "components": [comp.to_payload() for comp in components],
+            "allowed_mentions": (allowed_mentions or self._client.allowed_mentions).to_payload(),
         }
 
         if reference is not None:

@@ -27,7 +27,9 @@ from .constructors import *
 from .events import *
 from .exceptions import *
 from .intents import *
+from .interactions import *
 from .models import *
+from .presences import *
 from .rest import *
 
 __version__ = "0.0.1a"

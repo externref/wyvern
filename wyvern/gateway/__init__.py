@@ -23,6 +23,7 @@
 from __future__ import annotations
 
 import asyncio
+import datetime
 import json
 import logging
 import sys
@@ -32,6 +33,7 @@ import typing
 import aiohttp
 
 from wyvern.models import converters
+from wyvern.presences import Activity, Status
 
 from .enums import WSEventEnums
 from .keep_alive import KeepAlive
@@ -43,10 +45,23 @@ if typing.TYPE_CHECKING:
 _LOGGER = logging.getLogger("wyvern.api.gateway")
 
 
+__all__ : tuple[str, ...]= ("Gateway", )
+
+
 class Gateway:
-    __slots__: typing.Tuple[str, ...] = ("_client", "_keep_alive", "_latency", "_heartbeat_interval", "_socket")
+    __slots__: typing.Tuple[str, ...] = (
+        "_client",
+        "_keep_alive",
+        "_latency",
+        "_heartbeat_interval",
+        "_socket",
+        "_start_activity",
+        "_start_status",
+    )
 
     def __init__(self, client: "GatewayClient") -> None:
+        self._start_activity: "Activity" | None = None
+        self._start_status: "Status" | None = None
         self._client = client
         self._keep_alive = KeepAlive()
         self._latency: float = 0
@@ -76,6 +91,12 @@ class Gateway:
                     "os": sys.platform,
                     "browser": "wyvern",
                     "device": "wyvern",
+                },
+                "presence": {
+                    "since": int(datetime.datetime.now().timestamp()),
+                    "activities": [ac.to_event_payload() if isinstance(ac := self._start_activity, Activity) else {}],
+                    "status": self._start_status.value if self._start_status else None,
+                    "afk": False,
                 },
             },
         }

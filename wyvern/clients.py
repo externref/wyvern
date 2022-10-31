@@ -26,17 +26,22 @@ import asyncio
 import logging
 import typing
 
+from wyvern import models
+from wyvern.commands.command_handler import CommandHandler
 from wyvern.events import Event, EventHandler, EventListener, listener
 from wyvern.exceptions import Unauthorized
 from wyvern.gateway import Gateway
 from wyvern.intents import Intents
+from wyvern.presences import Activity, Status
 from wyvern.rest import RESTClient
 
 if typing.TYPE_CHECKING:
     import aiohttp
 
+
 _LOGGER = logging.getLogger("wyvern")
 
+__all__: tuple[str, ...] = ("GatewayClient", "CommandsClient")
 
 class GatewayClient:
     """The main bot class which acts as an interface between the Discord API and your bot.
@@ -48,6 +53,8 @@ class GatewayClient:
         The bot token to use.
     intents : typing.SupportsInt | wyvern.intents.Intents
         The intents to use while logging in to the gateway.
+    allowed_mentions : wyvern.models.messages.AllowedMentions
+        The default mentions to allow in a message bot is sending.
     event_handler type[EventHandler]
         A EventHandler subclass ( not instance ), if any.
     rest_client : RESTClient | None
@@ -65,6 +72,7 @@ class GatewayClient:
         *,
         intents: typing.SupportsInt | Intents = Intents.UNPRIVILEGED,
         event_handler: type[EventHandler] = EventHandler,
+        allowed_mentions: "models.AllowedMentions" = models.messages.AllowedMentions(),
         rest_client: RESTClient | None = None,
         api_version: int = 10,
         client_session: "aiohttp.ClientSession" | None = None,
@@ -75,6 +83,7 @@ class GatewayClient:
         )
         self.intents = intents if isinstance(intents, Intents) else Intents(int(intents))
         self.gateway = Gateway(self)
+        self.allowed_mentions = allowed_mentions
 
     def listener(
         self, event: str | Event, *, max_trigger: int | float = float("inf")
@@ -100,16 +109,16 @@ class GatewayClient:
         -------
 
             import wyvern
-           
+
             client = wyvern.GatewayClient("TOKEN")
-           
-           
+
+
             @client.listener(wyvern.Event.MESSAGE_CREATE)
             async def message_create(message: wyvern.Message) -> None:
                if message.content == ".ping":
-                   await message.reply("pong")
-          
-                   
+                   await message.respond("pong")
+
+
             client.run()
 
         """
@@ -121,9 +130,20 @@ class GatewayClient:
 
         return inner
 
-    async def start(self) -> None:
-        """Connects the bot with gateway and starts listening to events."""
+    async def start(self, *, activity: Activity | None = None, status: Status | None = None) -> None:
+        """Connects the bot with gateway and starts listening to events.
 
+        Parameters
+        ----------
+
+        activity : wyvern.presences.Activity | None
+            The activity bot boots up with.
+        status : wyvern.presences.Status | None
+            The status bot boots up with.
+
+        """
+        self.gateway._start_activity = activity
+        self.gateway._start_status = status
         await self.gateway._get_socket_ready()
         _LOGGER.debug("Logging in with static token.")
         try:
@@ -133,7 +153,32 @@ class GatewayClient:
             await self.rest._session.close()
             raise e
 
-    def run(self) -> None:
-        """A non-async method which call [wyvern.clients.GatewayClient.start][]."""
+    def run(self, *, activity: Activity | None = None, status: Status | None = None) -> None:
+        """A non-async method which call [wyvern.clients.GatewayClient.start][].
+
+        Parameters
+        ----------
+
+        activity : wyvern.presences.Activity | None
+            The activity bot boots up with.
+        status : wyvern.presences.Status | None
+            The status bot boots up with.
+
+        """
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.start())
+        loop.run_until_complete(self.start(activity=activity, status=status))
+
+
+class CommandsClient(GatewayClient, CommandHandler):
+    def set_prefix(self, prefix_or_function: str | typing.Sequence[str] | function) -> "CommandsClient":
+        if isinstance(prefix_or_function, str):
+            self.prefix_type = str
+        elif (
+            isinstance(prefix_or_function, list)
+            or isinstance(prefix_or_function, tuple)
+            or isinstance(prefix_or_function, set)
+        ):
+            self.prefix_type = type(prefix_or_function)
+        elif isinstance(prefix_or_function, function):
+            self.prefix_type = function
+        return self
