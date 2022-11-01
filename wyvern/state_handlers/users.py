@@ -8,10 +8,12 @@ if typing.TYPE_CHECKING:
 
 __all__: tuple[str, ...] = ("UserState",)
 
+
 class UserState:
     """A handler for user cache and rest connection with the client.
     This interface can be used to get/fetch users with convinience.
     """
+
     _client: "GatewayClient"
     cached_users: dict[int, "User"] = {}
     """Mapping of cached users with their ID : Object"""
@@ -62,19 +64,19 @@ class UserState:
 
     def get_user_named(self, name: str) -> "User" | None:
         """Gets a member named the provided argument from cache
-        
+
         Parameters
         ----------
 
         name : str
             Name to lookup for.
-        
+
         Returns
         -------
 
         wyvern.models.users.User | None
             The user object that was fetched.
-        
+
         """
         users = [user for user in self.cached_users.values() if user.username == name]
         return users[0] if users != [] else None
@@ -84,7 +86,7 @@ class UserState:
         Parses a user object from a string
 
         The order for parsing:
-        
+
         * Lookup for mentions.
         * Lookup for username#discriminator.
         * Lookup for username only.
@@ -94,12 +96,12 @@ class UserState:
 
         string : str
             The string to parse from.
-        
+
         Returns :
 
         wyvern.models.users.User | None
             The user object that was parsed, if any.
-        
+
         """
         if string.startswith("<@") and string.endswith(">"):
             return self.get(int(string.strip("<@!>")))
@@ -117,7 +119,7 @@ class UserState:
         elif user := self.get_user_named(string):
             return user
         return None
-    
+
     def _add_to_state(self, *users: "User") -> None:
         for user in users:
-            self.cached_users[user.id] = user 
+            self.cached_users[user.id] = user
