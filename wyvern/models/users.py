@@ -32,7 +32,7 @@ from .base import DiscordObject
 if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient
 
-__all__ : tuple[str, ...] = ("User", "BotUser")
+__all__: tuple[str, ...] = ("User", "BotUser")
 
 
 @attrs.define(kw_only=True, slots=True, repr=True)

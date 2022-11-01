@@ -30,7 +30,6 @@ import multidict
 
 from wyvern import models
 from wyvern.exceptions import HTTPException, Unauthorized
-from wyvern.models.messages import AllowedMentions
 
 from .endpoints import Endpoints
 

@@ -31,7 +31,8 @@ from .enums import WSEventEnums
 if typing.TYPE_CHECKING:
     from wyvern.gateway import Gateway
 
-__all__ : tuple[str, ...] = ("KeepAlive",)
+__all__: tuple[str, ...] = ("KeepAlive",)
+
 
 class KeepAlive:
     sequence: int = 0

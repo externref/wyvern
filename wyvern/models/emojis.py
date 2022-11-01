@@ -23,13 +23,14 @@
 from __future__ import annotations
 
 import datetime
-import typing
 
 import attrs
 
 from .base import DiscordObject
 
 __all__: tuple[str, ...] = ("CustomEmoji",)
+
+
 @attrs.define(kw_only=True, slots=True, repr=True)
 class CustomEmoji(DiscordObject):
     name: str | None
@@ -43,5 +44,5 @@ class CustomEmoji(DiscordObject):
 
     @property
     def created_at(self) -> datetime.datetime:
-        """Datetime at which which emoji was created."""
+        """Datetime at which emoji was created."""
         return super().created_at

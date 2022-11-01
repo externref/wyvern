@@ -43,6 +43,7 @@ _LOGGER = logging.getLogger("wyvern")
 
 __all__: tuple[str, ...] = ("GatewayClient", "CommandsClient")
 
+
 class GatewayClient:
     """The main bot class which acts as an interface between the Discord API and your bot.
 

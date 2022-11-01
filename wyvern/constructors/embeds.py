@@ -115,12 +115,15 @@ class EmbedConstructor:
         timestamp: datetime.datetime | None = None,
     ) -> None:
 
-        self._payload: dict[str, typing.Any] = {"type": "rich", "fields": []}
-        self._payload["title"] = title
-        self._payload["description"] = description
-        self._payload["color"] = color or colour
-        self._payload["url"] = url
-        self._payload["timestamp"] = timestamp
+        self._payload: dict[str, typing.Any] = {
+            "type": "rich",
+            "fields": [],
+            "title": title,
+            "description": description,
+            "color": color or colour,
+            "url": url,
+            "timestamp": timestamp,
+        }
 
     def add_field(self, *, name: str, value: str, inline: bool = True) -> "EmbedConstructor":
         """Adds a field to the embed.

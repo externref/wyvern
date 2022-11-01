@@ -22,7 +22,9 @@
 
 from __future__ import annotations
 
-__all__: tuple[str, ...] = ("Endpoints", )
+__all__: tuple[str, ...] = ("Endpoints",)
+
+
 class Endpoints:
     @classmethod
     def fetch_client_user(cls) -> str:

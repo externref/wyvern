@@ -27,7 +27,9 @@ import datetime
 def default_avatar_for(discriminator: int) -> str:
     return f"embed/avatars{discriminator % 5}.png"
 
+
 __all__: tuple[str, ...] = ("DiscordObject",)
+
 
 class DiscordObject:
     """

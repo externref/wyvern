@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import datetime
-import enum
 import typing
 
 import attrs
@@ -15,7 +14,7 @@ if typing.TYPE_CHECKING:
 
     from .users import User
 
-__all__: tuple[str,...] = ("MessageReference", "MessageFlags", "Message", "AllowedMentions")
+__all__: tuple[str, ...] = ("MessageReference", "MessageFlags", "Message", "AllowedMentions")
 
 
 @attrs.define(kw_only=True, slots=True, repr=True)

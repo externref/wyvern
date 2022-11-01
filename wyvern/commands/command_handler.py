@@ -6,8 +6,6 @@ import typing
 if typing.TYPE_CHECKING:
     from wyvern.models.messages import Message
 
-    from ..clients import CommandsClient, GatewayClient
-
 
 class CommandHandler:
     prefix_getter: typing.Any

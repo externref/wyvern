@@ -45,7 +45,7 @@ if typing.TYPE_CHECKING:
 _LOGGER = logging.getLogger("wyvern.api.gateway")
 
 
-__all__ : tuple[str, ...]= ("Gateway", )
+__all__: tuple[str, ...] = ("Gateway",)
 
 
 class Gateway:
