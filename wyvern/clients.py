@@ -34,6 +34,7 @@ from wyvern.gateway import Gateway
 from wyvern.intents import Intents
 from wyvern.presences import Activity, Status
 from wyvern.rest import RESTClient
+from wyvern.state_handlers.users import UserState
 
 if typing.TYPE_CHECKING:
     import aiohttp
@@ -42,6 +43,7 @@ if typing.TYPE_CHECKING:
 _LOGGER = logging.getLogger("wyvern")
 
 __all__: tuple[str, ...] = ("GatewayClient", "CommandsClient")
+
 
 class GatewayClient:
     """The main bot class which acts as an interface between the Discord API and your bot.
@@ -84,6 +86,7 @@ class GatewayClient:
         self.intents = intents if isinstance(intents, Intents) else Intents(int(intents))
         self.gateway = Gateway(self)
         self.allowed_mentions = allowed_mentions
+        self.users = UserState(self)
 
     def listener(
         self, event: str | Event, *, max_trigger: int | float = float("inf")
