@@ -28,6 +28,7 @@ import attrs
 
 from .base import Interaction, InteractionCommandOptionType, InteractionCommandType, InteractionType
 
+
 __all__: tuple[str, ...] = ("ApplicationCommandInteraction", "ApplicationCommandInteractionData", "InteractionOption")
 
 

@@ -73,6 +73,10 @@ class UnknownError(HTTPException):
     ...
 
 
+class UserNotFound(NotFound):
+    """Raised when the targetted user was not found."""
+
+
 excs: typing.Dict[int, typing.Type[HTTPException]] = {
     400: BadRequest,
     401: Unauthorized,

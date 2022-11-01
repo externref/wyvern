@@ -33,3 +33,7 @@ class Endpoints:
     @classmethod
     def create_message(cls, channel_id: int) -> str:
         return f"channels/{channel_id}/messages"
+
+    @classmethod
+    def get_user(cls, user_id: int) -> str:
+        return f"users/{user_id}"

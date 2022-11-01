@@ -29,7 +29,8 @@ import aiohttp
 import multidict
 
 from wyvern import models
-from wyvern.exceptions import HTTPException, Unauthorized
+from wyvern.exceptions import HTTPException, Unauthorized, UserNotFound
+from wyvern.models.messages import AllowedMentions
 
 from .endpoints import Endpoints
 
@@ -89,11 +90,41 @@ class RESTClient:
         else:
             raise HTTPException.with_code(res.status, await res.text())
 
+    async def fetch_user(self, user_id: int) -> models.User:
+        """Fetchs a user using the REST api.
+
+        Parameters
+        ----------
+
+        user_id : int
+            ID of the user that is to be fetched.
+
+        Returns
+        -------
+
+        wyvern.models.users.User
+            The user object that was fetched.
+
+        Raises
+        ------
+
+        wyvern.exceptions.UserNotFound
+            The targetted user was not found.
+        """
+        try:
+            res = await self.request(RequestRoute(Endpoints.get_user(user_id)))
+            return models.converters.payload_to_user(self._client, res)
+        except HTTPException as e:
+            raise UserNotFound(f"{e.message}\nNotFound : No user with ID {user_id} found.")
+
     async def fetch_client_user(self) -> "models.BotUser":
         """
-        Fetch's the bot's user object.
+        Fetchs the bot's user object.
 
-        Returns:
+        Returns
+        -------
+
+        wyvern.models.users.BotUser
             BotUser object representating the bot's user.
         """
         try:
@@ -105,6 +136,23 @@ class RESTClient:
             raise e
 
     async def edit_client_user(self, username: str | None = None, avatar: bytes | None = None) -> "models.BotUser":
+        """Edits the bot's user.
+
+        Parameters
+        ----------
+
+        username : str
+            The new username.
+        avatar : bytes
+            The new avatar bytes.
+
+        Returns
+        -------
+
+        wyvern.models.users.BotUser
+            The updated user of bot.
+        """
+
         payload: dict[str, bytes | str] = {}
         if username is not None:
             payload["username"] = username

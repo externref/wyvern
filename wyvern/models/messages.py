@@ -44,7 +44,7 @@ class MessageReference:
         }
 
 
-@attrs.define(kw_only=True, slots=True, init=True)
+@attrs.define(kw_only=True, slots=True)
 class AllowedMentions:
     roles: bool = False
     users: bool = False

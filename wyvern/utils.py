@@ -32,7 +32,7 @@ class Utils:
 
         Returns
         -------
-
+        
         typing.Any
             The result of the code.
 

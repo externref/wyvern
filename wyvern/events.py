@@ -41,6 +41,12 @@ class Event(enum.Flag):
     MESSAGE_CREATE = "MESSAGE_CREATE"
     INTERACTION_CREATE = "INTERACTION_CREATE"
 
+    # Library Events
+
+    STARTING = "STARTING"
+    STARTED = "STARTED"
+    GATEWAY_CONNECTED = "GATEWAY_CONNECTED"
+
 
 @typing.final
 @attrs.define
