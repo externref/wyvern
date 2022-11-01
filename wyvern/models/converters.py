@@ -32,6 +32,9 @@ if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient
 
 
+__all__: tuple[str, ...] = ("payload_to_user", "payload_to_botuser", "payload_to_message")
+
+
 def payload_to_user(client: "GatewayClient", payload: dict[str, typing.Any]) -> "User":
     return User(
         client=client,

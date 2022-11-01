@@ -23,7 +23,6 @@
 from __future__ import annotations
 
 import datetime
-import typing
 
 import attrs
 
@@ -45,5 +44,5 @@ class CustomEmoji(DiscordObject):
 
     @property
     def created_at(self) -> datetime.datetime:
-        """Datetime at which which emoji was created."""
+        """Datetime at which emoji was created."""
         return super().created_at

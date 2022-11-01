@@ -24,6 +24,7 @@ class Utils:
 
         Parameters
         ----------
+
         code : str
             The code to evaluate.
         renv: dict[str, typing.Any]
@@ -31,8 +32,10 @@ class Utils:
 
         Returns
         -------
+        
         typing.Any
             The result of the code.
+
         """
         _fn_name = "__wyvern_eval"
         code = "\n".join(f"    {i}" for i in code.strip().splitlines())
