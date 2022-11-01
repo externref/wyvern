@@ -35,6 +35,8 @@ plugins:
         python:
           options:
             docstring_style: numpy
+            inherited_members: true
+            merge_init_into_class: false
           import:
             - https://docs.python.org/3.9/objects.inv
   - search
@@ -56,8 +58,12 @@ nav:
       - models:
           - base: api_reference/models/base.md
           - messages: api_reference/models/messages.md
-
+          - users: api_reference/models/users.md
+      - state_handlers:
+          - users: api_reference/state_handlers/users.md
       - rest: api_reference/rest.md
+      - utils: api_reference/utils.md
+
   - Examples:
       - Basic Bot: examples/basic_bot.md
       - Custom Event Handler: examples/custom_event_handler.md
