@@ -31,15 +31,21 @@ import attrs
 if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient
 
-__all__ : tuple[str, ...] = (
-    "Event", "EventListener", "EventHandler", "listener"
-)
+__all__: tuple[str, ...] = ("Event", "EventListener", "EventHandler", "listener")
+
+
 @typing.final
 class Event(enum.Flag):
     """Event Enums."""
 
     MESSAGE_CREATE = "MESSAGE_CREATE"
     INTERACTION_CREATE = "INTERACTION_CREATE"
+
+    # Library Events
+
+    STARTING = "STARTING"
+    STARTED = "STARTED"
+    GATEWAY_CONNECTED = "GATEWAY_CONNECTED"
 
 
 @typing.final

@@ -63,8 +63,8 @@ class ActionRowContainer(Component):
     ) -> Button:
         """Adds a button to the container.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
 
         style : wyvern.components.base.ButtonStyle
             The style of button.

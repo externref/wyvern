@@ -12,6 +12,8 @@ if typing.TYPE_CHECKING:
     from .applications import ApplicationCommandInteractionData
 
 __all__: tuple[str, ...] = ("Interaction", "InteractionCommandOptionType", "InteractionCommandType", "InteractionType")
+
+
 @typing.final
 class InteractionType(enum.IntEnum):
     PING = 1
@@ -55,4 +57,3 @@ class Interaction:
     version: int = 1
     message: "models.messages.Message" | None
     guild_locale: str | None
-

@@ -15,7 +15,7 @@ if typing.TYPE_CHECKING:
 
     from .users import User
 
-__all__: tuple[str,...] = ("MessageReference", "MessageFlags", "Message", "AllowedMentions")
+__all__: tuple[str, ...] = ("MessageReference", "MessageFlags", "Message", "AllowedMentions")
 
 
 @attrs.define(kw_only=True, slots=True, repr=True)
@@ -45,7 +45,7 @@ class MessageReference:
         }
 
 
-@attrs.define(kw_only=True, slots=True, init=True)
+@attrs.define(kw_only=True, slots=True)
 class AllowedMentions:
     roles: bool = False
     users: bool = False

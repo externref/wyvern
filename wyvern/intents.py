@@ -24,7 +24,8 @@ from __future__ import annotations
 
 import typing
 
-__all__ : tuple[str, ...] = ("Intents",)
+__all__: tuple[str, ...] = ("Intents",)
+
 
 @typing.final
 class Intents:

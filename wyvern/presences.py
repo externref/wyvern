@@ -25,7 +25,9 @@ from __future__ import annotations
 import enum
 import typing
 
-__all__ : tuple[str, ...] = ("Status", "Activity", "ActivityType")
+__all__: tuple[str, ...] = ("Status", "Activity", "ActivityType")
+
+
 @typing.final
 class Status(enum.Enum):
     """Enum for User's status"""

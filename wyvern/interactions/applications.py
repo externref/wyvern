@@ -31,7 +31,7 @@ from .base import Interaction, InteractionCommandOptionType, InteractionCommandT
 if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient
 
-    
+
 __all__: tuple[str, ...] = ("ApplicationCommandInteraction", "ApplicationCommandInteractionData", "InteractionOption")
 
 

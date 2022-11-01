@@ -30,6 +30,8 @@ import attrs
 from .base import DiscordObject
 
 __all__: tuple[str, ...] = ("CustomEmoji",)
+
+
 @attrs.define(kw_only=True, slots=True, repr=True)
 class CustomEmoji(DiscordObject):
     name: str | None
