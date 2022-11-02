@@ -35,17 +35,43 @@ __all__: tuple[str, ...] = ("Event", "EventListener", "EventHandler", "listener"
 
 
 @typing.final
-class Event(enum.Flag):
+class Event:
     """Event Enums."""
 
     MESSAGE_CREATE = "MESSAGE_CREATE"
+    """Triggered when a message is created.
+
+     Note: This event gets triggerd once in a runtime.
+    
+    Arguments provided:
+
+    * message ([wyvern.Message][])
+    """
     INTERACTION_CREATE = "INTERACTION_CREATE"
 
     # Library Events
 
     STARTING = "STARTING"
+    """Triggered when bot is loaded and is starting.
+
+    Note: This event gets triggerd once in a runtime.
+    
+    Arguments provided:
+    
+    * client ([wyvern.GatewayClient][])"""
     STARTED = "STARTED"
+    """Triggered when the bot has successfully verified its token and is running.
+    
+    Arguments provided:
+    
+    * client ([wyvern.GatewayClient][])"""
     GATEWAY_CONNECTED = "GATEWAY_CONNECTED"
+    """Triggered when the gateway initalises a connection.
+    
+    Arguments provided:
+
+    * client ([wyvern.GatewayClient][])"""
+    
 
 
 @typing.final
@@ -141,7 +167,7 @@ class EventHandler:
 
 
         """
-
+        print(event)
         invokes = [
             (lsnr(self, *args) if (len(str(lsnr.callback).split(".")) > 1) else lsnr(*args))
             for lsnr in self.listeners.get(event, [])

@@ -21,6 +21,7 @@ class UserState:
     def __init__(self, client: "GatewayClient") -> None:
         self._client = client
 
+
     def get(self, user_id: int) -> "User" | None:
         """Fetchs a user using the state cache..
 
@@ -97,7 +98,8 @@ class UserState:
         string : str
             The string to parse from.
 
-        Returns :
+        Returns 
+        -------
 
         wyvern.models.users.User | None
             The user object that was parsed, if any.

@@ -57,7 +57,10 @@ class Gateway:
         "_socket",
         "_start_activity",
         "_start_status",
+        "is_connected"
     )
+
+    
 
     def __init__(self, client: "GatewayClient") -> None:
         self._start_activity: "Activity" | None = None
@@ -67,6 +70,7 @@ class Gateway:
         self._latency: float = 0
         self._heartbeat_interval: float = 0
         self._socket: "aiohttp.ClientWebSocketResponse"
+        self.is_connected: bool = False
 
     @property
     def socket(self) -> "aiohttp.ClientWebSocketResponse":
@@ -104,6 +108,9 @@ class Gateway:
     async def listen_gateway(self) -> None:
         _LOGGER.debug("Starting listening to gateway.")
         async for message in self.socket:
+            if self.is_connected is False:
+                self.is_connected = True 
+                self._client.event_handler.dispatch("GATEWAY_CONNECTED", self._client)
             if message.type == aiohttp.WSMsgType.TEXT:
                 await self._parse_payload_response(json.loads(message.data))
 

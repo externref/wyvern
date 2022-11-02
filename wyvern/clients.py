@@ -145,12 +145,14 @@ class GatewayClient:
             The status bot boots up with.
 
         """
+        self.event_handler.dispatch(Event.STARTING, self)
         self.gateway._start_activity = activity
         self.gateway._start_status = status
         await self.gateway._get_socket_ready()
         _LOGGER.debug("Logging in with static token.")
         try:
             await self.rest.fetch_client_user()
+            self.event_handler.dispatch(Event.STARTED, self)
             await self.gateway.listen_gateway()
         except Unauthorized as e:
             await self.rest._session.close()

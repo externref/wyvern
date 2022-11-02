@@ -46,10 +46,15 @@ class MessageReference:
 
 @attrs.define(kw_only=True, slots=True)
 class AllowedMentions:
+    """Represents an allowed mentions payload for discord."""
     roles: bool = False
+    """Set to True if role mentions are allowed."""
     users: bool = False
+    """Set to True if user mentions are allowed."""
     everyone: bool = False
+    """Set to True if `@everyone` mentions are allowed."""
     replied_user: bool = False
+    """Set to True if bot should ping message authors on replies."""
 
     def to_payload(self) -> dict[str, list[str] | bool]:
         payload: dict[str, list[str] | bool] = {"parse": [], "replied_user": self.replied_user}
