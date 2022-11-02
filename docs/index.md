@@ -16,7 +16,17 @@ wyvern is a flexible and easy to use Discord API wrapper for python 🚀.
 * Built-in extensions for prefix commands.
 * Interaction commands handling.
 
+Installation
+------------
 
+```sh
+# from pypi 
+$python -m pip install wyvern
+# from source stable branch
+$python -m pip install git+https://github.com/sarthhh/wyvern@main
+# from source development branch 
+$python -m pip install git+https://github.com/sarthhh/wyvern
+```
 
 Looking for examples? Check [Examples](./examples/basic_bot.md) out!
 Or continue with reading the [API Reference](./api_reference/clients.md).

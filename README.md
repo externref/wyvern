@@ -7,11 +7,21 @@
 
 A flexible and easy to use Discord API wrapper for python 🚀.
 
-## Why use wyvern? : 
+## Why use wyvern? 
 * Feature rich API.
 * Full control over the library's functionality.
 * Built-in extensions for prefix commands.
 * Interaction commands handling.
+
+## Installation
+```sh
+# from pypi 
+$python -m pip install wyvern
+# from source stable branch
+$python -m pip install git+https://github.com/sarthhh/wyvern@main
+# from source development branch 
+$pythonn -m pip install git+https://github.com/sarthhh/wyvern
+```
 
 ## Example Code:
 * Basic GatewayClient with listener. 
