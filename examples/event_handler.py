@@ -28,7 +28,7 @@ import wyvern
 
 
 class MyHandler(wyvern.EventHandler):
-    @wyvern.listener(wyvern.Event.MESSAGE_CREATE)
+    @wyvern.as_listener(wyvern.Event.MESSAGE_CREATE)
     async def message_create(self, message: wyvern.Message) -> None:
         print(f"Message sent by {message.author.username}")
 
