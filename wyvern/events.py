@@ -23,7 +23,6 @@
 from __future__ import annotations
 
 import asyncio
-import enum
 import typing
 
 import attrs
@@ -31,7 +30,15 @@ import attrs
 if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient
 
-__all__: tuple[str, ...] = ("Event", "EventListener", "EventHandler", "listener")
+__all__: tuple[str, ...] = ("Event", "EventListener", "EventHandler", "as_listener")
+
+
+class TestClass:
+    """Docsssssssssssss
+
+    !!! note
+        this is a note.
+    """
 
 
 @typing.final
@@ -71,7 +78,6 @@ class Event:
     Arguments provided:
 
     * client ([wyvern.GatewayClient][])"""
-    
 
 
 @typing.final
@@ -127,19 +133,16 @@ class EventHandler:
 
     listeners: dict[str | Event, list[EventListener]] = {}
 
-    def __new__(cls: type["EventHandler"], client: "GatewayClient") -> "EventHandler":
-
-        inst = super().__new__(cls)
-        for _obj in cls.__mro__:
-            for item in _obj.__dict__.values():
-                if isinstance(item, EventListener):
-                    inst.add_listener(item)
-        return inst
-
     def __init__(self, client: "GatewayClient") -> None:
         self.client = client
+        self._after_init()
 
-    def add_listener(self, event_listener: EventListener) -> None:
+    def _after_init(self) -> None:
+        for item in self.__dict__.values():
+            if isinstance(item, EventListener):
+                self.add_listener(item)
+
+    def add_listener(self, event_listener: EventListener) -> EventListener:
         """
         Adds a listener to the handler.
 
@@ -150,6 +153,7 @@ class EventHandler:
             The listener to be added.
         """
         self.listeners.setdefault(event_listener.event_type, []).append(event_listener)
+        return event_listener
 
     def dispatch(self, event: str | Event, *args: typing.Any) -> None:
         """
@@ -167,16 +171,15 @@ class EventHandler:
 
 
         """
-        print(event)
         invokes = [
-            (lsnr(self, *args) if (len(str(lsnr.callback).split(".")) > 1) else lsnr(*args))
+            lsnr(self, *args) if (lsnr.callback.__class__.__name__ == self.__class__.__name__) else lsnr(*args)
             for lsnr in self.listeners.get(event, [])
             if lsnr.max_trigger > lsnr.trigger_count
         ]
         asyncio.gather(*invokes)
 
 
-def listener(
+def as_listener(
     event: str | Event, *, max_trigger: int | float = float("inf")
 ) -> typing.Callable[[typing.Callable[..., typing.Awaitable[typing.Any]]], EventListener]:
     """Creates a [wyvern.events.EventListener][] object.

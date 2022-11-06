@@ -26,15 +26,21 @@ import asyncio
 import logging
 import typing
 
-from wyvern import models
-from wyvern.commands.command_handler import CommandHandler
-from wyvern.events import Event, EventHandler, EventListener, listener
-from wyvern.exceptions import Unauthorized
-from wyvern.gateway import Gateway
-from wyvern.intents import Intents
-from wyvern.presences import Activity, Status
-from wyvern.rest import RESTClient
-from wyvern.state_handlers.users import UserState
+# isort: off
+from wyvern import (
+    commands,
+    events,
+    exceptions,
+    gateway,
+    interactions,
+    models,
+    presences,
+    rest,
+    state_handlers,
+)
+
+# isort: on
+from wyvern import intents as _intents
 
 if typing.TYPE_CHECKING:
     import aiohttp
@@ -72,25 +78,56 @@ class GatewayClient:
         self,
         token: str,
         *,
-        intents: typing.SupportsInt | Intents = Intents.UNPRIVILEGED,
-        event_handler: type[EventHandler] = EventHandler,
+        intents: typing.SupportsInt | _intents.Intents = _intents.Intents.UNPRIVILEGED,
+        event_handler: type[events.EventHandler] = events.EventHandler,
         allowed_mentions: "models.AllowedMentions" = models.messages.AllowedMentions(),
-        rest_client: RESTClient | None = None,
+        rest_client: rest.RESTClient | None = None,
         api_version: int = 10,
         client_session: "aiohttp.ClientSession" | None = None,
     ) -> None:
+        self._client_id: int = 0
         self.event_handler = event_handler(self)
-        self.rest = rest_client or RESTClient(
+        self.rest = rest_client or rest.RESTClient(
             client=self, token=token, api_version=api_version, client_session=client_session
         )
-        self.intents = intents if isinstance(intents, Intents) else Intents(int(intents))
-        self.gateway = Gateway(self)
+        self.intents = intents if isinstance(intents, _intents.Intents) else _intents.Intents(int(intents))
+        self.gateway = gateway.Gateway(self)
         self.allowed_mentions = allowed_mentions
-        self.users = UserState(self)
+        self._users = state_handlers.UserState(self)
+        self._after_init()
 
-    def listener(
-        self, event: str | Event, *, max_trigger: int | float = float("inf")
-    ) -> typing.Callable[[typing.Callable[..., typing.Awaitable[typing.Any]]], EventListener]:
+    def _after_init(self) -> None:
+        for item in self.__dict__.values():
+            if isinstance(item, events.EventListener):
+                self.event_handler.add_listener(item)
+
+    @property
+    def users(self) -> state_handlers.UserState:
+        """The state handler for users stored in the bot's cache,
+        Can also be used to perform fetch operations and parsing users from string.
+
+        Returns
+        -------
+
+        wyvern.state_handlers.UserState
+            The handler.
+        """
+        return self._users
+
+    @property
+    def latency(self) -> float:
+        """The heartbeat latency of the gateway connection.
+
+        Returns
+
+        float
+            The latency.
+        """
+        return self.gateway.latency
+
+    def with_listener(
+        self, event: str | events.Event, *, max_trigger: int | float = float("inf")
+    ) -> typing.Callable[[typing.Callable[..., typing.Awaitable[typing.Any]]], events.EventListener]:
         """
         Creates and adds a new listenet to the client's event handler.
 
@@ -116,7 +153,7 @@ class GatewayClient:
             client = wyvern.GatewayClient("TOKEN")
 
 
-            @client.listener(wyvern.Event.MESSAGE_CREATE)
+            @client.with_listener(wyvern.Event.MESSAGE_CREATE)
             async def message_create(message: wyvern.Message) -> None:
                if message.content == ".ping":
                    await message.respond("pong")
@@ -126,14 +163,16 @@ class GatewayClient:
 
         """
 
-        def inner(callback: typing.Callable[..., typing.Awaitable[typing.Any]]) -> EventListener:
-            lsnr = listener(event, max_trigger=max_trigger)(callback)
+        def inner(callback: typing.Callable[..., typing.Awaitable[typing.Any]]) -> events.EventListener:
+            lsnr = events.as_listener(event, max_trigger=max_trigger)(callback)
             self.event_handler.add_listener(lsnr)
             return lsnr
 
         return inner
 
-    async def start(self, *, activity: Activity | None = None, status: Status | None = None) -> None:
+    async def start(
+        self, *, activity: presences.Activity | None = None, status: presences.Status | None = None
+    ) -> None:
         """Connects the bot with gateway and starts listening to events.
 
         Parameters
@@ -145,20 +184,21 @@ class GatewayClient:
             The status bot boots up with.
 
         """
-        self.event_handler.dispatch(Event.STARTING, self)
+        self.event_handler.dispatch(events.Event.STARTING, self)
         self.gateway._start_activity = activity
         self.gateway._start_status = status
         await self.gateway._get_socket_ready()
         _LOGGER.debug("Logging in with static token.")
         try:
-            await self.rest.fetch_client_user()
-            self.event_handler.dispatch(Event.STARTED, self)
+            res = await self.rest.fetch_client_user()
+            self._client_id = res.id
+            self.event_handler.dispatch(events.Event.STARTED, self)
             await self.gateway.listen_gateway()
-        except Unauthorized as e:
+        except exceptions.Unauthorized as e:
             await self.rest._session.close()
             raise e
 
-    def run(self, *, activity: Activity | None = None, status: Status | None = None) -> None:
+    def run(self, *, activity: presences.Activity | None = None, status: presences.Status | None = None) -> None:
         """A non-async method which call [wyvern.clients.GatewayClient.start][].
 
         Parameters
@@ -174,8 +214,51 @@ class GatewayClient:
         loop.run_until_complete(self.start(activity=activity, status=status))
 
 
-class CommandsClient(GatewayClient, CommandHandler):
+class CommandsClient(GatewayClient, commands.CommandHandler):
+    """Implementation of the [wyvern.GatewayClient][] class with a command handler."""
+
+    slash_commands: dict[str, "commands.slash_commands.SlashCommand"] = {}
+
+    def _after_init(self) -> None:
+        super()._after_init()
+        self.with_listener(events.Event.INTERACTION_CREATE)(self._handle_inters)
+
+    async def _handle_inters(self, inter: interactions.Interaction) -> None:
+        if isinstance(inter, interactions.ApplicationCommandInteraction):
+            await self.process_application_commands(inter)
+
+    @typing.overload
+    def include(self, listener_or_command: events.EventListener) -> events.EventListener:
+        ...
+
+    @typing.overload
+    def include(
+        self, listener_or_command: commands.slash_commands.SlashCommand
+    ) -> commands.slash_commands.SlashCommand:
+        ...
+
+    def include(
+        self, listener_or_command: events.EventListener | commands.slash_commands.SlashCommand
+    ) -> events.EventListener | commands.slash_commands.SlashCommand:
+        def inner() -> None:
+            nonlocal listener_or_command
+            if isinstance(listener_or_command, events.EventListener):
+                self.event_handler.add_listener(listener_or_command)
+            elif isinstance(listener_or_command, commands.slash_commands.SlashCommand):
+                self.slash_commands[listener_or_command.name] = listener_or_command
+
+        inner()
+        return listener_or_command
+
     def set_prefix(self, prefix_or_function: str | typing.Sequence[str] | function) -> "CommandsClient":
+        """
+        Set a prefix to parse message commands.
+        Allowed prefix data
+        -------------------
+        * strings : [str][]
+        * iterables : [list][] / [set][] / [tuple][]
+        * callables : function or a coroutine.
+        """
         if isinstance(prefix_or_function, str):
             self.prefix_type = str
         elif (
@@ -187,3 +270,34 @@ class CommandsClient(GatewayClient, CommandHandler):
         elif isinstance(prefix_or_function, function):
             self.prefix_type = function
         return self
+
+    def with_slash_command(
+        self,
+        *,
+        name: str,
+        description: str,
+    ) -> typing.Callable[..., commands.slash_commands.SlashCommand]:
+        """Creates a slash command.
+
+        Parameters
+        ----------
+
+        name : str
+            Name of the command.
+        description : str
+            Description of the command.
+
+        Returns
+        -------
+
+        typing.Callable[..., commands.slash_commands.SlashCommand]
+            A [wyvern.commands.slash_commands.SlashCommand][] when called.
+        """
+
+        def inner(callback: commands.base.CallbackT) -> commands.slash_commands.SlashCommand:
+            cmd = commands.as_slash_command(name=name, description=description)(callback)
+            cmd._set_client(self)
+            self.slash_commands[cmd.name] = cmd
+            return cmd
+
+        return inner

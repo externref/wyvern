@@ -28,18 +28,29 @@ import attrs
 
 from .base import Interaction, InteractionCommandOptionType, InteractionCommandType, InteractionType
 
-
-__all__: tuple[str, ...] = ("ApplicationCommandInteraction", "ApplicationCommandInteractionData", "InteractionOption")
+__all__: tuple[str, ...] = (
+    "ApplicationCommandInteraction",
+    "ApplicationCommandInteractionData",
+    "InteractionOption",
+    "AutocompleteInteraction",
+)
 
 
 @typing.final
 @attrs.define(kw_only=True, slots=True)
 class InteractionOption:
+    """Represents a interaction option for slash commands."""
+
     name: str
+    """Name of the option."""
     type: InteractionCommandOptionType
+    """Type of the option."""
     value: int | str | None
+    """Value of the option."""
     options: list["InteractionOption"]
+    """List of options in the options, if any"""
     is_focused: bool
+    """If the current option focused in an autocomplete interaction."""
 
     def __str__(self) -> str:
         return self.name
@@ -48,15 +59,33 @@ class InteractionOption:
 @typing.final
 @attrs.define(kw_only=True, slots=True, repr=True)
 class ApplicationCommandInteractionData:
+    """Data related to an application command interaction."""
+
     payload: dict[str, typing.Any]
+    """Raw payload recieved from discord."""
     type = InteractionType.APPLICATION_COMMAND
+    """Type of the interaction."""
     command_id: int
+    """ID of the command."""
     command_name: str
+    """Name of the command."""
     command_type: InteractionCommandType
+    """Type of the interaction command."""
     guild_id: int | None
+    """ID of the guild where interaction was triggered"""
     target_id: int | None
+    """ID of the application command target."""
     options: list[InteractionOption]
+    """List of options used in the interaction."""
 
 
 class ApplicationCommandInteraction(Interaction):
+    """Represents an application command interaction."""
+
+    data: ApplicationCommandInteractionData
+
+
+class AutocompleteInteraction(Interaction):
+    """Represents an autocomplete interaction."""
+
     ...
