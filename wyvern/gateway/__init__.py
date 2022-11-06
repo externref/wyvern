@@ -32,6 +32,7 @@ import typing
 
 import aiohttp
 
+from wyvern.interactions import converters as inter_convertors
 from wyvern.models import converters
 from wyvern.presences import Activity, Status
 
@@ -57,10 +58,8 @@ class Gateway:
         "_socket",
         "_start_activity",
         "_start_status",
-        "is_connected"
+        "is_connected",
     )
-
-    
 
     def __init__(self, client: "GatewayClient") -> None:
         self._start_activity: "Activity" | None = None
@@ -109,7 +108,7 @@ class Gateway:
         _LOGGER.debug("Starting listening to gateway.")
         async for message in self.socket:
             if self.is_connected is False:
-                self.is_connected = True 
+                self.is_connected = True
                 self._client.event_handler.dispatch("GATEWAY_CONNECTED", self._client)
             if message.type == aiohttp.WSMsgType.TEXT:
                 await self._parse_payload_response(json.loads(message.data))
@@ -125,8 +124,10 @@ class Gateway:
         loop.create_task(self.keep_alive.start(self))
 
     async def _dispatch_events(self, payload: typing.Dict[str, typing.Any]) -> None:
-        if payload["t"] == "MESSAGE_CREATE":
-            self._client.event_handler.dispatch(payload["t"], converters.payload_to_message(self._client, payload["d"]))
+        if (t := payload["t"]) == "MESSAGE_CREATE":
+            self._client.event_handler.dispatch(t, converters.payload_to_message(self._client, payload["d"]))
+        if t == "INTERACTION_CREATE":
+            self._client.event_handler.dispatch(t, inter_convertors.payload_to_interaction(self._client, payload["d"]))
 
     async def _parse_payload_response(self, payload: typing.Dict[str, typing.Any]) -> None:
         op, t, d = payload["op"], payload["t"], payload["d"]

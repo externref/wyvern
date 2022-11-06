@@ -28,9 +28,8 @@ import typing
 import aiohttp
 import multidict
 
-from wyvern import models
+from wyvern import commands, interactions, models
 from wyvern.exceptions import HTTPException, Unauthorized, UserNotFound
-from wyvern.models.messages import AllowedMentions
 
 from .endpoints import Endpoints
 
@@ -215,3 +214,52 @@ class RESTClient:
             RequestRoute(Endpoints.create_message(channel_id), type="POST", json=payload),
         )
         return models.converters.payload_to_message(self._client, res)
+
+    async def create_application_command(
+        self,
+        *,
+        name: str,
+        description: str,
+        options: typing.Sequence[commands.slash_commands.CommandOption] = (),
+        dm_permission: bool = True,
+        type: interactions.base.InteractionCommandType,
+    ) -> typing.Any:
+        payload = {
+            "name": name,
+            "description": description,
+            "options": [option.to_payload() for option in options],
+            "dm_permission": dm_permission,
+            "type": type,
+        }
+        return await self.request(
+            RequestRoute(Endpoints.interaction_command(self._client._client_id), type="POST", json=payload)
+        )
+
+    async def create_interaction_response(
+        self,
+        interaction: interactions.Interaction,
+        interaction_type: interactions.InteractionResponseType,
+        *,
+        content: str | None = None,
+        embeds: typing.Sequence["EmbedConstructor"] = (),
+        components: typing.Sequence[ActionRowContainer] = (),
+        allowed_mentions: models.AllowedMentions | None = None,
+    ) -> None:
+        payload: dict[str, typing.Any] = {"type": int(interaction_type), "data": {}}
+        if interaction_type is interactions.InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE:
+            pass
+        elif interaction_type is interactions.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE:
+            payload["data"]["content"] = content
+            payload["data"]["embeds"] = [embed._payload for embed in embeds]
+            payload["data"]["components"] = [builder.to_payload() for builder in components]
+            payload["data"]["allowed_mentions"] = (allowed_mentions or self._client.allowed_mentions).to_payload()
+        await self.request(
+            RequestRoute(
+                Endpoints.interaction_callback(
+                    interaction.id,
+                    interaction.token,
+                ),
+                type="POST",
+                json=payload,
+            )
+        )

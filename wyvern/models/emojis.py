@@ -26,7 +26,7 @@ import datetime
 
 import attrs
 
-from .base import DiscordObject
+from .base import DiscordObject, Snowflake
 
 __all__: tuple[str, ...] = ("CustomEmoji",)
 
@@ -34,7 +34,7 @@ __all__: tuple[str, ...] = ("CustomEmoji",)
 @attrs.define(kw_only=True, slots=True, repr=True)
 class CustomEmoji(DiscordObject):
     name: str | None
-    id: int
+    id: Snowflake
     is_animated: bool
     is_available: bool
     is_managed: bool

@@ -5,7 +5,7 @@ import typing
 
 import attrs
 
-from .base import DiscordObject
+from .base import DiscordObject, Snowflake
 
 if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient
@@ -47,6 +47,7 @@ class MessageReference:
 @attrs.define(kw_only=True, slots=True)
 class AllowedMentions:
     """Represents an allowed mentions payload for discord."""
+
     roles: bool = False
     """Set to True if role mentions are allowed."""
     users: bool = False
@@ -93,7 +94,7 @@ class Message(DiscordObject):
     """
 
     _client: "GatewayClient"
-    id: int
+    id: Snowflake
     """ID of the message."""
     tts: bool
     """True if the message was a TTS message."""

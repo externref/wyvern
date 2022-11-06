@@ -352,6 +352,3 @@ class Color:
     def orange(cls) -> Color:
         """Creates a Color object from the orange color. This is `0xffa500`. (Orange)"""
         return cls(0xFFA500)
-
-
-Colour = Color

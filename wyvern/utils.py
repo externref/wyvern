@@ -3,8 +3,35 @@ from __future__ import annotations
 import ast
 import typing
 
+import attrs
 
-class Utils:
+
+class Empty:
+    ...
+
+
+EMPTY = Empty()
+
+
+@attrs.define(kw_only=True)
+class CacheConfigurations:
+    users: bool = True
+    guilds: bool = True
+    members: bool = True
+    roles: bool = True
+    channels: bool = True
+    messages: bool = False
+
+
+class Eval:
+    """Class for code evaluation.
+
+    !!! warning
+        This class is not sandboxed so data like environmental variables
+        will be evaluated when the methods gets executed as well.
+
+    """
+
     def add_returns(self, body: typing.Any) -> None:
         if isinstance(body[-1], ast.Expr):
             body[-1] = ast.Return(body[-1].value)
@@ -32,7 +59,7 @@ class Utils:
 
         Returns
         -------
-        
+
         typing.Any
             The result of the code.
 

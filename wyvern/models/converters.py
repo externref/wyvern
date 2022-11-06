@@ -25,6 +25,7 @@ from __future__ import annotations
 import datetime
 import typing
 
+from .base import Snowflake
 from .messages import Message, MessageReference
 from .users import BotUser, User
 
@@ -38,7 +39,7 @@ __all__: tuple[str, ...] = ("payload_to_user", "payload_to_botuser", "payload_to
 def payload_to_user(client: "GatewayClient", payload: dict[str, typing.Any]) -> "User":
     return User(
         client=client,
-        id=payload["id"],
+        id=Snowflake.create(payload["id"]),
         username=payload["username"],
         discriminator=payload["discriminator"],
         avatar_hash=payload.get("avatar"),
@@ -57,7 +58,7 @@ def payload_to_user(client: "GatewayClient", payload: dict[str, typing.Any]) -> 
 def payload_to_botuser(client: "GatewayClient", payload: dict[str, typing.Any]) -> BotUser:
     return BotUser(
         client=client,
-        id=payload["id"],
+        id=Snowflake.create(payload["id"]),
         username=payload["username"],
         discriminator=payload["discriminator"],
         avatar_hash=payload.get("avatar"),
@@ -76,7 +77,7 @@ def payload_to_botuser(client: "GatewayClient", payload: dict[str, typing.Any]) 
 def payload_to_message(client: "GatewayClient", payload: dict[str, typing.Any]) -> Message:
     return Message(
         client=client,
-        id=payload["id"],
+        id=Snowflake.create(payload["id"]),
         tts=payload["tts"],
         pinned=payload["pinned"],
         mentions=[payload_to_user(client, item) for item in payload["mentions"]],

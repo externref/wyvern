@@ -22,6 +22,7 @@
 from __future__ import annotations
 
 import datetime
+import typing
 
 
 def default_avatar_for(discriminator: int) -> str:
@@ -29,6 +30,12 @@ def default_avatar_for(discriminator: int) -> str:
 
 
 __all__: tuple[str, ...] = ("DiscordObject",)
+
+
+class Snowflake(int):
+    @classmethod
+    def create(cls, sf: typing.Any) -> "Snowflake":
+        return cls(sf)
 
 
 class DiscordObject:
@@ -50,7 +57,7 @@ class DiscordObject:
     """
 
     def __init__(self, _id: int) -> None:
-        self.id = _id
+        self.id = Snowflake(_id)
 
     def __eq__(self, obj: object) -> bool:
         if not isinstance(obj, DiscordObject):

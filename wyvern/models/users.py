@@ -27,7 +27,7 @@ import typing
 
 import attrs
 
-from .base import DiscordObject
+from .base import DiscordObject, Snowflake
 
 if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient
@@ -40,7 +40,7 @@ class User(DiscordObject):
     """Represents a discord user."""
 
     _client: "GatewayClient"
-    id: int
+    id: Snowflake
     """ID of the user."""
     username: str
     """Username of the user."""

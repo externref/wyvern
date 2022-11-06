@@ -37,3 +37,11 @@ class Endpoints:
     @classmethod
     def get_user(cls, user_id: int) -> str:
         return f"users/{user_id}"
+
+    @classmethod
+    def interaction_callback(cls, interaction_id: int, interaction_token: str) -> str:
+        return f"interactions/{interaction_id}/{interaction_token}/callback"
+
+    @classmethod
+    def interaction_command(cls, app_id: int) -> str:
+        return f"applications/{app_id}/commands"
