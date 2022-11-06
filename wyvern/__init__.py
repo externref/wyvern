@@ -19,9 +19,17 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""
+wyvern 🚀
+--------
 
+A feature rich library which allows you to interact with the discord API using 
+bots.
+
+"""
 
 from . import commands, utils
+from .aliases import *
 from .clients import *
 from .components import *
 from .constructors import *
@@ -33,4 +41,4 @@ from .models import *
 from .presences import *
 from .rest import *
 
-__version__ = "0.0.1a"
+__version__ = "0.0.2a"

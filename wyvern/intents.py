@@ -77,7 +77,7 @@ class Intents:
     * `GUILD_MEMBER_REMOVE`
     * `THREAD_MEMBERS_UPDATE`
 
-    !!! note
+    !!! warning
         This is a privileged intent.
     """
     GUILD_BANS = 1 << 2
@@ -121,7 +121,7 @@ class Intents:
 
     * `PRESENCE_UPDATE`
 
-    !!! note
+    !!! warning
         This is a privileged intent.
     """
     GUILD_MESSAGES = 1 << 9
@@ -169,7 +169,7 @@ class Intents:
     MESSAGE_CONTENT = 1 << 15
     """Required for guild message's content.
 
-    !!! note
+    !!! warning
         This is a privileged intent.
     """
     GUILD_SCHEDULED_EVENTS = 1 << 16
@@ -214,6 +214,8 @@ class Intents:
     """All unprivileged intents."""
     PRIVILEGED = MESSAGE_CONTENT | GUILD_MEMBERS | GUILD_PRESENCES
     """All privileged intents."""
+    ALL = PRIVILEGED | UNPRIVILEGED
+    """All intents."""
 
     def __init__(self, value: int = NONE) -> None:
         self.value = value
