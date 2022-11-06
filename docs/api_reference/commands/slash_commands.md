@@ -1,0 +1,1 @@
+::: wyvern.commands.slash_commands

@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "wyvern"
-version = "0.0.1a"
+version = "0.0.2a"
 description = "A flexible and easy to use Discord API wrapper for python 🚀."
-authors = ["FallenDeity", "sarthhh"]
+authors = [ "sarthhh", "FallenDeity"]
 license = "MIT License"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"

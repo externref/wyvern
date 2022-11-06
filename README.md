@@ -5,7 +5,7 @@
 ![](https://img.shields.io/github/stars/sarthhh/asuka?style=flat-square)
 ![](https://img.shields.io/github/last-commit/sarthhh/asuka?style=flat-square)
 
-A flexible and easy to use Discord API wrapper for python 🚀.
+A [WIP] flexible and easy to use Discord API wrapper for python 🚀.
 
 ## Why use wyvern? 
 * Feature rich API.
@@ -24,6 +24,25 @@ $pythonn -m pip install git+https://github.com/sarthhh/wyvern
 ```
 
 ## Example Code:
+
+* CommandsClient with commands support.
+```py
+import wyvern
+
+# creating a CommandsClient object to interaction with commands.
+client = wyvern.CommandsClient("TOKEN")
+
+# creating a slash command using with_slash_command decorator.
+@client.with_slash_command(name="hello", description="says a hello")
+async def hello(interaction: wyvern.ApplicationCommandInteraction) -> None:
+    # creating a response to the interaction.
+    await interaction.create_message_response("hi!")
+
+
+# running the bot.
+client.run()
+
+```
 * Basic GatewayClient with listener. 
 ```py
 import wyvern
@@ -44,30 +63,6 @@ async def message_create(message: wyvern.Message) -> None:
     if message.content and message.content.lower() == "!ping":
         await message.respond("pong!")
 
-
-# runs the bot.
-
-client.run()
-```
-* GatewayClient with custom event handler.
-```py
-import wyvern
-
-# subclassing to create a new EventHandler class.
-# events listeners can be added using the @wyvern.listener decorator.
-# the client can be accessed using client attribute inside the listener.
-
-
-class MyHandler(wyvern.EventHandler):
-    @wyvern.listener(wyvern.Event.MESSAGE_CREATE)
-    async def message_create(self, message: wyvern.Message) -> None:
-        print(f"Message sent by {message.author.username}")
-
-
-# the subclass' type ( !not instance ) is provided for the event_handler kwarg inside
-# the client class. which uses this custom EventHandler instead of a default one.
-
-client = wyvern.GatewayClient("TOKEN", event_handler=MyHandler)
 
 # runs the bot.
 
