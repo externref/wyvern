@@ -8,9 +8,10 @@
     "mypy.runUsingActiveInterpreter": true,
     "git.autofetch": true,
     "python.analysis.importFormat": "absolute",
-    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
     "python.linting.mypyEnabled": true,
     "python.linting.mypyArgs": [],
     "python.analysis.typeCheckingMode": "off",
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "black",
+    "editor.fontFamily": "'Victor Mono', 'monospace', monospace"
 }
