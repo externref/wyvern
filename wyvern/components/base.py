@@ -70,8 +70,5 @@ class Component:
     """Represents a discord component.
     Is the base class for other components."""
 
-    type: ComponentType
-    """Type of the component."""
-
     def to_payload(self) -> dict[str, typing.Any]:
         return {}

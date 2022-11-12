@@ -7,6 +7,8 @@ import attrs
 
 from .base import Component, ComponentType
 
+__all__: tuple[str, ...] = ("TextInputStyle", "TextInput", "Modal")
+
 
 class TextInputStyle(enum.IntFlag):
     SHORT = 1
@@ -40,10 +42,10 @@ class TextInput(Component):
 
     def to_payload(self) -> dict[str, typing.Any]:
         return {
-            "type": self.type,
+            "type": int(self.type),
             "custom_id": self.custom_id,
             "label": self.label,
-            "style": self.style,
+            "style": int(self.style),
             "min_length": self.min_length,
             "max_length": self.max_length,
             "required": self.required,
@@ -54,9 +56,15 @@ class TextInput(Component):
 
 @attrs.define(kw_only=True, slots=True)
 class Modal:
+    """Represents a discord modal form."""
+
     title: str
+    """Title of the modal."""
     custom_id: str
+    """Custom ID of the modal"""
     text_inputs: list[TextInput] = []
+    """A list of [TextInputs] to use in the modal."""
 
     def add_item(self, text_input: TextInput) -> None:
+        """Method to add a textinput to the Modal."""
         self.text_inputs.append(text_input)
