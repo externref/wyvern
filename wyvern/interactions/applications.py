@@ -28,18 +28,27 @@ import attrs
 
 from .base import Interaction, InteractionCommandOptionType, InteractionCommandType, InteractionType
 
+if typing.TYPE_CHECKING:
+    from wyvern import assets, models
+
+
 __all__: tuple[str, ...] = (
     "ApplicationCommandInteraction",
     "ApplicationCommandInteractionData",
     "InteractionOption",
     "AutocompleteInteraction",
+    "ApplicationCommandInteractionResolvedData",
 )
 
 
 @typing.final
 @attrs.define(kw_only=True, slots=True)
 class InteractionOption:
-    """Represents a interaction option for slash commands."""
+    """Represents a interaction option for slash commands. (From the api.)
+
+    !!! note
+        This class is not the same as [commands.slash_commands.CommandOption][] class.
+    """
 
     name: str
     """Name of the option."""
@@ -54,6 +63,17 @@ class InteractionOption:
 
     def __str__(self) -> str:
         return self.name
+
+
+@typing.final
+@attrs.define(kw_only=True, slots=True)
+class ApplicationCommandInteractionResolvedData:
+    """Resloved data of the app command interaction."""
+
+    users: dict["models.base.Snowflake", "models.User"]
+    members: dict["models.base.Snowflake", "models.Member"]
+    messages: dict["models.base.Snowflake", "models.Message"]
+    attachments: dict["models.base.Snowflake", "assets.Attachment"]
 
 
 @typing.final
@@ -77,6 +97,8 @@ class ApplicationCommandInteractionData:
     """ID of the application command target."""
     options: list[InteractionOption]
     """List of options used in the interaction."""
+    resoloved: ApplicationCommandInteractionResolvedData | None
+    """The resolved interaction data."""
 
 
 class ApplicationCommandInteraction(Interaction):

@@ -111,7 +111,7 @@ class UserState:
             users = [
                 user
                 for user in self.cached_users.values()
-                if user.username == username and user.discriminator == int(discriminator)
+                if user.username == username and int(user.discriminator) == int(discriminator)
             ]
             if users != []:
                 return users[0]

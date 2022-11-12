@@ -12,6 +12,7 @@ from .base import BaseCallable, CallbackT, HasAutoComplete, HasSubCommands, Slas
 if typing.TYPE_CHECKING:
     from wyvern.clients import CommandsClient
     from wyvern.interactions.applications import ApplicationCommandInteraction
+    from wyvern.models.channels import ChannelType
 
 __all__: tuple[str, ...] = ("CommandChoice", "OptionType", "as_slash_command", "as_option")
 
@@ -31,7 +32,7 @@ class CommandChoice:
     """
 
     name: str
-    value: str | int
+    value: str | int | None = None
 
 
 @attrs.define(kw_only=True)
@@ -50,6 +51,18 @@ class CommandOption:
     """A custom converter for the option, if any."""
     autocomplete: bool = False
     """Weather to enable autocomplete for this option or not."""
+    choices: list[CommandChoice | str] = []
+    """List of choices to add to the option."""
+    channel_types: list["ChannelType"] = []
+    """List of channel types for channel options."""
+    min_value: int | None = None
+    """Minimum value for the option"""
+    max_value: int | None = None
+    """Maximum value for the option"""
+    min_length: int | None = None
+    """Minimum length acceptable for the option"""
+    max_length: int | None = None
+    """Maximum length acceptable for the option"""
 
     def to_payload(self) -> dict[str, typing.Any]:
         return {
@@ -58,6 +71,20 @@ class CommandOption:
             "required": False if self.default is utils.EMPTY else True,
             "type": self.type,
             "autocomplete": self.autocomplete,
+            "choices": [
+                (
+                    {"name": choice.name, "value": choice.value or choice.name}
+                    if isinstance(choice, CommandChoice)
+                    else {"name": choice, "value": choice}
+                )
+                for choice in self.choices
+            ],
+            "channel_types": self.channel_types,
+            "min_value": self.min_value,
+            "min_length": self.min_length,
+            "max_length": self.max_length,
+            "min_value": self.min_value,
+            "max_value": self.max_value,
         }
 
 
@@ -134,7 +161,7 @@ class SlashCommand(BaseCallable, HasAutoComplete):
         return await super().with_autocomplete(opt_name, opt_names=opt_names)
 
     async def create_command(self) -> SlashCommand:
-        """Created the command on discord ( if already doesnt exist )
+        """Creates the command on discord ( if already doesnt exist ).
 
         Returns
         -------
@@ -153,17 +180,54 @@ class SlashCommand(BaseCallable, HasAutoComplete):
 
 
 @attrs.define
-class SlashSubCommand(BaseCallable, HasAutoComplete, CommandOption):
-    type = OptionType.SUB_COMMAND
+class SlashSubCommand(BaseCallable, HasAutoComplete):
+    name: str
+    description: str
+    callback: typing.Any
+
+    async def __call__(self, inter: "ApplicationCommandInteraction", **kwargs: typing.Any) -> typing.Any:
+        await self.callback(inter, **kwargs)
 
 
-class SlashSubGroup(HasSubCommands, CommandOption):
-    type = OptionType.SUB_COMMAND_GROUP
+class SlashSubGroup(HasSubCommands):
+    name: str
+    description: str
+
+    def __init__(self, *, name: str, description: str) -> None:
+        self.name = name
+        self.description = description
+        super().__init__()
 
 
 class SlashGroup(HasSubCommands):
-    def __init__(self) -> None:
-        pass
+    name: str
+    description: str
+    guild_ids: list[int]
+    subcommands: dict[str, SlashSubCommand] = {}
+    subgroups: dict[str, SlashSubGroup] = {}
+    _client: "CommandsClient" | None = None
+
+    def __init__(self, *, name: str, description: str, guild_ids: typing.Sequence[int] = ()) -> None:
+        self.name = name
+        self.description = description
+        self.guild_ids = list(guild_ids)
+        super().__init__()
+
+    def _set_client(self, client: "CommandsClient") -> "SlashGroup":
+        self._client = client
+        return self
+
+    def with_subgroup(self, *, name: str, description: str) -> SlashSubGroup:
+        self.subgroups[name] = (group := SlashSubGroup(name=name, description=description))
+        return group
+
+    async def with_subcommand(self, name: str, description: str) -> typing.Callable[..., SlashSubCommand]:
+        def inner(callback: CallbackT) -> SlashSubCommand:
+            nonlocal name, description
+            self.subcommands[name] = (cmd := SlashSubCommand(name=name, description=description, callback=callback))
+            return cmd
+
+        return inner
 
 
 def as_slash_command(*, name: str, description: str) -> typing.Callable[[CallbackT], SlashCommand]:

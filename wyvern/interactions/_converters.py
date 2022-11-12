@@ -2,9 +2,15 @@ from __future__ import annotations
 
 import typing
 
-from wyvern.models import converters
+from wyvern.assets import Attachment
+from wyvern.models import Snowflake, _converters
 
-from .applications import ApplicationCommandInteraction, ApplicationCommandInteractionData, InteractionOption
+from .applications import (
+    ApplicationCommandInteraction,
+    ApplicationCommandInteractionData,
+    ApplicationCommandInteractionResolvedData,
+    InteractionOption,
+)
 from .base import Interaction, InteractionType
 from .components import ComponentInteraction, ComponentInteractionData
 
@@ -22,6 +28,28 @@ def payload_to_option(data: dict[str, typing.Any]) -> InteractionOption:
     )
 
 
+def payload_to_resolved(
+    client: "GatewayClient", guild_id: int | None, data: dict[str, typing.Any]
+) -> ApplicationCommandInteractionResolvedData:
+    users = [_converters.payload_to_user(client=client, payload=_data) for _data in data.get("users", {}).values()]
+    members = []
+    messages = [_converters.payload_to_message(client, _data) for _data in data.get("messages", {}).values()]
+    attachments = [Attachment._from_payload(client, Snowflake, _data) for _data in data.get("attachments", {}).values()]
+    if guild_id is not None:
+        members = [
+            _converters.payload_to_member(client=client, guild_id=guild_id, payload=_data)
+            for _data in data.get("members", {}).values()
+        ]
+
+    res = ApplicationCommandInteractionResolvedData(
+        users={u.id: u for u in users},
+        members={m.id: m for m in members},
+        messages={m.id: m for m in messages},
+        attachments={a.id: a for a in attachments},
+    )
+    return res
+
+
 def payload_to_interaction(client: "GatewayClient", payload: dict[str, typing.Any]) -> Interaction:
     inter: Interaction
     if payload["type"] == InteractionType.MESSAGE_COMPONENT:
@@ -33,8 +61,8 @@ def payload_to_interaction(client: "GatewayClient", payload: dict[str, typing.An
             data=ComponentInteractionData(**payload["data"]),
             token=payload["token"],
             version=payload["version"],
-            message=converters.payload_to_message(client, msg) if (msg := payload["message"]) else None,
-            user=converters.payload_to_user(client, user) if (user := payload["user"]) else None,
+            message=_converters.payload_to_message(client, msg) if (msg := payload["message"]) else None,
+            user=_converters.payload_to_user(client, user) if (user := payload["user"]) else None,
             guild_id=payload.get("guild_id"),
             channel_id=payload.get("guild_id"),
             guild_locale=payload.get("guild_locale"),
@@ -46,7 +74,7 @@ def payload_to_interaction(client: "GatewayClient", payload: dict[str, typing.An
             application_id=payload["application_id"],
             token=payload["token"],
             version=payload["version"],
-            message=converters.payload_to_message(client, msg) if (msg := payload.get("message")) else None,
+            message=_converters.payload_to_message(client, msg) if (msg := payload.get("message")) else None,
             type=InteractionType.APPLICATION_COMMAND,
             data=ApplicationCommandInteractionData(
                 payload=payload["data"],
@@ -56,10 +84,13 @@ def payload_to_interaction(client: "GatewayClient", payload: dict[str, typing.An
                 command_type=d["type"],
                 target_id=d.get("target_id"),
                 options=[payload_to_option(data) for data in payload.get("options", [])],
+                resoloved=payload_to_resolved(client, payload.get("guild_id"), data)
+                if (data := payload.get("resolved"))
+                else None,
             ),
             guild_id=payload.get("guild_id"),
             channel_id=payload.get("channel_id"),
-            user=converters.payload_to_user(client, user) if (user := payload.get("user")) else None,
+            user=_converters.payload_to_user(client, user) if (user := payload.get("user")) else None,
             guild_locale=payload.get("guild_locale"),
         )
 

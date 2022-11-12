@@ -23,22 +23,15 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import typing
 
 import attrs
 
 if typing.TYPE_CHECKING:
-    from wyvern.clients import GatewayClient
+    from wyvern.clients import CommandsClient, GatewayClient
 
 __all__: tuple[str, ...] = ("Event", "EventListener", "EventHandler", "as_listener")
-
-
-class TestClass:
-    """Docsssssssssssss
-
-    !!! note
-        this is a note.
-    """
 
 
 @typing.final
@@ -47,14 +40,21 @@ class Event:
 
     MESSAGE_CREATE = "MESSAGE_CREATE"
     """Triggered when a message is created.
-
-     Note: This event gets triggerd once in a runtime.
     
     Arguments provided:
 
     * message ([wyvern.Message][])
     """
     INTERACTION_CREATE = "INTERACTION_CREATE"
+    """Triggered when an interaction is created.
+    
+    Arguments provided:
+
+    * interaction ([wyvern.Interaction])
+    
+    !!! note
+        The interaction argument can be any derivative of interaction!.
+    """
 
     # Library Events
 
@@ -171,11 +171,16 @@ class EventHandler:
 
 
         """
+        self.client._logger.debug(f"Dispatching {event} event.")
+
         invokes = [
             lsnr(self, *args) if (lsnr.callback.__class__.__name__ == self.__class__.__name__) else lsnr(*args)
             for lsnr in self.listeners.get(event, [])
             if lsnr.max_trigger > lsnr.trigger_count
         ]
+
+        if event == Event.INTERACTION_CREATE and (cb := getattr(self.client, "_handle_inters", None)):
+            invokes.append(cb(*args))
         asyncio.gather(*invokes)
 
 

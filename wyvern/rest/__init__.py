@@ -35,7 +35,7 @@ from .endpoints import Endpoints
 
 if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient
-    from wyvern.components.container import ActionRowContainer
+    from wyvern.components import ActionRowContainer, Modal
     from wyvern.constructors.embeds import EmbedConstructor
 
 __all__: tuple[str, ...] = ("RESTClient",)
@@ -81,6 +81,7 @@ class RESTClient:
     async def request(self, route: RequestRoute) -> typing.Any:
         headers = self._headers.copy()
         headers["Content-Type"] = multidict.istr("application/json")
+        self._client._logger.debug(f"Creating a {route.type} request to {route._url} endpoint.")
         res = await self._session.request(route.type, route.url, headers=headers, json=route.json)
         if res.status in (200, 201):
             return await res.json()
@@ -112,7 +113,7 @@ class RESTClient:
         """
         try:
             res = await self.request(RequestRoute(Endpoints.get_user(user_id)))
-            return models.converters.payload_to_user(self._client, res)
+            return models._converters.payload_to_user(self._client, res)
         except HTTPException as e:
             raise UserNotFound(f"{e.message}\nNotFound : No user with ID {user_id} found.")
 
@@ -128,7 +129,7 @@ class RESTClient:
         """
         try:
             res = await self.request(RequestRoute(Endpoints.fetch_client_user()))
-            return models.converters.payload_to_botuser(self._client, res)
+            return models._converters.payload_to_botuser(self._client, res)
         except HTTPException as e:
             if e.code == 401:
                 raise Unauthorized("Improper token passed.")
@@ -160,7 +161,7 @@ class RESTClient:
         res: dict[str, int | str | bool] = await self.request(
             RequestRoute(Endpoints.fetch_client_user(), type="PATCH", json=payload)
         )
-        return models.converters.payload_to_botuser(self._client, res)
+        return models._converters.payload_to_botuser(self._client, res)
 
     async def create_message(
         self,
@@ -213,7 +214,7 @@ class RESTClient:
         res: dict[str, typing.Any] = await self.request(
             RequestRoute(Endpoints.create_message(channel_id), type="POST", json=payload),
         )
-        return models.converters.payload_to_message(self._client, res)
+        return models._converters.payload_to_message(self._client, res)
 
     async def create_application_command(
         self,
@@ -238,21 +239,34 @@ class RESTClient:
     async def create_interaction_response(
         self,
         interaction: interactions.Interaction,
-        interaction_type: interactions.InteractionResponseType,
+        response_type: interactions.InteractionResponseType,
         *,
         content: str | None = None,
         embeds: typing.Sequence["EmbedConstructor"] = (),
         components: typing.Sequence[ActionRowContainer] = (),
         allowed_mentions: models.AllowedMentions | None = None,
+        modal: Modal | None = None,
     ) -> None:
-        payload: dict[str, typing.Any] = {"type": int(interaction_type), "data": {}}
-        if interaction_type is interactions.InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE:
+        """
+        Creates an interaction for the provided interaction object.
+
+
+        """
+        payload: dict[str, typing.Any] = {"type": int(response_type), "data": {}}
+        if response_type is interactions.InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE:
             pass
-        elif interaction_type is interactions.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE:
+        elif response_type is interactions.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE:
             payload["data"]["content"] = content
             payload["data"]["embeds"] = [embed._payload for embed in embeds]
             payload["data"]["components"] = [builder.to_payload() for builder in components]
             payload["data"]["allowed_mentions"] = (allowed_mentions or self._client.allowed_mentions).to_payload()
+        elif response_type is interactions.InteractionResponseType.MODAL:
+            if modal is None:
+                raise ValueError("No Modal instance provided to send.")
+            payload["data"]["custom_id"] = modal.custom_id
+            payload["data"]["title"] = modal.title
+            payload["data"]["components"] = [{"type": 1}]
+            payload["data"]["components"][0]["components"] = [comp.to_payload() for comp in modal.text_inputs]
         await self.request(
             RequestRoute(
                 Endpoints.interaction_callback(

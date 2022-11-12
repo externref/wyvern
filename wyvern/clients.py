@@ -27,17 +27,7 @@ import logging
 import typing
 
 # isort: off
-from wyvern import (
-    commands,
-    events,
-    exceptions,
-    gateway,
-    interactions,
-    models,
-    presences,
-    rest,
-    state_handlers,
-)
+from wyvern import commands, events, exceptions, gateway, interactions, models, presences, rest, state_handlers, ux
 
 # isort: on
 from wyvern import intents as _intents
@@ -46,7 +36,9 @@ if typing.TYPE_CHECKING:
     import aiohttp
 
 
-_LOGGER = logging.getLogger("wyvern")
+_LOGGER = logging.getLogger(__name__)
+
+ux.create_logging_setup(_LOGGER)
 
 __all__: tuple[str, ...] = ("GatewayClient", "CommandsClient")
 
@@ -94,12 +86,10 @@ class GatewayClient:
         self.gateway = gateway.Gateway(self)
         self.allowed_mentions = allowed_mentions
         self._users = state_handlers.UserState(self)
-        self._after_init()
+        self._logger = _LOGGER
 
-    def _after_init(self) -> None:
-        for item in self.__dict__.values():
-            if isinstance(item, events.EventListener):
-                self.event_handler.add_listener(item)
+    def _listeners_setups(self) -> None:
+        ...
 
     @property
     def users(self) -> state_handlers.UserState:
@@ -184,13 +174,16 @@ class GatewayClient:
             The status bot boots up with.
 
         """
+        self._listeners_setups()
         self.event_handler.dispatch(events.Event.STARTING, self)
         self.gateway._start_activity = activity
         self.gateway._start_status = status
         await self.gateway._get_socket_ready()
-        _LOGGER.debug("Logging in with static token.")
+        _LOGGER.info("Logging in with bot token.")
         try:
             res = await self.rest.fetch_client_user()
+            _LOGGER.info("Logged in to the gateway with bot token.")
+            _LOGGER.info("(Session info) User ID: %s, Username: %s", res.id, res.username)
             self._client_id = res.id
             self.event_handler.dispatch(events.Event.STARTED, self)
             await self.gateway.listen_gateway()
@@ -218,14 +211,25 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
     """Implementation of the [wyvern.GatewayClient][] class with a command handler."""
 
     slash_commands: dict[str, "commands.slash_commands.SlashCommand"] = {}
-
-    def _after_init(self) -> None:
-        super()._after_init()
-        self.with_listener(events.Event.INTERACTION_CREATE)(self._handle_inters)
+    """List of slash commands attached to the client in code."""
+    slash_groups: dict[str, "commands.slash_commands.SlashGroup"] = {}
+    """List of slash command groups attached to the client in code."""
 
     async def _handle_inters(self, inter: interactions.Interaction) -> None:
         if isinstance(inter, interactions.ApplicationCommandInteraction):
             await self.process_application_commands(inter)
+
+    def add_slash_command(self, command: commands.slash_commands.SlashCommand) -> None:
+        if (name := command.name) in self.slash_commands.keys():
+            raise exceptions.CommandAlreadyExists(f"A slash command named {name} already exists.")
+        _LOGGER.debug(f"Adding slash command {name} to bot.")
+        self.slash_commands[name] = command
+
+    def add_slash_group(self, group: commands.slash_commands.SlashGroup) -> None:
+        if (name := group.name) in self.slash_groups.keys():
+            raise exceptions.CommandAlreadyExists(f"A slash command named {name} already exists.")
+        _LOGGER.debug(f"Adding slash group {name} to bot.")
+        self.slash_groups[name] = group
 
     @typing.overload
     def include(self, listener_or_command: events.EventListener) -> events.EventListener:
@@ -245,7 +249,7 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
             if isinstance(listener_or_command, events.EventListener):
                 self.event_handler.add_listener(listener_or_command)
             elif isinstance(listener_or_command, commands.slash_commands.SlashCommand):
-                self.slash_commands[listener_or_command.name] = listener_or_command
+                self.add_slash_command(listener_or_command)
 
         inner()
         return listener_or_command
@@ -296,8 +300,8 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
 
         def inner(callback: commands.base.CallbackT) -> commands.slash_commands.SlashCommand:
             cmd = commands.as_slash_command(name=name, description=description)(callback)
-            cmd._set_client(self)
-            self.slash_commands[cmd.name] = cmd
+
+            self.add_slash_command(cmd._set_client(self))
             return cmd
 
         return inner

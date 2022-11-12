@@ -89,3 +89,7 @@ excs: typing.Dict[int, typing.Type[HTTPException]] = {
 
 def get_exception(code: int) -> typing.Type[WyvernException]:
     return excs.get(code, UnknownError)
+
+
+class CommandAlreadyExists(WyvernException):
+    ...

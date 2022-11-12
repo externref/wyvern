@@ -8,6 +8,7 @@ import attrs
 from .base import DiscordObject, Snowflake
 
 if typing.TYPE_CHECKING:
+    from wyvern.assets import Attachment
     from wyvern.clients import GatewayClient
     from wyvern.components.container import ActionRowContainer
     from wyvern.constructors.embeds import Embed, EmbedConstructor
@@ -119,7 +120,7 @@ class Message(DiscordObject):
     """The message author."""
     message_reference: MessageReference | None
     """The message reference, if any."""
-    attachments: list[typing.Any]
+    attachments: list[Attachment]
     """File attachments in this message."""
 
     async def respond(

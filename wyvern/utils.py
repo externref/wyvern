@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import datetime
 import typing
 
 import attrs
@@ -11,6 +12,12 @@ class Empty:
 
 
 EMPTY = Empty()
+
+
+def create_timestamp(dt: datetime.datetime | datetime.timedelta, *, style: str = "") -> str:
+    if isinstance(dt, datetime.timedelta):
+        dt = datetime.datetime.utcnow() + dt
+    return f"<t:{int(dt.timestamp())}:{style}>"
 
 
 @attrs.define(kw_only=True)

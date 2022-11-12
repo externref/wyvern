@@ -32,8 +32,8 @@ import typing
 
 import aiohttp
 
-from wyvern.interactions import converters as inter_convertors
-from wyvern.models import converters
+from wyvern.interactions import _converters as inter_convertors
+from wyvern.models import _converters
 from wyvern.presences import Activity, Status
 
 from .enums import WSEventEnums
@@ -125,7 +125,7 @@ class Gateway:
 
     async def _dispatch_events(self, payload: typing.Dict[str, typing.Any]) -> None:
         if (t := payload["t"]) == "MESSAGE_CREATE":
-            self._client.event_handler.dispatch(t, converters.payload_to_message(self._client, payload["d"]))
+            self._client.event_handler.dispatch(t, _converters.payload_to_message(self._client, payload["d"]))
         if t == "INTERACTION_CREATE":
             self._client.event_handler.dispatch(t, inter_convertors.payload_to_interaction(self._client, payload["d"]))
 

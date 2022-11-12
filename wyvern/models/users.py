@@ -27,6 +27,8 @@ import typing
 
 import attrs
 
+from wyvern.assets import Avatar, AvatarType
+
 from .base import DiscordObject, Snowflake
 
 if typing.TYPE_CHECKING:
@@ -44,7 +46,7 @@ class User(DiscordObject):
     """ID of the user."""
     username: str
     """Username of the user."""
-    discriminator: int
+    discriminator: str
     """User's discriminator."""
     avatar_hash: str | None
     """Hash of the user's avatar"""
@@ -71,6 +73,14 @@ class User(DiscordObject):
     def created_at(self) -> datetime.datetime:
         """Datetime at which user was created."""
         return self.get_created_at(self.id)
+
+    @property
+    def avatar(self) -> Avatar | None:
+        return Avatar(client=self._client, type=AvatarType.CUSTOM, hash=self.avatar_hash) if self.avatar_hash else None
+
+    @property
+    def default_avatar(self) -> Avatar:
+        return Avatar(client=self._client, type=AvatarType.DEFAULT, hash=f"embed/avatars/{int(self.discriminator)%5}")
 
 
 @typing.final

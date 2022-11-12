@@ -8,7 +8,7 @@ import attrs
 if typing.TYPE_CHECKING:
     from wyvern import models
     from wyvern.clients import GatewayClient
-    from wyvern.components.container import ActionRowContainer
+    from wyvern.components import ActionRowContainer, Modal
     from wyvern.constructors.embeds import EmbedConstructor
 
 
@@ -33,7 +33,7 @@ class InteractionType(enum.IntEnum):
     """Interaction recieved when a message component is used."""
     APPLICATION_COMMAND_AUTOCOMPLETE = 4
     """Interaction for autocompletes."""
-    MODEL_SUBMIT = 5
+    MODAL_SUBMIT = 5
     """Interaction when a modal form is submitted."""
 
 
@@ -45,6 +45,7 @@ class InteractionResponseType(enum.IntEnum):
     DEFERRED_UPDATE_MESSAGE = 6
     UPDATE_MESSAGE = 7
     APPLICATION_COMMAND_AUTOCOMPLETE_RESULT = 8
+    MODAL = 9
 
 
 @typing.final
@@ -117,12 +118,13 @@ class Interaction:
             allowed_mentions=allowed_mentions,
         )
 
-    async def create_defered_response(
-        self,
-    ) -> None:
+    async def create_defered_response(self) -> None:
         await self._client.rest.create_interaction_response(
             self,
             InteractionResponseType.DEFERRED_UPDATE_MESSAGE
             if self.type is InteractionType.MESSAGE_COMPONENT
             else InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
         )
+
+    async def create_modal_response(self, modal: "Modal") -> None:
+        await self._client.rest.create_interaction_response(self, InteractionResponseType.MODAL, modal=modal)
