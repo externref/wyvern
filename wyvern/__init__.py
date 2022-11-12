@@ -28,8 +28,9 @@ bots.
 
 """
 
-from . import commands, utils
+from . import commands, extensions, utils
 from .aliases import *
+from .assets import *
 from .clients import *
 from .components import *
 from .constructors import *
