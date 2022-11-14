@@ -12,7 +12,7 @@ aiohttp = "^3.8.1"
 attrs = "^22.1.0"
 
 [tool.poetry.dev-dependencies]
-mypy = "^0.982"
+mypy = "^0.990"
 isort = "^5.10.1"
 black = "^22.6.0"
 pre-commit = "^2.20.0"
