@@ -128,7 +128,7 @@ class RESTClient:
             BotUser object representating the bot's user.
         """
         try:
-            res = await self.request(RequestRoute(Endpoints.fetch_client_user()))
+            res = await self.request(RequestRoute(Endpoints.get_current_user()))
             return models._converters.payload_to_botuser(self._client, res)
         except HTTPException as e:
             if e.code == 401:
@@ -159,7 +159,7 @@ class RESTClient:
         if avatar is not None:
             payload["avatar"] = avatar
         res: dict[str, int | str | bool] = await self.request(
-            RequestRoute(Endpoints.fetch_client_user(), type="PATCH", json=payload)
+            RequestRoute(Endpoints.get_current_user(), type="PATCH", json=payload)
         )
         return models._converters.payload_to_botuser(self._client, res)
 
