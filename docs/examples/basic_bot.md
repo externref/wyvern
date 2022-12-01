@@ -11,7 +11,7 @@ client = wyvern.GatewayClient("TOKEN", intents=wyvern.Intents.UNPRIVILEGED | wyv
 # the `max_trigger kwarg in the listener decorator.`
 
 
-@client.listener(wyvern.Event.MESSAGE_CREATE)
+@client.as_listener(wyvern.Event.MESSAGE_CREATE)
 async def message_create(message: wyvern.Message) -> None:
     """This coroutine is triggerd whenever the MESSAGE_CREATE event gets dispatched."""
     if message.content and message.content.lower() == "!ping":

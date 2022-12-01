@@ -25,7 +25,6 @@ from __future__ import annotations
 import asyncio
 import datetime
 import json
-import logging
 import sys
 import time
 import typing
@@ -41,9 +40,6 @@ from .keep_alive import KeepAlive
 
 if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient
-
-
-_LOGGER = logging.getLogger("wyvern.api.gateway")
 
 
 __all__: tuple[str, ...] = ("Gateway",)
@@ -83,8 +79,23 @@ class Gateway:
     def latency(self) -> float:
         return self._latency
 
+    async def update_presence(self, status: Status | None = None, activity: Activity | None = None) -> None:
+        payload: dict[str, typing.Any] = {
+            "op": WSEventEnums.PRESECNE_UPDATE.value,
+            "d": {
+                "since": int(datetime.datetime.now().timestamp()),
+                "afk": False,
+                "status": status.value if status else "online",
+                "activities": [activity.to_event_payload()] if activity else [],
+            },
+        }
+
+        print(payload)
+
+        await self.socket.send_json(payload)
+
     @property
-    def identify_payload(self) -> typing.Dict[str, typing.Any]:
+    def identify_payload(self) -> dict[str, typing.Any]:
         return {
             "op": 2,
             "d": {
@@ -105,31 +116,33 @@ class Gateway:
         }
 
     async def listen_gateway(self) -> None:
-        _LOGGER.debug("Starting listening to gateway.")
+        self._client._logger.debug("Starting listening to gateway.")
         async for message in self.socket:
             if self.is_connected is False:
                 self.is_connected = True
                 self._client.event_handler.dispatch("GATEWAY_CONNECTED", self._client)
             if message.type == aiohttp.WSMsgType.TEXT:
                 await self._parse_payload_response(json.loads(message.data))
+            elif message.type == aiohttp.WSMsgType.ERROR:
+                "error from the gateway!"
 
     async def _get_socket_ready(self) -> None:
         self._socket = await self._client.rest._create_websocket()
 
-    async def _hello_res(self, d: typing.Dict[str, typing.Any]) -> None:
-        _LOGGER.debug("Sending identify payload.")
+    async def _hello_res(self, d: dict[str, typing.Any]) -> None:
+        self._client._logger.debug("Sending identify payload.")
         await self.socket.send_json(self.identify_payload)
         self._heartbeat_interval = d["heartbeat_interval"] / 1000
         loop = asyncio.get_event_loop()
         loop.create_task(self.keep_alive.start(self))
 
-    async def _dispatch_events(self, payload: typing.Dict[str, typing.Any]) -> None:
+    async def _dispatch_events(self, payload: dict[str, typing.Any]) -> None:
         if (t := payload["t"]) == "MESSAGE_CREATE":
             self._client.event_handler.dispatch(t, _converters.payload_to_message(self._client, payload["d"]))
         if t == "INTERACTION_CREATE":
             self._client.event_handler.dispatch(t, inter_convertors.payload_to_interaction(self._client, payload["d"]))
 
-    async def _parse_payload_response(self, payload: typing.Dict[str, typing.Any]) -> None:
+    async def _parse_payload_response(self, payload: dict[str, typing.Any]) -> None:
         op, t, d = payload["op"], payload["t"], payload["d"]
         if op == WSEventEnums.HEARTBEAT_ACK:
             self._latency = time.perf_counter() - self.keep_alive.last_heartbeat

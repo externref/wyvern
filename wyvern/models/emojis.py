@@ -23,6 +23,7 @@
 from __future__ import annotations
 
 import datetime
+import typing
 
 import attrs
 
@@ -33,7 +34,8 @@ __all__: tuple[str, ...] = ("CustomEmoji",)
 
 @attrs.define(kw_only=True, slots=True, repr=True)
 class CustomEmoji(DiscordObject):
-    name: str | None
+    raw: dict[str, typing.Any]
+    name: str
     id: Snowflake
     is_animated: bool
     is_available: bool

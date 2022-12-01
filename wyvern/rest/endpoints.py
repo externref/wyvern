@@ -26,7 +26,6 @@ __all__: tuple[str, ...] = ("Endpoints",)
 
 
 class Endpoints:
-
     @classmethod
     def guild_audit_logs(cls, guild_id: int) -> str:
         return f"guilds/{guild_id}/audit-logs"

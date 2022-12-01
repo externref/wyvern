@@ -23,3 +23,4 @@
 from .applications import *
 from .base import *
 from .components import *
+from .localizations import *

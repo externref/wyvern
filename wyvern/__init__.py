@@ -30,7 +30,7 @@ bots.
 
 from . import commands, extensions, utils
 from .aliases import *
-from .assets import *
+from .files import *
 from .clients import *
 from .components import *
 from .constructors import *
@@ -39,6 +39,8 @@ from .exceptions import *
 from .intents import *
 from .interactions import *
 from .models import *
+from .permissions import *
+from .plugins import *
 from .presences import *
 from .rest import *
 

@@ -25,7 +25,7 @@ from __future__ import annotations
 import datetime
 import typing
 
-from wyvern.assets import Attachment
+from wyvern.files import Attachment
 
 from .base import Snowflake
 from .members import Member
@@ -42,6 +42,7 @@ __all__: tuple[str, ...] = ("payload_to_user", "payload_to_member", "payload_to_
 def payload_to_user(client: "GatewayClient", payload: dict[str, typing.Any]) -> "User":
     return User(
         client=client,
+        raw=payload,
         id=Snowflake.create(payload["id"]),
         username=payload["username"],
         discriminator=payload["discriminator"],
@@ -58,10 +59,11 @@ def payload_to_user(client: "GatewayClient", payload: dict[str, typing.Any]) -> 
     )
 
 
-def payload_to_member(client: "GatewayClient", guild_id: int, payload: dict[str, typing.Any]) -> Member:
+def payload_to_member(client: "GatewayClient", guild_id: Snowflake, payload: dict[str, typing.Any]) -> Member:
     user = payload_to_user(client=client, payload=payload)
     return Member(
         client=client,
+        raw=payload,
         id=user.id,
         username=user.username,
         discriminator=user.discriminator,
@@ -93,6 +95,7 @@ def payload_to_member(client: "GatewayClient", guild_id: int, payload: dict[str,
 def payload_to_botuser(client: "GatewayClient", payload: dict[str, typing.Any]) -> BotUser:
     return BotUser(
         client=client,
+        raw=payload,
         id=Snowflake.create(payload["id"]),
         username=payload["username"],
         discriminator=payload["discriminator"],
@@ -112,6 +115,7 @@ def payload_to_botuser(client: "GatewayClient", payload: dict[str, typing.Any]) 
 def payload_to_message(client: "GatewayClient", payload: dict[str, typing.Any]) -> Message:
     return Message(
         client=client,
+        raw=payload,
         id=Snowflake.create(payload["id"]),
         tts=payload["tts"],
         pinned=payload["pinned"],
@@ -119,7 +123,7 @@ def payload_to_message(client: "GatewayClient", payload: dict[str, typing.Any]) 
         mention_roles=payload["mention_roles"],
         flags_value=payload["flags"],
         embeds=[],
-        edited_at=datetime.datetime.fromisoformat(t) if (t := payload["edited_timestamp"]) else None,
+        edited_at=datetime.datetime.fromisoformat(t) if (t := payload.get("edited_timestamp")) else None,
         content=payload["content"],
         channel_id=payload["channel_id"],
         author=payload_to_user(client, payload["author"]),

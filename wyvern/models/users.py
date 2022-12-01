@@ -27,7 +27,7 @@ import typing
 
 import attrs
 
-from wyvern.assets import Avatar, AvatarType
+from wyvern.files import Avatar, AvatarType
 
 from .base import DiscordObject, Snowflake
 
@@ -42,6 +42,8 @@ class User(DiscordObject):
     """Represents a discord user."""
 
     _client: "GatewayClient"
+
+    raw: dict[str, typing.Any]
     id: Snowflake
     """ID of the user."""
     username: str
@@ -69,6 +71,9 @@ class User(DiscordObject):
     public_flags_value: int | None
     """Integer value for user's public flags"""
 
+    def __str__(self) -> str:
+        return f"{self.username}#{self.discriminator}"
+
     @property
     def created_at(self) -> datetime.datetime:
         """Datetime at which user was created."""
@@ -81,6 +86,10 @@ class User(DiscordObject):
     @property
     def default_avatar(self) -> Avatar:
         return Avatar(client=self._client, type=AvatarType.DEFAULT, hash=f"embed/avatars/{int(self.discriminator)%5}")
+
+    @property
+    def display_avatar(self) -> Avatar:
+        return self.avatar or self.default_avatar
 
 
 @typing.final

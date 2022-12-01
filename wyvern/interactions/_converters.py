@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from wyvern.assets import Attachment
+from wyvern.files import Attachment
 from wyvern.models import Snowflake, _converters
 
 from .applications import (
@@ -37,7 +37,7 @@ def payload_to_resolved(
     attachments = [Attachment._from_payload(client, Snowflake, _data) for _data in data.get("attachments", {}).values()]
     if guild_id is not None:
         members = [
-            _converters.payload_to_member(client=client, guild_id=guild_id, payload=_data)
+            _converters.payload_to_member(client=client, guild_id=Snowflake.create(guild_id), payload=_data)
             for _data in data.get("members", {}).values()
         ]
 

@@ -23,14 +23,29 @@
 from __future__ import annotations
 
 import asyncio
+import importlib
 import logging
+import inspect
 import typing
 
 # isort: off
-from wyvern import commands, events, exceptions, gateway, interactions, models, presences, rest, state_handlers, ux
+from wyvern import (
+    commands,
+    events,
+    exceptions,
+    gateway,
+    interactions,
+    models,
+    presences,
+    rest,
+    state_handlers,
+    utils,
+    ux,
+)
 
 # isort: on
 from wyvern import intents as _intents
+from wyvern import plugins as _plugins
 
 if typing.TYPE_CHECKING:
     import aiohttp
@@ -66,6 +81,9 @@ class GatewayClient:
 
     """
 
+    hooks: dict[str, utils.Hook] = {}
+    plugins: dict[str, _plugins.Plugin] = {}
+
     def __init__(
         self,
         token: str,
@@ -85,24 +103,29 @@ class GatewayClient:
         self.intents = intents if isinstance(intents, _intents.Intents) else _intents.Intents(int(intents))
         self.gateway = gateway.Gateway(self)
         self.allowed_mentions = allowed_mentions
-        self._users = state_handlers.UserState(self)
+        self._users = state_handlers.UsersState(self)
+        self._members = state_handlers.MembersState(self)
         self._logger = _LOGGER
 
     def _listeners_setups(self) -> None:
         ...
 
     @property
-    def users(self) -> state_handlers.UserState:
+    def users(self) -> state_handlers.UsersState:
         """The state handler for users stored in the bot's cache,
         Can also be used to perform fetch operations and parsing users from string.
 
         Returns
         -------
 
-        wyvern.state_handlers.UserState
+        wyvern.state_handlers.UsersState
             The handler.
         """
         return self._users
+
+    @property
+    def members(self) -> state_handlers.MembersState:
+        return self._members
 
     @property
     def latency(self) -> float:
@@ -189,6 +212,7 @@ class GatewayClient:
             await self.gateway.listen_gateway()
         except exceptions.Unauthorized as e:
             await self.rest._session.close()
+            e.message += ", Improper token was passed."
             raise e
 
     def run(self, *, activity: presences.Activity | None = None, status: presences.Status | None = None) -> None:
@@ -205,6 +229,32 @@ class GatewayClient:
         """
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.start(activity=activity, status=status))
+
+    def load_hooks(self, path: str) -> dict[str, utils.Hook]:
+        module = importlib.import_module(path)
+        hooks = {
+            hook.name: hook
+            for hook in [module.__dict__.get(obj) for obj in dir(module)]
+            if isinstance(hook, utils.Hook)
+        }
+        if any(overrided := [hook for hook in hooks.keys() if hook in self.hooks.keys()]):
+            self._logger.warning("Overring loaded hooks: %s", ", ".join(overrided))
+        self.hooks.update(hooks)
+        return hooks
+
+    def get_hooks(self, *, awaitable: bool = True, non_awaitable: bool = True) -> list[utils.Hook]:
+        hooks: list[utils.Hook] = []
+        if awaitable is True:
+            hooks.extend([hook for hook in self.hooks.values() if inspect.isawaitable(hook.callback)])
+        if non_awaitable is True:
+            hooks.extend([hook for hook in self.hooks.values() if not inspect.isawaitable(hook.callback)])
+        return hooks
+
+    def add_plugin(self, plugin: _plugins.Plugin) -> None:
+        if plugin.name in self.plugins.keys():
+            raise exceptions.PluginException("Plugin %s is already loaded." % (plugin.name))
+        self.plugins[plugin.name] = plugin
+        plugin.setup_plugin(self)
 
 
 class CommandsClient(GatewayClient, commands.CommandHandler):

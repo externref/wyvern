@@ -23,13 +23,14 @@
 from __future__ import annotations
 
 import dataclasses
+import datetime
 import typing
 
 import aiohttp
 import multidict
 
 from wyvern import commands, interactions, models
-from wyvern.exceptions import HTTPException, Unauthorized, UserNotFound
+from wyvern.exceptions import HTTPException
 
 from .endpoints import Endpoints
 
@@ -68,7 +69,7 @@ class RESTClient:
         self._session: aiohttp.ClientSession
         self._token = token
         self._api_version = api_version
-        self._headers: typing.Dict[str, multidict.istr] = {"Authorization": multidict.istr(f"Bot {token}")}
+        self._headers: dict[str, multidict.istr] = {"Authorization": multidict.istr(f"Bot {token}")}
 
         if client_session is not None:
             self._session = client_session
@@ -88,7 +89,18 @@ class RESTClient:
         if res.status in (204, 304):
             return
         else:
-            raise HTTPException.with_code(res.status, await res.text())
+            self.handle_error(exc := HTTPException((await res.json())["message"], res.status, route).create())
+            raise exc
+
+    def handle_error(self, exc: HTTPException) -> None:
+        self._client._logger.error(
+            f"Exception while creating a HTTP request.\nType: %s, Endpoint: %s\nException: %s ",
+            exc.route.type,
+            exc.route.url,
+            exc.message,
+        )
+
+
 
     async def fetch_user(self, user_id: int) -> models.User:
         """Fetchs a user using the REST api.
@@ -108,14 +120,11 @@ class RESTClient:
         Raises
         ------
 
-        wyvern.exceptions.UserNotFound
+        wyvern.exceptions.NotFound
             The targetted user was not found.
         """
-        try:
-            res = await self.request(RequestRoute(Endpoints.get_user(user_id)))
-            return models._converters.payload_to_user(self._client, res)
-        except HTTPException as e:
-            raise UserNotFound(f"{e.message}\nNotFound : No user with ID {user_id} found.")
+        res = await self.request(RequestRoute(Endpoints.get_user(user_id)))
+        return models._converters.payload_to_user(self._client, res)
 
     async def fetch_client_user(self) -> "models.BotUser":
         """
@@ -127,13 +136,8 @@ class RESTClient:
         wyvern.models.users.BotUser
             BotUser object representating the bot's user.
         """
-        try:
-            res = await self.request(RequestRoute(Endpoints.get_current_user()))
-            return models._converters.payload_to_botuser(self._client, res)
-        except HTTPException as e:
-            if e.code == 401:
-                raise Unauthorized("Improper token passed.")
-            raise e
+        res = await self.request(RequestRoute(Endpoints.get_current_user()))
+        return models._converters.payload_to_botuser(self._client, res)
 
     async def edit_client_user(self, username: str | None = None, avatar: bytes | None = None) -> "models.BotUser":
         """Edits the bot's user.
@@ -162,6 +166,15 @@ class RESTClient:
             RequestRoute(Endpoints.get_current_user(), type="PATCH", json=payload)
         )
         return models._converters.payload_to_botuser(self._client, res)
+
+    async def fetch_member(self, guild_id: int, member_id: int) -> models.Member:
+
+        res = await self.request(
+            RequestRoute(
+                Endpoints.get_guild_member(guild_id, member_id),
+            )
+        )
+        return models._converters.payload_to_member(self._client, models.Snowflake.create(guild_id), res)
 
     async def create_message(
         self,
@@ -216,6 +229,22 @@ class RESTClient:
         )
         return models._converters.payload_to_message(self._client, res)
 
+    async def fetch_message(self, channel_id: int, message_id: int) -> models.Message:
+
+        res = await self.request(RequestRoute(Endpoints.get_channel_message(channel_id, message_id)))
+        return models._converters.payload_to_message(self._client, res)
+
+    async def fetch_messages(
+        self, channel_id: int, around: datetime.datetime
+    ) -> dict[models.Snowflake, models.Message]:
+        try:
+            res = await self.request(RequestRoute(Endpoints.get_channel_messages(channel_id)))
+            return {
+                msg.id: msg for msg in [models._converters.payload_to_message(self._client, payload) for payload in res]
+            }
+        except HTTPException as e:
+            raise e
+
     async def create_application_command(
         self,
         *,
@@ -235,6 +264,9 @@ class RESTClient:
         return await self.request(
             RequestRoute(Endpoints.interaction_command(self._client._client_id), type="POST", json=payload)
         )
+
+    async def _create_app_command_from_payload(self, payload: dict[str, typing.Any]) -> typing.Any:
+        return await self.request(RequestRoute(Endpoints.interaction_command(self._client._client_id), type="POST", json=payload))
 
     async def create_interaction_response(
         self,

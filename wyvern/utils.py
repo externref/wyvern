@@ -14,7 +14,21 @@ class Empty:
 EMPTY = Empty()
 
 
-def create_timestamp(dt: datetime.datetime | datetime.timedelta, *, style: str = "") -> str:
+def create_timestamp(dt: datetime.datetime | datetime.timedelta, *, style: str = "t") -> str:
+    """Creates an UNIX timestamp for provided datetime or timedelta object.
+    
+    Parameters
+    ----------
+
+    dt : datetime.datetime | datetime.timedelta
+        The datetime or timedelta to convert.
+    
+    Returns
+    -------
+
+    str 
+        The UNIX timestamp.
+    """
     if isinstance(dt, datetime.timedelta):
         dt = datetime.datetime.utcnow() + dt
     return f"<t:{int(dt.timestamp())}:{style}>"
@@ -28,6 +42,39 @@ class CacheConfigurations:
     roles: bool = True
     channels: bool = True
     messages: bool = False
+
+
+@attrs.define
+class Hook:
+    """Hooks for per-module setup. They can be loaded using `GatewayClient.load_hooks`"""
+    callback: typing.Callable[..., typing.Any]
+    """Callback of the hook."""
+    name: str
+    """Name of the hook."""
+
+    def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        return self.callback(*args, **kwargs)
+
+
+def as_hook(name: str | None = None) -> typing.Callable[..., Hook]:
+    """Creates a [wyvern.utils.Hook][]
+    
+    Parameters
+    ----------
+    
+    name : str
+        Name of the hook.
+
+    Returns
+    -------
+
+    wyvern.utils.Hook
+        The hook that was created.
+    """
+    def inner(callback: typing.Callable[..., typing.Any]) -> Hook:
+        return Hook(callback, name or callback.__name__)
+
+    return inner
 
 
 class Eval:

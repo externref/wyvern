@@ -6,9 +6,10 @@ import typing
 import attrs
 
 from .base import DiscordObject, Snowflake
+from wyvern._internals import BitWiseFlag
 
 if typing.TYPE_CHECKING:
-    from wyvern.assets import Attachment
+    from wyvern.files import Attachment
     from wyvern.clients import GatewayClient
     from wyvern.components.container import ActionRowContainer
     from wyvern.constructors.embeds import Embed, EmbedConstructor
@@ -71,7 +72,7 @@ class AllowedMentions:
         return payload
 
 
-class MessageFlags:
+class MessageFlags(BitWiseFlag):
     CROSSPOSTED = 1 << 0
     IS_CROSSPOST = 1 << 1
     SUPPRESS_EMBEDS = 1 << 2
@@ -81,11 +82,6 @@ class MessageFlags:
     EPHEMERAL = 1 << 6
     LOADING = 1 << 7
     FAILED_TO_MENTION_SOME_ROLES_IN_THREAD = 1 << 8
-    value: int
-
-    def __init__(self, value: int) -> None:
-        self.value = value
-        super().__init__()
 
 
 @attrs.define(kw_only=True, slots=True, repr=True, eq=True)
@@ -95,6 +91,8 @@ class Message(DiscordObject):
     """
 
     _client: "GatewayClient"
+
+    raw: dict[str, typing.Any]
     id: Snowflake
     """ID of the message."""
     tts: bool

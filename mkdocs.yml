@@ -54,17 +54,24 @@ nav:
           - buttons: api_reference/components/buttons.md
           - container: api_reference/components/container.md
           - modals: api_reference/components/modals.md
-          - select_menus: api_reference/components/select_menus.md
+          - selects: api_reference/components/selects.md
       - constructors:
           - embed: api_reference/constructors/embeds.md
       - events: api_reference/events.md
       - extensions: 
           - tasks: api_reference/extensions/tasks.md
+      - interactions:
+          - applications: api_reference/interactions/applications.md
+          - base: api_reference/interactions/base.md
+          - components: api_reference/interactions/components.md
+          - localizations: api_reference/interactions/localizations.md
       - intents: api_reference/intents.md
+      - plugins: api_reference/plugins.md
       - presences: api_reference/presences.md
       - models:
           - base: api_reference/models/base.md
           - messages: api_reference/models/messages.md
+          - members: api_reference/models/members.md
           - users: api_reference/models/users.md
       - state_handlers:
           - users: api_reference/state_handlers/users.md

@@ -6,10 +6,10 @@ if typing.TYPE_CHECKING:
     from wyvern.clients import GatewayClient
     from wyvern.models.users import User
 
-__all__: tuple[str, ...] = ("UserState",)
+__all__: tuple[str, ...] = ("UsersState",)
 
 
-class UserState:
+class UsersState:
     """A handler for user cache and rest connection with the client.
     This interface can be used to get/fetch users with convinience.
     """

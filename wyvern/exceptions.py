@@ -25,24 +25,27 @@ from __future__ import annotations
 
 import typing
 
+import attrs
+
+if typing.TYPE_CHECKING:
+    from wyvern.rest import RequestRoute
+
 
 class WyvernException(Exception):
     ...
 
 
+@attrs.define
 class HTTPException(WyvernException):
-    message: str | None
-    code: int | None = None
+    message: str
+    code: int
+    route: "RequestRoute"
 
-    def __init__(self, message: str | None = None):
-        self.message = message
-        super().__init__(self.message or "A HTTP error occured.")
+    def __str__(self) -> str:
+        return self.message
 
-    @classmethod
-    def with_code(cls, code: int, message: str) -> "HTTPException":
-        exc = HTTPException(message)
-        exc.code = code
-        return exc
+    def create(self) -> HTTPException:
+        return get_http_exception(self.code)(self.message, self.code, self.route)
 
 
 class BadRequest(HTTPException):
@@ -77,7 +80,11 @@ class UserNotFound(NotFound):
     """Raised when the targetted user was not found."""
 
 
-excs: typing.Dict[int, typing.Type[HTTPException]] = {
+class MemberNotFound(NotFound):
+    """Raised when the targetted member was not found."""
+
+
+excs: dict[int, typing.Type[HTTPException]] = {
     400: BadRequest,
     401: Unauthorized,
     403: Forbidden,
@@ -87,9 +94,13 @@ excs: typing.Dict[int, typing.Type[HTTPException]] = {
 }
 
 
-def get_exception(code: int) -> typing.Type[WyvernException]:
+def get_http_exception(code: int) -> typing.Type[HTTPException]:
     return excs.get(code, UnknownError)
 
 
 class CommandAlreadyExists(WyvernException):
+    ...
+
+
+class PluginException(WyvernException):
     ...

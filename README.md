@@ -1,11 +1,15 @@
 # wyvern
-![](https://img.shields.io/github/license/sarthhh/asuka?style=flat-square)
-![](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)
-![](https://img.shields.io/badge/%20type_checker-mypy-%231674b1?style=flat-square)
-![](https://img.shields.io/github/stars/sarthhh/asuka?style=flat-square)
-![](https://img.shields.io/github/last-commit/sarthhh/asuka?style=flat-square)
 
+<p align="center">
+<img src="./docs/assets/wyvern.png" height=150 width=150><br>
+<img src="https://img.shields.io/github/license/sarthhh/wyvern?style=flat-square">
+<img src="https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square">
+<img src="https://img.shields.io/badge/%20type_checker-mypy-%231674b1?style=flat-square">
+<img src="https://img.shields.io/github/stars/sarthhh/wyvern?style=flat-square">
+<img src="https://img.shields.io/github/last-commit/sarthhh/wyvern?style=flat-square">
+<br>
 A [WIP] flexible and easy to use Discord API wrapper for python 🚀.
+</p>
 
 ## Why use wyvern? 
 * Feature rich API.
@@ -57,7 +61,7 @@ client = wyvern.GatewayClient("TOKEN", intents=wyvern.Intents.UNPRIVILEGED | wyv
 # the `max_trigger kwarg in the listener decorator.`
 
 
-@client.listener(wyvern.Event.MESSAGE_CREATE)
+@client.as_listener(wyvern.Event.MESSAGE_CREATE)
 async def message_create(message: wyvern.Message) -> None:
     """This coroutine is triggerd whenever the MESSAGE_CREATE event gets dispatched."""
     if message.content and message.content.lower() == "!ping":

@@ -26,7 +26,7 @@ import typing
 
 from .base import ButtonStyle, Component, ComponentType
 from .buttons import Button
-from .select_menus import Select, SelectOption, SelectType
+from .selects import Select, SelectOption, SelectType
 
 if typing.TYPE_CHECKING:
     from wyvern.models.channels import ChannelType
