@@ -3,6 +3,7 @@ repo_url: https://github.com/sarthhh/wyvern
 site_description: Documentation for the Discord API wrapper, wyvern.
 site_author: sarth
 copyright: Copyright sarthhh ( 2022 - present )
+site_url: https://sarthhh.github.io/wyvern
 
 theme:
   name: "material"
@@ -40,6 +41,12 @@ plugins:
           import:
             - https://docs.python.org/3.9/objects.inv
   - search
+  - social:
+      cards_color:
+        fill: "#3761A3" 
+        text: "#FFFFFF"
+
+
 
 nav:
   - Getting Started: index.md
@@ -95,7 +102,7 @@ markdown_extensions:
   - pymdownx.superfences
 
 extra:
-  version: 0.0.1a
+  version: 0.0.2a
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/sarthhh/wyvern
