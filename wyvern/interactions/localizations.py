@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 import attrs
 
 LOCALE_TUPLES: list[tuple[str, str, str]] = [
@@ -59,6 +58,6 @@ class Localizations:
         return self
 
     @classmethod
-    def _check_is_valid(self, local: str) -> str:
-        assert local in self.VALID_LOCALES.keys()
+    def _check_is_valid(cls, local: str) -> str:
+        assert local in cls.VALID_LOCALES.keys()
         return local

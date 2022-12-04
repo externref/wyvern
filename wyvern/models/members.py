@@ -65,7 +65,7 @@ class Member(User):
             The user's guild avatar.
         """
         return (
-            Avatar(client=self._client, type=AvatarType.GUILD, hash=self.guild_avatar_hash)
+            Avatar(self._client, type=AvatarType.GUILD, hash=self.guild_avatar_hash)
             if self.guild_avatar_hash
             else None
         )

@@ -9,7 +9,7 @@ if typing.TYPE_CHECKING:
 
     from .slash_commands import SlashCommand
 
-
+__all__: tuple[str,...] = ("CommandHandler",)
 class CommandHandler:
     """Command Handler for interacting with interaction and prefix commands.
 
@@ -20,9 +20,9 @@ class CommandHandler:
 
     prefix_getter: typing.Any = None
     prefix_type: type | None = None
-    slash_commands: dict[str, "SlashCommand"]
+    slash_commands: dict[str, SlashCommand]
 
-    async def get_prefixes(self, message: "Message") -> typing.Any:
+    async def get_prefixes(self, message: Message) -> typing.Any:
         """Get's a list of prefix with respect to the message.
 
         Parameters
@@ -46,7 +46,7 @@ class CommandHandler:
             elif inspect.isfunction(self.prefix_getter):
                 return [prefix] if isinstance((prefix := self.prefix_getter(self, message)), str) else prefix
 
-    async def process_application_commands(self, interaction: "ApplicationCommandInteraction") -> None:
+    async def process_application_commands(self, interaction: ApplicationCommandInteraction) -> None:
         """Processes application command interactions for app commands.
 
         Parameters

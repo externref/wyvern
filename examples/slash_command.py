@@ -9,10 +9,9 @@ async def ping(interaction: wyvern.AppCommandInter) -> None:
     await interaction.create_message_response("pong!")
 
 
-@commands.as_option(name="text", description="the text to send.")
+@commands.with_option(name="text", description="the text to send.")
 @client.with_slash_command(name="echo", description="repeats your text.")
 async def echo(interaction: wyvern.AppCommandInter, text: str) -> None:
     await interaction.create_message_response(text)
-
 
 client.run()

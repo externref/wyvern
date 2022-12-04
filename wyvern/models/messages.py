@@ -5,14 +5,15 @@ import typing
 
 import attrs
 
-from .base import DiscordObject, Snowflake
 from wyvern._internals import BitWiseFlag
 
+from .base import DiscordObject, Snowflake
+
 if typing.TYPE_CHECKING:
-    from wyvern.files import Attachment
     from wyvern.clients import GatewayClient
     from wyvern.components.container import ActionRowContainer
     from wyvern.constructors.embeds import Embed, EmbedConstructor
+    from wyvern.files import Attachment
 
     from .users import User
 
@@ -90,7 +91,7 @@ class Message(DiscordObject):
     Represents a discord message.
     """
 
-    _client: "GatewayClient"
+    _client: "GatewayClient"= attrs.field(kw_only=False)
 
     raw: dict[str, typing.Any]
     id: Snowflake

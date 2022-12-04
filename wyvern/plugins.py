@@ -9,18 +9,18 @@ if typing.TYPE_CHECKING:
 __all__: tuple[str, ...] = ("Plugin",)
 
 
-
 class Plugin:
     """Plugins for extendibility.
-    
+
     Parameters
     ----------
-    
+
     name: str
         Name of the plugin.
     description : str | None
         Description of the plugin.
     """
+
     name: str
     """Name of the plugin."""
     description: str | None = None

@@ -83,3 +83,5 @@ class DiscordObject:
         """
         timestamp = ((_id >> 22) + 1420070400000) / 1000
         return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)
+
+

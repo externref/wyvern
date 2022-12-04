@@ -31,13 +31,13 @@ def payload_to_option(data: dict[str, typing.Any]) -> InteractionOption:
 def payload_to_resolved(
     client: "GatewayClient", guild_id: int | None, data: dict[str, typing.Any]
 ) -> ApplicationCommandInteractionResolvedData:
-    users = [_converters.payload_to_user(client=client, payload=_data) for _data in data.get("users", {}).values()]
+    users = [_converters.payload_to_user(client, payload=_data) for _data in data.get("users", {}).values()]
     members = []
     messages = [_converters.payload_to_message(client, _data) for _data in data.get("messages", {}).values()]
     attachments = [Attachment._from_payload(client, Snowflake, _data) for _data in data.get("attachments", {}).values()]
     if guild_id is not None:
         members = [
-            _converters.payload_to_member(client=client, guild_id=Snowflake.create(guild_id), payload=_data)
+            _converters.payload_to_member(client, guild_id=Snowflake.create(guild_id), payload=_data)
             for _data in data.get("members", {}).values()
         ]
 
@@ -54,7 +54,7 @@ def payload_to_interaction(client: "GatewayClient", payload: dict[str, typing.An
     inter: Interaction
     if payload["type"] == InteractionType.MESSAGE_COMPONENT:
         inter = ComponentInteraction(
-            client=client,
+            client,
             id=payload["id"],
             application_id=payload["application_id"],
             type=payload["type"],
@@ -69,7 +69,7 @@ def payload_to_interaction(client: "GatewayClient", payload: dict[str, typing.An
         )
     elif payload["type"] == InteractionType.APPLICATION_COMMAND:
         inter = ApplicationCommandInteraction(
-            client=client,
+            client,
             id=payload["id"],
             application_id=payload["application_id"],
             token=payload["token"],
@@ -97,4 +97,4 @@ def payload_to_interaction(client: "GatewayClient", payload: dict[str, typing.An
     else:
         pass
 
-    return inter
+    return inter # type: ignore

@@ -23,13 +23,12 @@
 from __future__ import annotations
 
 import asyncio
-import logging
 import typing
 
 import attrs
 
 if typing.TYPE_CHECKING:
-    from wyvern.clients import CommandsClient, GatewayClient
+    from wyvern.clients import  GatewayClient
 
 __all__: tuple[str, ...] = ("Event", "EventListener", "EventHandler", "as_listener")
 

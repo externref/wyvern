@@ -12,6 +12,7 @@ if typing.TYPE_CHECKING:
 
 class AvatarType(enum.Flag):
     """Represents avatar type."""
+
     GUILD = "GUILD"
     """Guild avatar."""
     CUSTOM = "CUSTOM"
@@ -21,7 +22,7 @@ class AvatarType(enum.Flag):
 
 
 class BaseAsset:
-    _client: "GatewayClient"
+    _client: "GatewayClient" = attrs.field(kw_only=False)
     hash: str
 
     def __str__(self) -> str:
@@ -33,7 +34,7 @@ class BaseAsset:
         return f"https://cdn.discordapp.com/{self.hash}.png"
 
     async def read(self) -> bytes:
-    
+
         res = await self._client.rest._session.get(self.url)
         return await res.read()
 
@@ -41,7 +42,8 @@ class BaseAsset:
 @attrs.define(kw_only=True, slots=True, repr=True)
 class Avatar(BaseAsset):
     """Represents an User's avatar."""
-    _client: "GatewayClient"
+
+    _client: "GatewayClient"= attrs.field(kw_only=False)
     type: AvatarType
     """Type of avatar."""
     hash: str
@@ -56,7 +58,8 @@ class GuildIcon(BaseAsset):
 @attrs.define(kw_only=True, slots=True, repr=True)
 class Attachment(BaseAsset):
     """Represents a attachment in a message."""
-    _client: "GatewayClient"
+
+    _client: "GatewayClient"= attrs.field(kw_only=False)
     id: "Snowflake"
     """ID of the attachment."""
     filename: str
@@ -65,7 +68,7 @@ class Attachment(BaseAsset):
     """Description, if any."""
     content_type: str | None
     """Type of the attachment."""
-    size: int 
+    size: int
     """Size of the attachment"""
     proxy_url: str
     """Proxy url of attachment"""
@@ -86,7 +89,7 @@ class Attachment(BaseAsset):
         cls: type["Attachment"], client: "GatewayClient", sfc: type["Snowflake"], data: dict[str, typing.Any]
     ) -> "Attachment":
         return cls(
-            client=client,
+            client,
             id=sfc.create(data["id"]),
             filename=data["filename"],
             description=data.get("description"),

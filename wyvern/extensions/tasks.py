@@ -64,12 +64,13 @@ def task(
         nonlocal s, m, h
         if (delays := len([item for item in [s, m, h] if item is not None])) > 1 or delays == 0:
             raise ValueError("Only one delay field can be used for the decorator.")
+        delay = 0.0
         if s:
             delay = s
         elif m:
-            delay = m * 60
+            delay = m * 60.0
         elif h:
-            delay = h * 60 * 60
+            delay = h * 60 * 60.0
 
         return Task(
             delay=delay,

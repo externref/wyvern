@@ -17,7 +17,7 @@ class MembersState:
         self._client = client
 
     def _guild_check(self, gid: int) -> None:
-        if not gid in self.cached_members.keys():
+        if gid not in self.cached_members.keys():
             self.cached_members[gid] = {}
 
     def get(self, guild_id: int, member_id: int) -> "Member" | None:

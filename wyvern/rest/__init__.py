@@ -77,7 +77,9 @@ class RESTClient:
     async def _create_websocket(self) -> aiohttp.ClientWebSocketResponse:
         if getattr(self, "_session", None) is None:
             self._session = aiohttp.ClientSession(headers=self._headers)
-        return await self._session.ws_connect(f"wss://gateway.discord.gg/?v={self._api_version}&encoding=json")
+        return await self._session.ws_connect(  # type: ignore
+            f"wss://gateway.discord.gg/?v={self._api_version}&encoding=json"
+        )
 
     async def request(self, route: RequestRoute) -> typing.Any:
         headers = self._headers.copy()
@@ -94,13 +96,11 @@ class RESTClient:
 
     def handle_error(self, exc: HTTPException) -> None:
         self._client._logger.error(
-            f"Exception while creating a HTTP request.\nType: %s, Endpoint: %s\nException: %s ",
+            "Exception while creating a HTTP request.\nType: %s, Endpoint: %s\nException: %s ",
             exc.route.type,
             exc.route.url,
             exc.message,
         )
-
-
 
     async def fetch_user(self, user_id: int) -> models.User:
         """Fetchs a user using the REST api.
@@ -266,7 +266,9 @@ class RESTClient:
         )
 
     async def _create_app_command_from_payload(self, payload: dict[str, typing.Any]) -> typing.Any:
-        return await self.request(RequestRoute(Endpoints.interaction_command(self._client._client_id), type="POST", json=payload))
+        return await self.request(
+            RequestRoute(Endpoints.interaction_command(self._client._client_id), type="POST", json=payload)
+        )
 
     async def create_interaction_response(
         self,

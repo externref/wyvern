@@ -32,9 +32,10 @@ from .base import Interaction, InteractionCommandOptionType, InteractionCommandT
 
 if typing.TYPE_CHECKING:
     from wyvern import models
-    from .localizations import Localizations
     from wyvern.commands.slash_commands import CommandOption
     from wyvern.permissions import Permissions
+
+    from .localizations import Localizations
 
 
 __all__: tuple[str, ...] = (
@@ -61,7 +62,7 @@ class InteractionOption:
     """Type of the option."""
     value: int | str | None
     """Value of the option."""
-    options: list["InteractionOption"]
+    options: list[InteractionOption]
     """List of options in the options, if any."""
     required: bool = True
     """True if the option is required."""
@@ -69,9 +70,9 @@ class InteractionOption:
     """If the current option focused in an autocomplete interaction."""
     autocomplete: bool = False
     """Weather to enable autocomplete for this option or not."""
-    choices: list["CommandOption"] = []
+    choices: list[CommandOption] = []
     """List of choices to add to the option."""
-    channel_types: list["models.ChannelType"] = []
+    channel_types: list[models.ChannelType] = []
     """List of channel types for channel options."""
     min_value: int | None = None
     """Minimum value for the option"""
@@ -81,9 +82,9 @@ class InteractionOption:
     """Minimum length acceptable for the option"""
     max_length: int | None = None
     """Maximum length acceptable for the option"""
-    name_locales: "Localizations" | None = None
+    name_locales: Localizations | None = None
     """Name locales for the option description"""
-    description_locales: "Localizations" | None = None
+    description_locales: Localizations | None = None
     """Name locales for the option description"""
 
     def __str__(self) -> str:
@@ -95,10 +96,10 @@ class InteractionOption:
 class ApplicationCommandInteractionResolvedData:
     """Resloved data of the app command interaction."""
 
-    users: dict["models.base.Snowflake", "models.User"]
-    members: dict["models.base.Snowflake", "models.Member"]
-    messages: dict["models.base.Snowflake", "models.Message"]
-    attachments: dict["models.base.Snowflake", "files.Attachment"]
+    users: dict[models.base.Snowflake, models.User]
+    members: dict[models.base.Snowflake, models.Member]
+    messages: dict[models.base.Snowflake, models.Message]
+    attachments: dict[models.base.Snowflake, files.Attachment]
 
 
 @typing.final
@@ -110,15 +111,15 @@ class ApplicationCommandInteractionData:
     """Raw payload recieved from discord."""
     type = InteractionType.APPLICATION_COMMAND
     """Type of the interaction."""
-    command_id: "models.base.Snowflake"
+    command_id: models.base.Snowflake
     """ID of the command."""
     command_name: str
     """Name of the command."""
     command_type: InteractionCommandType
     """Type of the interaction command."""
-    guild_id: "models.base.Snowflake" | None
+    guild_id: models.base.Snowflake | None
     """ID of the guild where interaction was triggered"""
-    target_id: "models.base.Snowflake" | None
+    target_id: models.base.Snowflake | None
     """ID of the application command target."""
     options: list[InteractionOption]
     """List of options used in the interaction."""
@@ -137,17 +138,18 @@ class AutocompleteInteraction(Interaction):
 
     ...
 
+
 @attrs.define(kw_only=True)
 class APIApplicationCommand:
-    id: "models.base.Snowflake"
+    id: models.base.Snowflake
     type: InteractionCommandType = InteractionCommandType.MESSAGE
-    application_id: "models.base.Snowflake"
-    guild_id: "models.base.Snowflake" | None = None
+    application_id: models.base.Snowflake
+    guild_id: models.base.Snowflake | None = None
     name: str
-    name_locales: "Localizations" | None = None
+    name_locales: Localizations | None = None
     description: str
-    description_locales: "Localizations" | None = None
+    description_locales: Localizations | None = None
     options: InteractionOption
     default_member_permissions: Permissions | None = None
     dm_permissions: bool = False
-    version: "models.base.Snowflake"
+    version: models.base.Snowflake

@@ -6,12 +6,14 @@ import typing
 import attrs
 
 if typing.TYPE_CHECKING:
-    from .slash_commands import CommandChoice
     from typing_extensions import TypeAlias
+
+    from .slash_commands import CommandChoice
 
     CallbackT: TypeAlias = typing.Callable[..., typing.Awaitable[typing.Any]]
     AutocompleteT: TypeAlias = typing.Callable[..., typing.Awaitable[typing.Sequence[typing.Union[CommandChoice, str]]]]
 
+__all__: tuple[str,...] = ( "SlashOptionConverter",)
 
 @attrs.define(kw_only=True)
 class BaseCallable(abc.ABC):
@@ -46,7 +48,7 @@ class HasSubCommands(abc.ABC):
     subcommands: dict[str, typing.Any] = {}
 
     @abc.abstractmethod
-    def with_subcommand(self, *,name: str, description: str) -> typing.Any:
+    def with_subcommand(self, *, name: str, description: str) -> typing.Any:
         ...
 
 

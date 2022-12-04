@@ -1,3 +1,5 @@
+"""Slash commands support."""
+
 from __future__ import annotations
 
 import typing
@@ -7,14 +9,22 @@ import attrs
 from wyvern import interactions, utils
 from wyvern.interactions.base import InteractionCommandOptionType as OptionType
 
-from .base import BaseCallable, CallbackT, HasAutoComplete, HasSubCommands, SlashOptionConverter
+from .base import BaseCallable, HasAutoComplete, HasSubCommands, SlashOptionConverter
 
 if typing.TYPE_CHECKING:
+    from .base import CallbackT
     from wyvern.clients import CommandsClient
     from wyvern.interactions import ApplicationCommandInteraction, Localizations
     from wyvern.models.channels import ChannelType
 
-__all__: tuple[str, ...] = ("CommandChoice", "OptionType", "as_slash_command", "as_option", "SlashCommand", "SlashGroup")
+__all__: tuple[str, ...] = (
+    "CommandChoice",
+    "OptionType",
+    "as_slash_command",
+    "with_option",
+    "SlashCommand",
+    "SlashGroup",
+)
 
 
 @attrs.define(kw_only=True)
@@ -39,8 +49,8 @@ class CommandChoice:
         return {
             "name": self.name,
             "value": self.value or self.name,
-            "name_localizations": {name: local.final_data for name, local in l.items()}
-            if not isinstance((l := self.name_locales), utils.Empty)
+            "name_localizations": {name: local.final_data for name, local in _locale.items()}
+            if not isinstance((_locale := self.name_locales), utils.Empty)
             else {},
         }
 
@@ -67,7 +77,7 @@ class CommandOption:
     """Weather to enable autocomplete for this option or not."""
     choices: list[CommandChoice | str | int] = []
     """List of choices to add to the option."""
-    channel_types: list["ChannelType"] = []
+    channel_types: list[ChannelType] = []
     """List of channel types for channel options."""
     min_value: int | None = None
     """Minimum value for the option"""
@@ -93,11 +103,12 @@ class CommandOption:
             "min_value": self.min_value,
             "min_length": self.min_length,
             "max_length": self.max_length,
-            "min_value": self.min_value,
             "max_value": self.max_value,
-            "name_localizations": l.final_data if not isinstance((l := self.name_locales), utils.Empty) else {},
-            "description_localizations": l.final_data
-            if not isinstance((l := self.description_locales), utils.Empty)
+            "name_localizations": _locale.final_data
+            if not isinstance((_locale := self.name_locales), utils.Empty)
+            else {},
+            "description_localizations": _locale.final_data
+            if not isinstance((_locale := self.description_locales), utils.Empty)
             else {},
         }
 
@@ -110,20 +121,22 @@ class SlashCommand(BaseCallable, HasAutoComplete):
     """Name of the command."""
     description: str
     """Description of the command."""
-    options: list[CommandOption] = []
+    options: list[CommandOption] = attrs.field(init=False, default=[])
     """List of command options."""
-    guild_ids: list[int] = []
     guild_only: bool = False
     """Set to True for command to appear in guilds only."""
-    _client: "CommandsClient" | None = None
+    _client: CommandsClient | None = attrs.field(init=False, kw_only=False, default=None)
+    callback: CallbackT
+    guild_ids: list[int] = []
+    """"""
 
     def __str__(self) -> str:
         return self.name
 
-    async def __call__(self, inter: "ApplicationCommandInteraction", **kwargs: typing.Any) -> typing.Any:
-        await self.callback(inter, **kwargs)
+    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        await self.callback(*args, **kwargs)
 
-    def _set_client(self, client: "CommandsClient") -> "SlashCommand":
+    def _set_client(self, client: CommandsClient) -> "SlashCommand":
         self._client = client
         return self
 
@@ -138,7 +151,7 @@ class SlashCommand(BaseCallable, HasAutoComplete):
 
     async def with_autocomplete(
         self, opt_name: str | None = None, *, opt_names: typing.Sequence[str] = ()
-    ) -> typing.Callable[..., typing.Callable[..., typing.Awaitable[typing.Sequence["CommandChoice" | str]]]]:
+    ) -> typing.Callable[..., typing.Callable[..., typing.Awaitable[typing.Sequence[CommandChoice | str]]]]:
         """Interface for creating autocomplete callabcks.
 
         Parameters
@@ -163,7 +176,7 @@ class SlashCommand(BaseCallable, HasAutoComplete):
             client = wyvern.CommandsClient("TOKEN")
 
 
-            @commands.as_option(
+            @commands.with_option(
                 name="color", description="name of color to show hex of.", type=commands.OptionType.INTEGER, autocomplete=True
             )
             @client.slash_command(name="color_hex", description="gives you color hexs")
@@ -183,7 +196,7 @@ class SlashCommand(BaseCallable, HasAutoComplete):
 
 
 
-        """
+        """  # noqa: E501
         return await super().with_autocomplete(opt_name, opt_names=opt_names)
 
     async def create_command(self) -> SlashCommand:
@@ -204,12 +217,12 @@ class SlashCommand(BaseCallable, HasAutoComplete):
 class SlashSubCommand(BaseCallable, HasAutoComplete):
     name: str
     description: str
-    callback: typing.Any
+    callback: CallbackT
 
-    options: list[CommandOption] = []
+    options: list[CommandOption] = attrs.field(init=False, default=[])
 
-    async def __call__(self, inter: "ApplicationCommandInteraction", **kwargs: typing.Any) -> typing.Any:
-        await self.callback(inter, **kwargs)
+    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        await self.callback(*args, **kwargs)
 
     def to_payload(self) -> dict[str, typing.Any]:
         return {
@@ -223,11 +236,11 @@ class SlashSubCommand(BaseCallable, HasAutoComplete):
 class SlashSubGroupCommand:
     name: str
     description: str
-    callback: typing.Any
+    callback: CallbackT
 
-    options: list[CommandOption] = []
+    options: list[CommandOption] = attrs.field(init=False, default=[])
 
-    async def __call__(self, inter: "ApplicationCommandInteraction", **kwargs: typing.Any) -> typing.Any:
+    async def __call__(self, inter: ApplicationCommandInteraction, **kwargs: typing.Any) -> typing.Any:
         await self.callback(inter, **kwargs)
 
     def to_payload(self) -> dict[str, typing.Any]:
@@ -238,15 +251,11 @@ class SlashSubGroupCommand:
         }
 
 
+@attrs.define(kw_only=True)
 class SlashSubGroup(HasSubCommands):
     name: str
     description: str
-    subcommands: dict[str, SlashSubGroupCommand] = {}
-
-    def __init__(self, *, name: str, description: str) -> None:
-        self.name = name
-        self.description = description
-        super().__init__()
+    subcommands: dict[str, SlashSubGroupCommand] = attrs.field(init=False, default={})
 
     def to_payload(self) -> dict[str, typing.Any]:
         return {
@@ -272,9 +281,9 @@ class SlashGroup(HasSubCommands):
     description: str
     guild_ids: list[int]
     guild_only: bool = False
-    subcommands: dict[str, SlashSubCommand] = {}
-    subgroups: dict[str, SlashSubGroup] = {}
-    _client: "CommandsClient" | None = None
+    subcommands: dict[str, SlashSubCommand] = attrs.field(init=False, default={})
+    subgroups: dict[str, SlashSubGroup] = attrs.field(init=False, default={})
+    _client: "CommandsClient" | None = attrs.field(init=False, kw_only=False, default=None)
 
     def _set_client(self, client: "CommandsClient") -> "SlashGroup":
         self._client = client
@@ -308,7 +317,11 @@ class SlashGroup(HasSubCommands):
 
 
 def as_slash_command(
-    *, name: str, description: str,  guild_ids: typing.Sequence[int] = (), guild_only: bool=False,
+    *,
+    name: str,
+    description: str,
+    guild_ids: typing.Sequence[int] = (),
+    guild_only: bool = False,
 ) -> typing.Callable[[CallbackT], SlashCommand]:
     """Creates a slash command object.
 
@@ -331,9 +344,17 @@ def as_slash_command(
     """
 
     def inner(callback: CallbackT) -> SlashCommand:
-        return SlashCommand(name=name, description=description, callback=callback,guild_only=guild_only)
+        return SlashCommand(
+            name=name, description=description, callback=callback, guild_ids=list(guild_ids), guild_only=guild_only
+        )
 
     return inner
+
+
+def as_slash_group(
+    *, name: str, description: str, guild_ids: typing.Sequence[int] = (), guild_only: bool = False
+) -> SlashGroup:
+    return SlashGroup(name=name, description=description, guild_ids=list(guild_ids), guild_only=guild_only)
 
 
 def as_option(
@@ -351,7 +372,42 @@ def as_option(
     min_length: int | None = None,
     max_length: int | None = None,
     name_locales: Localizations | utils.Empty = utils.EMPTY,
-    description_locales: Localizations | utils.Empty = utils.EMPTY
+    description_locales: Localizations | utils.Empty = utils.EMPTY,
+) -> CommandOption:
+    return CommandOption(
+        name=name,
+        description=description,
+        default=default,
+        type=type,
+        converter=converter,
+        autocomplete=autocomplete,
+        choices=list(choices),
+        channel_types=list(channel_types),
+        min_length=min_length,
+        min_value=min_value,
+        max_length=max_length,
+        max_value=max_value,
+        name_locales=name_locales,
+        description_locales=description_locales,
+    )
+
+
+def with_option(
+    *,
+    name: str,
+    description: str,
+    type: OptionType = OptionType.STRING,
+    default: typing.Any = utils.EMPTY,
+    converter: SlashOptionConverter | None = None,
+    autocomplete: bool = False,
+    choices: typing.Sequence[CommandChoice | str | int] = [],
+    channel_types: typing.Sequence["ChannelType"] = [],
+    min_value: int | None = None,
+    max_value: int | None = None,
+    min_length: int | None = None,
+    max_length: int | None = None,
+    name_locales: Localizations | utils.Empty = utils.EMPTY,
+    description_locales: Localizations | utils.Empty = utils.EMPTY,
 ) -> typing.Callable[[SlashCommand], SlashCommand]:
     """Adds an option to a slash command.
 
@@ -395,7 +451,7 @@ def as_option(
                 max_length=max_length,
                 max_value=max_value,
                 name_locales=name_locales,
-                description_locales=description_locales
+                description_locales=description_locales,
             )
         )
         return command

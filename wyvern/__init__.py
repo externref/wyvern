@@ -30,12 +30,12 @@ bots.
 
 from . import commands, extensions, utils
 from .aliases import *
-from .files import *
 from .clients import *
 from .components import *
 from .constructors import *
 from .events import *
 from .exceptions import *
+from .files import *
 from .intents import *
 from .interactions import *
 from .models import *

@@ -1,2 +1,2 @@
-from .users import *
 from .members import *
+from .users import *

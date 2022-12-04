@@ -23,9 +23,10 @@
 from __future__ import annotations
 
 import asyncio
+import builtins
 import importlib
-import logging
 import inspect
+import logging
 import typing
 
 # isort: off
@@ -90,10 +91,10 @@ class GatewayClient:
         *,
         intents: typing.SupportsInt | _intents.Intents = _intents.Intents.UNPRIVILEGED,
         event_handler: type[events.EventHandler] = events.EventHandler,
-        allowed_mentions: "models.AllowedMentions" = models.messages.AllowedMentions(),
+        allowed_mentions: models.AllowedMentions = models.messages.AllowedMentions(),
         rest_client: rest.RESTClient | None = None,
         api_version: int = 10,
-        client_session: "aiohttp.ClientSession" | None = None,
+        client_session: aiohttp.ClientSession | None = None,
     ) -> None:
         self._client_id: int = 0
         self.event_handler = event_handler(self)
@@ -137,6 +138,11 @@ class GatewayClient:
             The latency.
         """
         return self.gateway.latency
+
+    async def wait_for(
+        self, event: events.Event, *, timeout: int = 180, check: typing.Callable[..., bool] = lambda *_: True
+    ) -> typing.Any:
+        ...
 
     def with_listener(
         self, event: str | events.Event, *, max_trigger: int | float = float("inf")
@@ -292,7 +298,7 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
         ...
 
     def include(
-        self, listener_or_command: events.EventListener | commands.slash_commands.SlashCommand
+        self, listener_or_command: events.EventListener | commands.slash_commands.SlashCommand | typing.Any
     ) -> events.EventListener | commands.slash_commands.SlashCommand:
         def inner() -> None:
             nonlocal listener_or_command
@@ -304,7 +310,7 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
         inner()
         return listener_or_command
 
-    def set_prefix(self, prefix_or_function: str | typing.Sequence[str] | function) -> "CommandsClient":
+    def set_prefix(self, prefix_or_function: str | typing.Sequence[str] | builtins.function) -> "CommandsClient":
         """
         Set a prefix to parse message commands.
         Allowed prefix data
@@ -321,8 +327,8 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
             or isinstance(prefix_or_function, set)
         ):
             self.prefix_type = type(prefix_or_function)
-        elif isinstance(prefix_or_function, function):
-            self.prefix_type = function
+        elif isinstance(prefix_or_function, builtins.function):
+            self.prefix_type = builtins.function
         return self
 
     def with_slash_command(

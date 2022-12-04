@@ -29,7 +29,6 @@ import typing
 
 __all__: tuple[str, ...] = (
     "Color",
-    "Colour",
 )
 
 
@@ -166,7 +165,7 @@ class Color:
         return cls.from_rgb(*[int(round(c * 255)) for c in colorsys.hsv_to_rgb(h, s, v)])
 
     @classmethod
-    def from_hsl(cls, h: float, s: float, l: float) -> Color:
+    def from_hsl(cls, h: float, s: float, l: float) -> Color: # noqa: E741
         """
         Creates a Color object from HSL values.
 

@@ -16,17 +16,17 @@ EMPTY = Empty()
 
 def create_timestamp(dt: datetime.datetime | datetime.timedelta, *, style: str = "t") -> str:
     """Creates an UNIX timestamp for provided datetime or timedelta object.
-    
+
     Parameters
     ----------
 
     dt : datetime.datetime | datetime.timedelta
         The datetime or timedelta to convert.
-    
+
     Returns
     -------
 
-    str 
+    str
         The UNIX timestamp.
     """
     if isinstance(dt, datetime.timedelta):
@@ -47,6 +47,7 @@ class CacheConfigurations:
 @attrs.define
 class Hook:
     """Hooks for per-module setup. They can be loaded using `GatewayClient.load_hooks`"""
+
     callback: typing.Callable[..., typing.Any]
     """Callback of the hook."""
     name: str
@@ -58,10 +59,10 @@ class Hook:
 
 def as_hook(name: str | None = None) -> typing.Callable[..., Hook]:
     """Creates a [wyvern.utils.Hook][]
-    
+
     Parameters
     ----------
-    
+
     name : str
         Name of the hook.
 
@@ -71,6 +72,7 @@ def as_hook(name: str | None = None) -> typing.Callable[..., Hook]:
     wyvern.utils.Hook
         The hook that was created.
     """
+
     def inner(callback: typing.Callable[..., typing.Any]) -> Hook:
         return Hook(callback, name or callback.__name__)
 

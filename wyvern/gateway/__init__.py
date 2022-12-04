@@ -121,9 +121,10 @@ class Gateway:
             if self.is_connected is False:
                 self.is_connected = True
                 self._client.event_handler.dispatch("GATEWAY_CONNECTED", self._client)
-            if message.type == aiohttp.WSMsgType.TEXT:
-                await self._parse_payload_response(json.loads(message.data))
-            elif message.type == aiohttp.WSMsgType.ERROR:
+
+            if message.type == aiohttp.WSMsgType.TEXT:  # type: ignore
+                await self._parse_payload_response(json.loads(message.data))  # type: ignore
+            elif message.type == aiohttp.WSMsgType.ERROR:  # type: ignore
                 "error from the gateway!"
 
     async def _get_socket_ready(self) -> None:
@@ -143,7 +144,7 @@ class Gateway:
             self._client.event_handler.dispatch(t, inter_convertors.payload_to_interaction(self._client, payload["d"]))
 
     async def _parse_payload_response(self, payload: dict[str, typing.Any]) -> None:
-        op, t, d = payload["op"], payload["t"], payload["d"]
+        op, d = payload["op"], payload["d"]
         if op == WSEventEnums.HEARTBEAT_ACK:
             self._latency = time.perf_counter() - self.keep_alive.last_heartbeat
             return

@@ -41,7 +41,7 @@ __all__: tuple[str, ...] = ("User", "BotUser")
 class User(DiscordObject):
     """Represents a discord user."""
 
-    _client: "GatewayClient"
+    _client: "GatewayClient"= attrs.field(kw_only=False)
 
     raw: dict[str, typing.Any]
     id: Snowflake
@@ -81,11 +81,11 @@ class User(DiscordObject):
 
     @property
     def avatar(self) -> Avatar | None:
-        return Avatar(client=self._client, type=AvatarType.CUSTOM, hash=self.avatar_hash) if self.avatar_hash else None
+        return Avatar(self._client, type=AvatarType.CUSTOM, hash=self.avatar_hash) if self.avatar_hash else None
 
     @property
     def default_avatar(self) -> Avatar:
-        return Avatar(client=self._client, type=AvatarType.DEFAULT, hash=f"embed/avatars/{int(self.discriminator)%5}")
+        return Avatar(self._client, type=AvatarType.DEFAULT, hash=f"embed/avatars/{int(self.discriminator)%5}")
 
     @property
     def display_avatar(self) -> Avatar:

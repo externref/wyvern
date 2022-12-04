@@ -22,8 +22,9 @@
 
 from __future__ import annotations
 
-from wyvern._internals import BitWiseFlag
 import typing
+
+from wyvern._internals import BitWiseFlag
 
 __all__: tuple[str, ...] = ("Intents",)
 

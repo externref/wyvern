@@ -74,7 +74,7 @@ class InteractionCommandOptionType(enum.IntEnum):
 class Interaction:
     """Represents a discord interaction."""
 
-    _client: "GatewayClient"
+    client: "GatewayClient"= attrs.field(kw_only=False)
     id: int
     """ID of the interaction."""
     application_id: int
@@ -109,7 +109,7 @@ class Interaction:
         if all([embed, embeds]):
             raise ValueError("You cannot use both embed and embeds kwarg.")
         embeds = [embed] if embed else embeds
-        await self._client.rest.create_interaction_response(
+        await self.client.rest.create_interaction_response(
             self,
             InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             content=content,
@@ -119,7 +119,7 @@ class Interaction:
         )
 
     async def create_defered_response(self) -> None:
-        await self._client.rest.create_interaction_response(
+        await self.client.rest.create_interaction_response(
             self,
             InteractionResponseType.DEFERRED_UPDATE_MESSAGE
             if self.type is InteractionType.MESSAGE_COMPONENT
@@ -127,4 +127,4 @@ class Interaction:
         )
 
     async def create_modal_response(self, modal: "Modal") -> None:
-        await self._client.rest.create_interaction_response(self, InteractionResponseType.MODAL, modal=modal)
+        await self.client.rest.create_interaction_response(self, InteractionResponseType.MODAL, modal=modal)
