@@ -27,9 +27,7 @@ import random
 import re
 import typing
 
-__all__: tuple[str, ...] = (
-    "Color",
-)
+__all__: tuple[str, ...] = ("Color",)
 
 
 @typing.final
@@ -165,7 +163,7 @@ class Color:
         return cls.from_rgb(*[int(round(c * 255)) for c in colorsys.hsv_to_rgb(h, s, v)])
 
     @classmethod
-    def from_hsl(cls, h: float, s: float, l: float) -> Color: # noqa: E741
+    def from_hsl(cls, h: float, s: float, l: float) -> Color:  # noqa: E741
         """
         Creates a Color object from HSL values.
 

@@ -51,6 +51,8 @@ from wyvern import plugins as _plugins
 if typing.TYPE_CHECKING:
     import aiohttp
 
+    from wyvern._types import AppCommandCallbackT
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -238,11 +240,7 @@ class GatewayClient:
 
     def load_hooks(self, path: str) -> dict[str, utils.Hook]:
         module = importlib.import_module(path)
-        hooks = {
-            hook.name: hook
-            for hook in [module.__dict__.get(obj) for obj in dir(module)]
-            if isinstance(hook, utils.Hook)
-        }
+        hooks = {hook.name: hook for hook in module.__dict__.values() if isinstance(hook, utils.Hook)}
         if any(overrided := [hook for hook in hooks.keys() if hook in self.hooks.keys()]):
             self._logger.warning("Overring loaded hooks: %s", ", ".join(overrided))
         self.hooks.update(hooks)
@@ -336,7 +334,7 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
         *,
         name: str,
         description: str,
-    ) -> typing.Callable[..., commands.slash_commands.SlashCommand]:
+    ) -> typing.Callable[[AppCommandCallbackT], commands.slash_commands.SlashCommand]:
         """Creates a slash command.
 
         Parameters
@@ -354,7 +352,7 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
             A [wyvern.commands.slash_commands.SlashCommand][] when called.
         """
 
-        def inner(callback: commands.base.CallbackT) -> commands.slash_commands.SlashCommand:
+        def inner(callback: AppCommandCallbackT) -> commands.slash_commands.SlashCommand:
             cmd = commands.as_slash_command(name=name, description=description)(callback)
 
             self.add_slash_command(cmd._set_client(self))

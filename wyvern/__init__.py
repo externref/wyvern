@@ -1,3 +1,5 @@
+# type: ignore
+
 # MIT License
 
 # Copyright (c) 2022 Sarthak
@@ -28,20 +30,21 @@ bots.
 
 """
 
-from . import commands, extensions, utils
-from .aliases import *
-from .clients import *
-from .components import *
-from .constructors import *
-from .events import *
-from .exceptions import *
-from .files import *
-from .intents import *
-from .interactions import *
-from .models import *
-from .permissions import *
-from .plugins import *
-from .presences import *
-from .rest import *
+
+from . import commands, extensions, utils  # noqa: 401
+from .aliases import *  # noqa: F403
+from .clients import *  # noqa: F403
+from .components import *  # noqa: F403
+from .constructors import *  # noqa: F403
+from .events import *  # noqa: F403
+from .exceptions import *  # noqa: F403
+from .files import *  # noqa: F403
+from .intents import *  # noqa: F403
+from .interactions import *  # noqa: F403
+from .models import *  # noqa: F403
+from .permissions import *  # noqa: F403
+from .plugins import *  # noqa: F403
+from .presences import *  # noqa: F403
+from .rest import *  # noqa: F403
 
 __version__ = "0.0.2a"

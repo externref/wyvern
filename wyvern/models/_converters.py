@@ -41,7 +41,7 @@ __all__: tuple[str, ...] = ("payload_to_user", "payload_to_member", "payload_to_
 
 def payload_to_user(client: "GatewayClient", payload: dict[str, typing.Any]) -> "User":
     return User(
-        client,
+        client=client,
         raw=payload,
         id=Snowflake.create(payload["id"]),
         username=payload["username"],
@@ -62,7 +62,7 @@ def payload_to_user(client: "GatewayClient", payload: dict[str, typing.Any]) -> 
 def payload_to_member(client: "GatewayClient", guild_id: Snowflake, payload: dict[str, typing.Any]) -> Member:
     user = payload_to_user(client, payload=payload)
     return Member(
-        client,
+        client=client,
         raw=payload,
         id=user.id,
         username=user.username,
@@ -94,7 +94,7 @@ def payload_to_member(client: "GatewayClient", guild_id: Snowflake, payload: dic
 
 def payload_to_botuser(client: "GatewayClient", payload: dict[str, typing.Any]) -> BotUser:
     return BotUser(
-        client,
+        client=client,
         raw=payload,
         id=Snowflake.create(payload["id"]),
         username=payload["username"],
@@ -114,7 +114,7 @@ def payload_to_botuser(client: "GatewayClient", payload: dict[str, typing.Any]) 
 
 def payload_to_message(client: "GatewayClient", payload: dict[str, typing.Any]) -> Message:
     return Message(
-        client,
+        client=client,
         raw=payload,
         id=Snowflake.create(payload["id"]),
         tts=payload["tts"],

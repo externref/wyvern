@@ -34,7 +34,7 @@ class Member(User):
     """Avatar hash for the guild."""
 
     def update_state(self) -> "Member" | None:
-        return member if (member := self._client.members.get(self.guild_id, self.id)) else None
+        return member if (member := self.client.members.get(self.guild_id, self.id)) else None
 
     @property
     def display_avatar(self) -> Avatar:
@@ -65,7 +65,7 @@ class Member(User):
             The user's guild avatar.
         """
         return (
-            Avatar(self._client, type=AvatarType.GUILD, hash=self.guild_avatar_hash)
+            Avatar(client=self.client, type=AvatarType.GUILD, hash=self.guild_avatar_hash)
             if self.guild_avatar_hash
             else None
         )

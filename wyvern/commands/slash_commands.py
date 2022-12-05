@@ -1,3 +1,25 @@
+# MIT License
+
+# Copyright (c) 2022 Sarthak
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """Slash commands support."""
 
 from __future__ import annotations
@@ -12,7 +34,7 @@ from wyvern.interactions.base import InteractionCommandOptionType as OptionType
 from .base import BaseCallable, HasAutoComplete, HasSubCommands, SlashOptionConverter
 
 if typing.TYPE_CHECKING:
-    from .base import CallbackT
+    from wyvern._types import AppCommandCallbackT
     from wyvern.clients import CommandsClient
     from wyvern.interactions import ApplicationCommandInteraction, Localizations
     from wyvern.models.channels import ChannelType
@@ -125,8 +147,8 @@ class SlashCommand(BaseCallable, HasAutoComplete):
     """List of command options."""
     guild_only: bool = False
     """Set to True for command to appear in guilds only."""
-    _client: CommandsClient | None = attrs.field(init=False, kw_only=False, default=None)
-    callback: CallbackT
+    client: CommandsClient | None = attrs.field(init=False, default=None)
+    callback: AppCommandCallbackT
     guild_ids: list[int] = []
     """"""
 
@@ -137,7 +159,7 @@ class SlashCommand(BaseCallable, HasAutoComplete):
         await self.callback(*args, **kwargs)
 
     def _set_client(self, client: CommandsClient) -> "SlashCommand":
-        self._client = client
+        self.client = client
         return self
 
     def to_payload(self) -> dict[str, typing.Any]:
@@ -208,8 +230,8 @@ class SlashCommand(BaseCallable, HasAutoComplete):
         wyvern.commands.SlashCommand
             This same object
         """
-        assert self._client
-        await self._client.rest._create_app_command_from_payload(payload=self.to_payload())
+        assert self.client
+        await self.client.rest._create_app_command_from_payload(payload=self.to_payload())
         return self
 
 
@@ -217,7 +239,7 @@ class SlashCommand(BaseCallable, HasAutoComplete):
 class SlashSubCommand(BaseCallable, HasAutoComplete):
     name: str
     description: str
-    callback: CallbackT
+    callback: AppCommandCallbackT
 
     options: list[CommandOption] = attrs.field(init=False, default=[])
 
@@ -236,7 +258,7 @@ class SlashSubCommand(BaseCallable, HasAutoComplete):
 class SlashSubGroupCommand:
     name: str
     description: str
-    callback: CallbackT
+    callback: AppCommandCallbackT
 
     options: list[CommandOption] = attrs.field(init=False, default=[])
 
@@ -265,8 +287,10 @@ class SlashSubGroup(HasSubCommands):
             "options": [opt.to_payload() for opt in self.subcommands.values()],
         }
 
-    def with_subcommand(self, *, name: str, description: str) -> typing.Callable[["CallbackT"], SlashSubGroupCommand]:
-        def inner(callback: "CallbackT") -> SlashSubGroupCommand:
+    def with_subcommand(
+        self, *, name: str, description: str
+    ) -> typing.Callable[[AppCommandCallbackT], SlashSubGroupCommand]:
+        def inner(callback: AppCommandCallbackT) -> SlashSubGroupCommand:
             self.subcommands[name] = (
                 subcmd := SlashSubGroupCommand(name=name, description=description, callback=callback)
             )
@@ -283,7 +307,7 @@ class SlashGroup(HasSubCommands):
     guild_only: bool = False
     subcommands: dict[str, SlashSubCommand] = attrs.field(init=False, default={})
     subgroups: dict[str, SlashSubGroup] = attrs.field(init=False, default={})
-    _client: "CommandsClient" | None = attrs.field(init=False, kw_only=False, default=None)
+    client: "CommandsClient" | None = attrs.field(init=False, default=None)
 
     def _set_client(self, client: "CommandsClient") -> "SlashGroup":
         self._client = client
@@ -307,8 +331,10 @@ class SlashGroup(HasSubCommands):
         self.subgroups[name] = (group := SlashSubGroup(name=name, description=description))
         return group
 
-    def with_subcommand(self, *, name: str, description: str) -> typing.Callable[["CallbackT"], SlashSubCommand]:
-        def inner(callback: CallbackT) -> SlashSubCommand:
+    def with_subcommand(
+        self, *, name: str, description: str
+    ) -> typing.Callable[[AppCommandCallbackT], SlashSubCommand]:
+        def inner(callback: AppCommandCallbackT) -> SlashSubCommand:
             nonlocal name, description
             self.subcommands[name] = (cmd := SlashSubCommand(name=name, description=description, callback=callback))
             return cmd
@@ -322,7 +348,7 @@ def as_slash_command(
     description: str,
     guild_ids: typing.Sequence[int] = (),
     guild_only: bool = False,
-) -> typing.Callable[[CallbackT], SlashCommand]:
+) -> typing.Callable[[AppCommandCallbackT], SlashCommand]:
     """Creates a slash command object.
 
     Parameters
@@ -336,14 +362,14 @@ def as_slash_command(
     Returns
     -------
 
-    typing.Callable[[CallbackT], SlashCommand]
+    typing.Callable[[AppCommandCallbackT], SlashCommand]
 
         A [SlashCommand][] when called.
 
 
     """
 
-    def inner(callback: CallbackT) -> SlashCommand:
+    def inner(callback: AppCommandCallbackT) -> SlashCommand:
         return SlashCommand(
             name=name, description=description, callback=callback, guild_ids=list(guild_ids), guild_only=guild_only
         )

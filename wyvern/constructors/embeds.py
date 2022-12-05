@@ -26,6 +26,7 @@ import datetime
 import typing
 
 import attrs
+
 from wyvern import utils
 
 __all__: tuple[str, ...] = ("EmbedAuthor", "EmbedFooter", "EmbedField", "Embed", "EmbedConstructor")

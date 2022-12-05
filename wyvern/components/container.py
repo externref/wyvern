@@ -109,7 +109,7 @@ class ActionRowContainer(Component):
         *,
         style: ButtonStyle = ButtonStyle.SECONDARY,
         label: str | None = None,
-        emoji: str |CustomEmoji | None = None,
+        emoji: str | CustomEmoji | None = None,
         custom_id: str | None = None,
         disabled: bool = False,
         url: str | None = None,

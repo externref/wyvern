@@ -27,8 +27,12 @@ import typing
 
 import attrs
 
+from wyvern.utils import get_arg_count
+
 if typing.TYPE_CHECKING:
-    from wyvern.clients import  GatewayClient
+    from wyvern._types import AnyCallableT, CheckT
+    from wyvern.clients import GatewayClient
+
 
 __all__: tuple[str, ...] = ("Event", "EventListener", "EventHandler", "as_listener")
 
@@ -95,6 +99,8 @@ class EventListener:
         The coroutine to run when event is dispatched
     max_trigger : int | float
         Max amount of time this listener will be triggered.
+    checks: list[wyvern._types.CheckT]
+        Checks added to the event listener.
 
     Attributes
     ----------
@@ -104,13 +110,59 @@ class EventListener:
     """
 
     event_type: str | Event
-    callback: typing.Callable[..., typing.Awaitable[typing.Any]]
+    callback: AnyCallableT
     max_trigger: int | float
     trigger_count: int = 0
+    event_handler: EventHandler | None = None
+    checks: list[CheckT] = attrs.field(init=False, default=[])
 
-    def __call__(self, *args: typing.Any) -> typing.Awaitable[typing.Any]:
+    def check(self, predicate: CheckT) -> CheckT:
+        """Adds an check to the listener.
+        The check callback accepts the same arguments as the related event.
+        The predicate should return a bool ( strict to True or False ).
+
+        Example
+            import wyvern
+
+            client = wyvern.GatewayClient("TOKEN")
+
+            @client.with_listener(wyvern.Event.MESSAGE_CREATE)
+            async def msg_create(msg: wyvern.Message) -> None:
+                await msg.respond("This message was created when the check passed.")
+
+            @msg_create.check 
+            async def msg_create_check(msg: wyvern.Message) -> bool:
+                return msg.author.id == 1234567890123456789
+
+            client.run()
+
+
+        """
+        def inner() -> CheckT:
+            nonlocal predicate
+            if not get_arg_count(predicate) == get_arg_count(self.callback):
+                raise TypeError("EventListener and check callbacks should accept same number of arguments.")
+            self.checks.append(predicate)
+            return predicate
+
+        return inner()
+
+    async def process_checks(self, *args: typing.Any) -> bool:
+        assert self.event_handler
+        results = [await check(*args) for check in self.checks]
+        if any(faulty_checks := [results.index(result) for result in results if result not in (True, False)]):
+            self.event_handler.client._logger.warning(
+                "Got non-bool return values from checks in %s: %s",
+                self.__call__.__name__,
+                ", ".join(map(lambda c: self.checks[c].__name__, faulty_checks)),
+            )
+        return all(results)
+
+    async def __call__(self, *args: typing.Any) -> None:
+        if (await self.process_checks(*args)) is False:
+            return
         self.trigger_count += 1
-        return self.callback(*args)
+        await self.callback(*args)
 
 
 class EventHandler:
@@ -152,6 +204,7 @@ class EventHandler:
             The listener to be added.
         """
         self.listeners.setdefault(event_listener.event_type, []).append(event_listener)
+        event_listener.event_handler = self
         return event_listener
 
     def dispatch(self, event: str | Event, *args: typing.Any) -> None:

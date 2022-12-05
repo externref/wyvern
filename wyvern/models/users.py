@@ -41,7 +41,7 @@ __all__: tuple[str, ...] = ("User", "BotUser")
 class User(DiscordObject):
     """Represents a discord user."""
 
-    _client: "GatewayClient"= attrs.field(kw_only=False)
+    client: "GatewayClient"
 
     raw: dict[str, typing.Any]
     id: Snowflake
@@ -81,11 +81,11 @@ class User(DiscordObject):
 
     @property
     def avatar(self) -> Avatar | None:
-        return Avatar(self._client, type=AvatarType.CUSTOM, hash=self.avatar_hash) if self.avatar_hash else None
+        return Avatar(client=self.client, type=AvatarType.CUSTOM, hash=self.avatar_hash) if self.avatar_hash else None
 
     @property
     def default_avatar(self) -> Avatar:
-        return Avatar(self._client, type=AvatarType.DEFAULT, hash=f"embed/avatars/{int(self.discriminator)%5}")
+        return Avatar(client=self.client, type=AvatarType.DEFAULT, hash=f"embed/avatars/{int(self.discriminator)%5}")
 
     @property
     def display_avatar(self) -> Avatar:
@@ -113,4 +113,4 @@ class BotUser(User):
         wyvern.models.users.BotUser
             The updated user of bot.
         """
-        return await self._client.rest.edit_client_user(username, avatar)
+        return await self.client.rest.edit_client_user(username, avatar)

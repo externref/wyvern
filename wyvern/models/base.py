@@ -24,6 +24,8 @@ from __future__ import annotations
 import datetime
 import typing
 
+from wyvern._internals import _ListenerArg
+
 
 def default_avatar_for(discriminator: int) -> str:
     return f"embed/avatars{discriminator % 5}.png"
@@ -38,7 +40,7 @@ class Snowflake(int):
         return cls(sf)
 
 
-class DiscordObject:
+class DiscordObject(_ListenerArg):
     """
     Represents a discord object.
 
@@ -83,5 +85,3 @@ class DiscordObject:
         """
         timestamp = ((_id >> 22) + 1420070400000) / 1000
         return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)
-
-

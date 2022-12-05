@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .applications import *
-from .base import *
-from .components import *
-from .localizations import *
+from .applications import *  # noqa: F403
+from .base import *  # noqa: F403
+from .components import *  # noqa: F403
+from .localizations import *  # noqa: F403
