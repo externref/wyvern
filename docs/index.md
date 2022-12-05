@@ -20,11 +20,11 @@ $python -m pip install git+https://github.com/sarthhh/wyvern
 
 ## Important Links
 
-Support server: https://discord.gg/FyEE54u9GF
+Support server: [https://discord.gg/FyEE54u9GF](https://discord.gg/FyEE54u9GF)
 
-Github: https://github.com/sarthhh/wyervn
+Github: [https://github.com/sarthhh/wyervn](https://discord.gg/FyEE54u9GF)
 
-PYPI: https://pypi.org/projects/wyvern
+PYPI: [https://pypi.org/projects/wyvern](https://discord.gg/FyEE54u9GF)
 
 ---
 
