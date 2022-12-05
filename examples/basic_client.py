@@ -28,7 +28,7 @@ import wyvern
 client = wyvern.GatewayClient("TOKEN", intents=wyvern.Intents.UNPRIVILEGED | wyvern.Intents.MESSAGE_CONTENT)
 
 # creating an EventListener object and adding it to the client's event handler using the
-# @client.listen decorator. You can set the maximum amount of time this listener will get triggered using
+# @client.with_listener decorator. You can set the maximum amount of time this listener will get triggered using
 # the `max_trigger kwarg in the listener decorator.`
 
 

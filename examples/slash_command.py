@@ -14,4 +14,5 @@ async def ping(interaction: wyvern.AppCommandInter) -> None:
 async def echo(interaction: wyvern.AppCommandInter, text: str) -> None:
     await interaction.create_message_response(text)
 
+
 client.run()

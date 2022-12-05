@@ -1,30 +1,31 @@
 # wyvern
 
 <p align="center">
-<img src="./docs/assets/wyvern.png" height=150 width=150><br>
+<img src="./docs/assets/wyvern.png" height=150 width=150><br><br>
 <img src="https://img.shields.io/github/license/sarthhh/wyvern?style=flat-square">
 <img src="https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square">
-<img src="https://img.shields.io/badge/%20type_checker-mypy-%231674b1?style=flat-square">
+<img src="https://img.shields.io/badge/%20type_checker-pyright-%231674b1?style=flat-square">
 <img src="https://img.shields.io/github/stars/sarthhh/wyvern?style=flat-square">
 <img src="https://img.shields.io/github/last-commit/sarthhh/wyvern?style=flat-square">
-<br>
+<img src="https://img.shields.io/pypi/pyversions/wyvern?style=flat-square">
+<img src="https://img.shields.io/pypi/v/wyvern?style=flat-square">
+<br><br>
 A [WIP] flexible and easy to use Discord API wrapper for python 🚀.
 </p>
 
-## Why use wyvern? 
-* Feature rich API.
-* Full control over the library's functionality.
-* Built-in extensions for prefix commands.
-* Interaction commands handling.
+> Warning: This library is very unstable and things might not work as expected. Feel free to create an issue.
+
+## Important Links
+
+Support server: https://discord.gg/FyEE54u9GF
+
+Documentation: https://sarthhh.github.io/wyvern/
+
+PYPI: https://pypi.org/projects/wyvern
 
 ## Installation
 ```sh
-# from pypi 
-$python -m pip install wyvern
-# from source stable branch
-$python -m pip install git+https://github.com/sarthhh/wyvern@main
-# from source development branch 
-$pythonn -m pip install git+https://github.com/sarthhh/wyvern
+$python -m pip install git+https://github.com/sarthhh/wyvern
 ```
 
 ## Example Code:

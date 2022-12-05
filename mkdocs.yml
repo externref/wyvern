@@ -85,9 +85,8 @@ nav:
       - rest: api_reference/rest.md
       - utils: api_reference/utils.md
 
-  - Examples:
-      - Basic Bot: examples/basic_bot.md
-      - Custom Event Handler: examples/custom_event_handler.md
+  - Guide:
+      - Basic Bot: guide/basic_bot.md
 
 markdown_extensions:
   - admonition
@@ -107,4 +106,4 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/sarthhh/wyvern
     - icon: fontawesome/brands/discord
-      link: ...
+      link: https://discord.gg/FyEE54u9GF
