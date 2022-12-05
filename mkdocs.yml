@@ -101,7 +101,7 @@ markdown_extensions:
   - pymdownx.superfences
 
 extra:
-  version: 0.0.2a
+  version: 0.0.3a
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/sarthhh/wyvern
