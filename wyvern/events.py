@@ -130,7 +130,7 @@ class EventListener:
             async def msg_create(msg: wyvern.Message) -> None:
                 await msg.respond("This message was created when the check passed.")
 
-            @msg_create.check 
+            @msg_create.check
             async def msg_create_check(msg: wyvern.Message) -> bool:
                 return msg.author.id == 1234567890123456789
 
@@ -138,6 +138,7 @@ class EventListener:
 
 
         """
+
         def inner() -> CheckT:
             nonlocal predicate
             if not get_arg_count(predicate) == get_arg_count(self.callback):

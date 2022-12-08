@@ -152,6 +152,8 @@ class Message(DiscordObject):
         embeds: typing.Sequence["EmbedConstructor"] = (),
         components: typing.Sequence["ActionRowContainer"] = (),
         allowed_mentions: AllowedMentions | None = None,
+        flags: MessageFlags | None = None,
+        delete_after: int | None = None,
         reply: bool = False,
     ) -> "Message":
         """
@@ -188,4 +190,6 @@ class Message(DiscordObject):
             components=components,
             allowed_mentions=allowed_mentions,
             reference=self.id if reply is True else None,
+            delete_after=delete_after,
+            flags=flags,
         )

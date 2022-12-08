@@ -187,8 +187,8 @@ class SlashCommand(BaseCallable, HasAutoComplete):
         !!! note
             opt_names overrides opt_name
 
-        Example
-        -------
+        ??? example
+            ```py
 
             from __future__ import annotations
 
@@ -211,12 +211,12 @@ class SlashCommand(BaseCallable, HasAutoComplete):
                 inter: wyvern.AutocompleteInteraction, option: wyvern.InteractionOption
             ) -> list[commands.CommandChoice]:
                 colors = [commands.CommandChoice(name="blue", value=0x4F62A3), commands.CommandChoice(name="red", value=0xD11417)]
-                return [color for color in colors if color.name == inter.data.value]
+                return [color for color in colors if color.name in inter.data.value]
 
 
             client.run()
 
-
+            ```
 
         """  # noqa: E501
         return await super().with_autocomplete(opt_name, opt_names=opt_names)

@@ -144,7 +144,7 @@ class Gateway:
             self._client.event_handler.dispatch(t, inter_convertors.payload_to_interaction(self._client, payload["d"]))
 
     async def _parse_payload_response(self, payload: dict[str, typing.Any]) -> None:
-        op, d = payload["op"], payload["d"]
+        op, s, d = payload["op"], payload["s"], payload["d"]
         if op == WSEventEnums.HEARTBEAT_ACK:
             self._latency = time.perf_counter() - self.keep_alive.last_heartbeat
             return
@@ -153,5 +153,5 @@ class Gateway:
             await self._hello_res(d)
 
         elif op == WSEventEnums.DISPATCH:
-            self.keep_alive.sequence += 1
+            self.keep_alive.sequence = s
             await self._dispatch_events(payload)

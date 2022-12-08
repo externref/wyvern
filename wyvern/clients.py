@@ -166,9 +166,9 @@ class GatewayClient:
         wyvern.events.EventListener
             A EventListener object.
 
-        Example
-        -------
+        ??? example
 
+            ```py
             import wyvern
 
             client = wyvern.GatewayClient("TOKEN")
@@ -181,6 +181,7 @@ class GatewayClient:
 
 
             client.run()
+            ```
 
         """
 
