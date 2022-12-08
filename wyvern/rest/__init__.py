@@ -22,6 +22,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import dataclasses
 import datetime
 import typing
@@ -185,6 +186,8 @@ class RESTClient:
         components: typing.Sequence[ActionRowContainer] = (),
         reference: int | models.MessageReference | None = None,
         allowed_mentions: models.AllowedMentions | None = None,
+        flags: models.messages.MessageFlags | None = None,
+        delete_after: int | None = None,
     ) -> "models.messages.Message":
         """Create a new message.
 
@@ -216,6 +219,7 @@ class RESTClient:
             "embeds": [embed._payload for embed in embeds],
             "components": [comp.to_payload() for comp in components],
             "allowed_mentions": (allowed_mentions or self._client.allowed_mentions).to_payload(),
+            "flags": flags.value if flags else None,
         }
 
         if reference is not None:
@@ -227,7 +231,21 @@ class RESTClient:
         res: dict[str, typing.Any] = await self.request(
             RequestRoute(Endpoints.create_message(channel_id), type="POST", json=payload),
         )
-        return models._converters.payload_to_message(self._client, res)
+
+        msg = models._converters.payload_to_message(self._client, res)
+
+        async def _delete_after(sec: int) -> None:
+
+            await asyncio.sleep(sec)
+            await self.delete_message(msg.channel_id, msg.id)
+
+        if delete_after is not None:
+            asyncio.create_task(_delete_after(delete_after))
+
+        return msg
+
+    async def delete_message(self, channel_id: int, message_id: int) -> None:
+        await self.request(RequestRoute(Endpoints.delete_message(channel_id, message_id), type="DELETE"))
 
     async def fetch_message(self, channel_id: int, message_id: int) -> models.Message:
 

@@ -41,6 +41,15 @@ def get_arg_count(callable: typing.Callable[..., typing.Any]) -> int:
     return len(inspect.getargs(callable.__code__).args)
 
 
+def copy_docs(_from: typing.Any, replace: dict[str, str] = {}) -> typing.Callable[[typing.Any], typing.Any]:
+    def copy(_to: typing.Any) -> typing.Any:
+        _to.__doc__ = _from.__doc__
+        [_to.__doc__.replace(text, replacement) for text, replacement in replace.items()]
+        return _to
+
+    return copy
+
+
 def create_timestamp(dt: datetime.datetime | datetime.timedelta, *, style: str = "t") -> str:
     """Creates an UNIX timestamp for provided datetime or timedelta object.
 
