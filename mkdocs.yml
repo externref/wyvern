@@ -18,7 +18,6 @@ theme:
     - navigation.tracking
     - navigation.tabs
     - navigation.top
-    - toc.integrate
     - content.code.annotate
   palette:
     - scheme: light
@@ -53,9 +52,6 @@ nav:
   - API Reference:
       - clients: api_reference/clients.md
       - colors: api_reference/colors.md
-      - commands:
-          - command_handler: api_reference/commands/command_handler.md
-          - slash_commands: api_reference/commands/slash_commands.md
       - components:
           - base: api_reference/components/base.md
           - buttons: api_reference/components/buttons.md
@@ -85,6 +81,10 @@ nav:
       - rest: api_reference/rest.md
       - utils: api_reference/utils.md
 
+  - Commands API Reference:
+      - client: commands/client.md
+      - command_handler: commands/command_handler.md
+      - slash_commands: commands/slash_commands.md
   - Guide:
       - Basic Bot: guide/basic_bot.md
 
