@@ -13,7 +13,7 @@ attrs = "^22.1.0"
 
 [tool.poetry.dev-dependencies]
 pyright = "^1.1.282"
-ruff = "^0.0.158"
+ruff = "^0.0.169"
 isort = "^5.10.1"
 black = "^22.6.0"
 pre-commit = "^2.20.0"
