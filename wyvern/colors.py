@@ -364,3 +364,8 @@ class Color:
     def silver(cls) -> Color:
         """Creates a Color object from the silver color. This is `#c0c0c0`. (Silver)"""
         return cls(0xC0C0C0)
+        
+    @classmethod
+    def aqua(cls) -> Color:
+        """Creates a Color object from the aqua color. This is `#00ffff`. (Aqua)"""
+        return cls(0x00FFFF)
