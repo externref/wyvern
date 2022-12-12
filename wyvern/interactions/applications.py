@@ -100,6 +100,7 @@ class ApplicationCommandInteractionResolvedData:
     members: dict[models.base.Snowflake, models.Member]
     messages: dict[models.base.Snowflake, models.Message]
     attachments: dict[models.base.Snowflake, files.Attachment]
+    channels: dict[models.base.Snowflake, models.ChannelLike]
 
 
 @typing.final

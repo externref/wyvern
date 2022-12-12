@@ -26,7 +26,9 @@ import datetime
 import typing
 
 from wyvern.files import Attachment
+from wyvern.permissions import PermissionOverwrites
 
+from . import channels
 from .base import Snowflake
 from .members import Member
 from .messages import Message, MessageReference
@@ -130,3 +132,121 @@ def payload_to_message(client: "GatewayClient", payload: dict[str, typing.Any]) 
         attachments=[Attachment._from_payload(client, Snowflake, attc) for attc in payload["attachments"]],
         message_reference=MessageReference(**data) if (data := payload.get("message_reference")) else None,
     )
+
+
+def payload_to_channel(client: GatewayClient, payload: dict[str, typing.Any]) -> channels.ChannelLike:
+    channel: channels.ChannelLike
+    if payload["type"] == channels.ChannelType.GUILD_TEXT.value:
+        channel = channels.GuildTextChannel(
+            client=client,
+            raw=payload,
+            id=Snowflake.create(payload["id"]),
+            name=payload["name"],
+            guild_id=Snowflake.create(payload["guild_id"]),
+            position=payload["position"],
+            permissions_overwrites=[PermissionOverwrites(**perm) for perm in payload.get("permission_overwrites", [])],
+            rate_limit_per_user=payload["rate_limit_per_user"],
+            nsfw=payload.get("nsfw", False),
+            topic=payload.get("topic", None),
+            last_message_id=Snowflake.create(id) if (id := payload.get("last_message_id")) else None,
+            parent_id=Snowflake.create(id) if (id := payload.get("parent_id")) else None,
+            default_auto_archive_duration=payload["default_auto_archive_duration"],
+        )
+    elif payload["type"] == channels.ChannelType.GUILD_VOICE.value:
+        channel = channels.GuildVoiceChannel(
+            client=client,
+            raw=payload,
+            id=Snowflake.create(payload["id"]),
+            name=payload["name"],
+            guild_id=Snowflake.create("guild_id"),
+            position=payload["position"],
+            permissions_overwrites=[PermissionOverwrites(**perm) for perm in payload.get("permission_overwrites", [])],
+            nsfw=payload.get("nsfw", False),
+            parent_id=Snowflake.create(id) if (id := payload.get("parent_id")) else None,
+            rate_limit_per_user=payload["rate_limit_per_user"],
+            rtc_region=payload.get("rtc_region"),
+            bitrate=payload["birtate"],
+            user_limit=payload["user_limit"],
+        )
+    elif payload["type"] == channels.ChannelType.DM.value:
+        channel = channels.DMChannel(
+            client=client,
+            raw=payload,
+            id=Snowflake.create(payload["id"]),
+            last_message_id=Snowflake.create(id) if (id := payload.get("last_message_id")) else None,
+            recipients=[payload_to_user(client, user) for user in payload["recipients"]],
+        )
+    elif payload["type"] in (channels.ChannelType.PUBLIC_THREAD.value, channels.ChannelType.PRIVATE_THREAD.value):
+        channel = channels.ThreadChannel(
+            client=client,
+            raw=payload,
+            type=channels.ChannelType.PUBLIC_THREAD if payload["type"] == 11 else channels.ChannelType.PRIVATE_THREAD,
+            id=Snowflake.create(payload["id"]),
+            name=payload["name"],
+            guild_id=Snowflake.create(payload["guild_id"]),
+            permissions_overwrites=[PermissionOverwrites(**perm) for perm in payload.get("permission_overwrites", [])],
+            parent_id=payload["parent_id"],
+            owner_id=payload["owner_id"],
+            last_message_id=Snowflake.create(id) if (id := payload.get("last_message_id")) else None,
+            position=payload["position"],
+            message_count=payload["message_count"],
+            rate_limit_per_user=payload["rate_limit_per_user"],
+            total_message_sent=payload["total_message_sent"],
+            member_count=payload["member_count"],
+        )
+    elif payload["type"] == channels.ChannelType.GUILD_CATEGORY.value:
+        channel = channels.GuildCategoryChannel(
+            client=client,
+            raw=payload,
+            name=payload["name"],
+            id=Snowflake.create(payload["id"]),
+            guild_id=Snowflake.create(payload["id"]),
+            position=payload["position"],
+            permissions_overwrites=[PermissionOverwrites(**perm) for perm in payload.get("permission_overwrites", [])],
+        )
+    elif payload["type"] == channels.ChannelType.ANNOUNCEMENT_THREAD.value:
+        channel = channels.ThreadAnnouncementChannel(
+            client=client,
+            raw=payload,
+            id=Snowflake.create(payload["id"]),
+            name=payload["name"],
+            guild_id=Snowflake.create(payload["guild_id"]),
+            permissions_overwrites=[PermissionOverwrites(**perm) for perm in payload.get("permission_overwrites", [])],
+            parent_id=payload["parent_id"],
+            owner_id=payload["owner_id"],
+            last_message_id=Snowflake.create(id) if (id := payload.get("last_message_id")) else None,
+            position=payload["position"],
+            message_count=payload["message_count"],
+            rate_limit_per_user=payload["rate_limit_per_user"],
+            total_message_sent=payload["total_message_sent"],
+            member_count=payload["member_count"],
+        )
+    elif payload["type"] == channels.ChannelType.GUILD_ANNOUNCEMENT.value:
+        channel = channels.GuildAnnouncmentChannel(
+            client=client,
+            raw=payload,
+            id=Snowflake.create(payload["id"]),
+            name=payload["name"],
+            guild_id=Snowflake.create(payload["guild_id"]),
+            position=payload["position"],
+            permissions_overwrites=[PermissionOverwrites(**perm) for perm in payload.get("permission_overwrites", [])],
+            nsfw=payload.get("nsfw", False),
+            topic=payload.get("topic", None),
+            last_message_id=Snowflake.create(id) if (id := payload.get("last_message_id")) else None,
+            parent_id=Snowflake.create(id) if (id := payload.get("parent_id")) else None,
+            default_auto_archive_duration=payload["default_auto_archive_duration"],
+        )
+    elif payload["type"] == channels.ChannelType.GUILD_STAGE_VOICE.value:
+        channel = channels.GuildStageVoiceChannel(
+            client=client,
+            raw=payload,
+            id=Snowflake.create(payload["id"]),
+            name=payload["name"],
+            permissions_overwrites=[PermissionOverwrites(**perm) for perm in payload.get("permission_overwrites", [])],
+            guild_id=payload["guild_id"],
+            position=payload["position"],
+            nsfw=payload.get("nsfw", False),
+        )
+    else:
+        raise ValueError("Unidenfitied channel type: %s", payload["type"])
+    return channel

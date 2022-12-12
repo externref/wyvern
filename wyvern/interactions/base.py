@@ -100,7 +100,7 @@ class Interaction(_ListenerArg):
     client: "GatewayClient"
     id: int
     """ID of the interaction."""
-    application_id: int
+    application_id: models.base.Snowflake
     """ID of the application that recieved the interaction."""
     type: InteractionType
     """Type of the interaction."""

@@ -294,16 +294,12 @@ class RESTClient:
         response_type: interactions.InteractionResponseType,
         *,
         content: str | None = None,
-        embeds: typing.Sequence["EmbedConstructor"] = (),
+        embeds: typing.Sequence[EmbedConstructor] = (),
         components: typing.Sequence[ActionRowContainer] = (),
-        allowed_mentions: models.AllowedMentions | None = None,
+        flags: models.messages.MessageFlags | None = None,
+        allowed_mentions: models.messages.AllowedMentions | None = None,
         modal: Modal | None = None,
     ) -> None:
-        """
-        Creates an interaction for the provided interaction object.
-
-
-        """
         payload: dict[str, typing.Any] = {"type": int(response_type), "data": {}}
         if response_type is interactions.InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE:
             pass
@@ -312,6 +308,7 @@ class RESTClient:
             payload["data"]["embeds"] = [embed._payload for embed in embeds]
             payload["data"]["components"] = [builder.to_payload() for builder in components]
             payload["data"]["allowed_mentions"] = (allowed_mentions or self._client.allowed_mentions).to_payload()
+            payload["data"]["flags"] = flags.value if flags else None
         elif response_type is interactions.InteractionResponseType.MODAL:
             if modal is None:
                 raise ValueError("No Modal instance provided to send.")

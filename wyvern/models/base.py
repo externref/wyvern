@@ -59,7 +59,7 @@ class DiscordObject(_ListenerArg):
     """
 
     def __init__(self, _id: int) -> None:
-        self.id = Snowflake(_id)
+        self.id = Snowflake.create(_id)
 
     def __eq__(self, obj: object) -> bool:
         if not isinstance(obj, DiscordObject):

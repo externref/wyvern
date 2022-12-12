@@ -56,6 +56,7 @@ def payload_to_resolved(
     members = []
     messages = [_converters.payload_to_message(client, _data) for _data in data.get("messages", {}).values()]
     attachments = [Attachment._from_payload(client, Snowflake, _data) for _data in data.get("attachments", {}).values()]
+    channels = [_converters.payload_to_channel(client, _data) for _data in data.get("channels", {}).values()]
     if guild_id is not None:
         members = [
             _converters.payload_to_member(client, guild_id=Snowflake.create(guild_id), payload=_data)
@@ -67,6 +68,7 @@ def payload_to_resolved(
         members={m.id: m for m in members},
         messages={m.id: m for m in messages},
         attachments={a.id: a for a in attachments},
+        channels={c.id: c for c in channels},
     )
     return res
 
