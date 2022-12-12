@@ -21,7 +21,7 @@ Support server: https://discord.gg/FyEE54u9GF
 
 Documentation: https://sarthhh.github.io/wyvern/
 
-PYPI: https://pypi.org/projects/wyvern
+PYPI: https://pypi.org/project/wyvern
 
 ## Installation
 ```sh
