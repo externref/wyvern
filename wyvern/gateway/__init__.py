@@ -90,8 +90,15 @@ class Gateway:
             },
         }
 
-        print(payload)
+        await self.socket.send_json(payload)
 
+    async def update_voice_state(
+        self, guild_id: int, channel_id: int, /, *, self_mute: bool = False, self_deaf: bool = False
+    ) -> None:
+        payload: dict[str, typing.Any] = {
+            "op": WSEventEnums.VOICE_STATE_UPDATE.value,
+            "d": {"guild_id": guild_id, "channel_id": channel_id, "self_mute": self_mute, "self_deaf": self_deaf},
+        }
         await self.socket.send_json(payload)
 
     @property
@@ -117,7 +124,7 @@ class Gateway:
 
     async def listen_gateway(self) -> None:
         self._client._logger.debug("Starting listening to gateway.")
-        async for message in self.socket:
+        async for message in self.socket:  # type: ignore
             if self.is_connected is False:
                 self.is_connected = True
                 self._client.event_handler.dispatch("GATEWAY_CONNECTED", self._client)

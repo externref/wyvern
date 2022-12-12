@@ -81,8 +81,8 @@ class GuildIcon(BaseAsset):
 class Attachment(BaseAsset):
     """Represents a attachment in a message."""
 
-    client: "GatewayClient"
-    id: "Snowflake"
+    client: GatewayClient
+    id: Snowflake
     """ID of the attachment."""
     filename: str
     """Attachments' filename."""

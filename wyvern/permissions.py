@@ -20,7 +20,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
+import typing
+
+import attrs
+
 from wyvern._internals import BitWiseFlag
+
+if typing.TYPE_CHECKING:
+    from wyvern.models.base import Snowflake
 
 
 class Permissions(BitWiseFlag):
@@ -64,3 +73,16 @@ class Permissions(BitWiseFlag):
     SEND_MESSAGES_IN_THREADS = 1 << 38
     USE_EMBEDDED_ACTIVITIES = 1 << 39
     MODERATE_MEMBERS = 1 << 40
+
+
+class OverwriteType:
+    ROLE = 0
+    MEMBER = 1
+
+
+@attrs.define(kw_only=True, slots=True)
+class PermissionOverwrites:
+    id: Snowflake
+    type: int
+    allow: Permissions
+    deny: Permissions
