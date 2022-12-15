@@ -61,7 +61,7 @@ class VoiceState(DiscordObject):
 
 
 @attrs.define(kw_only=True, slots=True, repr=True)
-class VoiceRegion(DiscordObject):
+class VoiceRegion:
     raw: dict[str, typing.Any]
     name: str
     id: str
@@ -69,8 +69,3 @@ class VoiceRegion(DiscordObject):
     optimal: bool
     deprecated: bool
     custom: bool
-
-    @property
-    def created_at(self) -> datetime.datetime:
-        """Datetime at which voice region was created."""
-        return super().created_at

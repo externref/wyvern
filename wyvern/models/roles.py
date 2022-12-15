@@ -61,7 +61,7 @@ class RoleTags(DiscordObject):
 
 @attrs.define(kw_only=True, slots=True, repr=True, order=False)
 class Role(DiscordObject):
-    raw: dict[str, Role]
+    raw: dict[str, typing.Any]
     id: Snowflake
     name: str
     color: int
