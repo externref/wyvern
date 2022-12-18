@@ -349,3 +349,23 @@ class Color:
     def orange(cls) -> Color:
         """Creates a Color object from the orange color. This is `0xffa500`. (Orange)"""
         return cls(0xFFA500)
+    
+    @classmethod
+    def purple(cls) -> Color:
+        """Creates a Color object from the purple color. This is `#800080`. (Purple)"""
+        return cls(0x800080) 
+
+    @classmethod
+    def brown(cls) -> Color:
+        """Creates a Color object from the brown color. This is `#a52a2a`. (Brown)"""
+        return cls(0xA52A2A)
+
+    @classmethod
+    def silver(cls) -> Color:
+        """Creates a Color object from the silver color. This is `#c0c0c0`. (Silver)"""
+        return cls(0xC0C0C0)
+        
+    @classmethod
+    def aqua(cls) -> Color:
+        """Creates a Color object from the aqua color. This is `#00ffff`. (Aqua)"""
+        return cls(0x00FFFF)
