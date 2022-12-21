@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+import typing
 import logging
 
 
@@ -47,3 +49,55 @@ def create_logging_setup(logger: logging.Logger) -> None:
     stream.setFormatter(LoggingFormatter())
     logger.addHandler(stream)
     logger.setLevel(logging.DEBUG)
+
+
+class ANSI:
+    NORMAL_FORMAT = 0
+    BOLD_FORMAT = 1
+    UNDERLINE_FORMAT = 4
+    GRAY_TEXT = 30
+    RED_TEXT = 31
+    GREEN_TEXT = 32
+    YELLOW_TEXT = 33
+    BLUE_TEXT = 34
+    PINK_TEXT = 35
+    CYAN_TEXT = 36
+    WHITE_TEXT = 37
+    FIREFLY_DARK_BLUE_BACKGROUND = 40
+    ORANGE_BACKGROUND = 41
+    MARBLE_BLUE_BACKGROUND = 42
+    GREYISH_TURQUOISE_BACKGROUND = 43
+    GRAY_BACKGROUND = 44
+    INDIGO_BACKGROUND = 45
+    LIGHT_GRAY_BACKGROUND = 46
+    WHITE_BACKGROUND = 0
+
+
+class ANSIBuilder:
+    bucket: list[str]
+    current_cursor: str
+
+    def __enter__(self) -> "ANSIBuilder":
+        self.bucket = []
+        self.current_cursor = ""
+        return self
+
+    def __exit__(self, *args: typing.Any) -> None:
+        ...
+
+    def set_cursor(self, *args: int) -> "ANSIBuilder":
+        self.current_cursor = f"\033[{';'.join(map(str, args))}m"
+        return self
+
+    def write(self, text: str) -> ANSIBuilder:
+        self.bucket.append(f"{self.current_cursor}{text}")
+        return self
+
+    def reset(self) -> ANSIBuilder:
+        self.current_cursor = "\033[0m"
+        return self
+
+    def get_str(self) -> str:
+        return "".join(self.bucket)
+
+
