@@ -34,3 +34,13 @@ class MembersState:
             if (members := [member for member in self.cached_members[guild_id].values() if member.username == name])
             else None
         )
+
+    def add_member(self, mem: Member) -> None:
+        self._guild_check(mem.guild_id)
+        self.cached_members[mem.guild_id][mem.id] = mem
+
+    def update_user_state(self) -> None:
+        [
+            self._client.users._add_to_state(*list(map(lambda mem: mem.user, members.values())))
+            for members in self.cached_members.values()
+        ]

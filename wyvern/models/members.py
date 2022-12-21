@@ -12,6 +12,8 @@ from .users import User
 
 @attrs.define(kw_only=True, slots=True, repr=True)
 class Member(User):
+    user: User
+    """User of the member."""
     guild_id: Snowflake
     """ID of the guild this member belongs to."""
     nickname: str | None

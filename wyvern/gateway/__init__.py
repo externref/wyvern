@@ -31,6 +31,7 @@ import typing
 
 import aiohttp
 
+from wyvern.events import Event
 from wyvern.interactions import _converters as inter_convertors
 from wyvern.models import _converters
 from wyvern.presences import Activity, Status
@@ -127,7 +128,7 @@ class Gateway:
         async for message in self.socket:  # type: ignore
             if self.is_connected is False:
                 self.is_connected = True
-                self._client.event_handler.dispatch("GATEWAY_CONNECTED", self._client)
+                self._client.event_handler.dispatch(Event("GATEWAY_CONNECTED"), self._client)
 
             if message.type == aiohttp.WSMsgType.TEXT:  # type: ignore
                 await self._parse_payload_response(json.loads(message.data))  # type: ignore
@@ -145,10 +146,19 @@ class Gateway:
         loop.create_task(self.keep_alive.start(self))
 
     async def _dispatch_events(self, payload: dict[str, typing.Any]) -> None:
-        if (t := payload["t"]) == "MESSAGE_CREATE":
-            self._client.event_handler.dispatch(t, _converters.payload_to_message(self._client, payload["d"]))
-        if t == "INTERACTION_CREATE":
-            self._client.event_handler.dispatch(t, inter_convertors.payload_to_interaction(self._client, payload["d"]))
+        try:
+            event = Event(t := payload["t"])
+        except ValueError:
+            return 
+        if event is Event.MESSAGE_CREATE:
+            self._client.event_handler.dispatch(event, _converters.payload_to_message(self._client, payload["d"]))
+        elif event is event.INTERACTION_CREATE:
+            self._client.event_handler.dispatch(
+                event, inter_convertors.payload_to_interaction(self._client, payload["d"])
+            )
+        elif t == "GUILD_CREATE":
+            self._client.event_handler.dispatch(event, payload)
+            self._populate_guild_cache(payload["d"])
 
     async def _parse_payload_response(self, payload: dict[str, typing.Any]) -> None:
         op, s, d = payload["op"], payload["s"], payload["d"]
@@ -162,3 +172,10 @@ class Gateway:
         elif op == WSEventEnums.DISPATCH:
             self.keep_alive.sequence = s
             await self._dispatch_events(payload)
+
+    def _populate_guild_cache(self, payload: dict[str, typing.Any]) -> None:
+        [
+            self._client.members.add_member(_converters.payload_to_member(self._client, payload["id"], member))
+            for member in payload["members"]
+        ]
+        self._client.members.update_user_state()

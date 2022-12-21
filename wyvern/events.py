@@ -23,6 +23,7 @@
 from __future__ import annotations
 
 import asyncio
+import enum
 import typing
 
 import attrs
@@ -38,8 +39,10 @@ __all__: tuple[str, ...] = ("Event", "EventListener", "EventHandler", "as_listen
 
 
 @typing.final
-class Event:
+class Event(enum.Enum):
     """Event Enums."""
+
+    READY = "READY"
 
     MESSAGE_CREATE = "MESSAGE_CREATE"
     """Triggered when a message is created.
@@ -58,7 +61,7 @@ class Event:
     !!! note
         The interaction argument can be any derivative of interaction!.
     """
-
+    GUILD_CREATE = "GUILD_CREATE"
     # Library Events
 
     STARTING = "STARTING"
@@ -109,7 +112,8 @@ class EventListener:
         Number of times this listener has been triggered
     """
 
-    event_type: str | Event
+    __parent_identity__: str = attrs.field(init=False, default="-")
+    event_type: Event
     callback: AnyCallableT
     max_trigger: int | float
     trigger_count: int = 0
@@ -162,11 +166,34 @@ class EventListener:
     async def __call__(self, *args: typing.Any) -> None:
         if (await self.process_checks(*args)) is False:
             return
+        assert (handler := self.event_handler) is not None
+        finalargs: tuple[typing.Any] = tuple()
+        if self.__parent_identity__ == "-":
+            finalargs = args
+        elif self.__parent_identity__ == "bot_class":
+            finalargs = (handler.client,) + args
+        elif self.__parent_identity__ == "event_handler_class":
+            finalargs = (handler,) + args
         self.trigger_count += 1
-        await self.callback(*args)
+        await self.callback(*finalargs)
 
 
-class EventHandler:
+class _InClassEventContainer:
+    __identity__: str
+    __internal_listeners__: dict[Event, list[EventListener]] = {}
+
+    def __new__(cls: type[_InClassEventContainer], *args: typing.Any, **kwargs: typing.Any) -> _InClassEventContainer:
+        inst = super().__new__(cls,)
+        for _type in inst.__class__.__mro__:
+            for item in _type.__dict__.values():
+                if isinstance(item, EventListener):
+                    inst.__internal_listeners__.setdefault(item.event_type, []).append(item)
+                    item.__parent_identity__ = cls.__identity__
+        return inst
+
+
+class EventHandler(_InClassEventContainer):
+    __identity__: str = "event_handler_class"  # this is meant for callback signature verification, don't override.
     """
     Event handler to deal with incoming events from the Gateway.
 
@@ -183,16 +210,16 @@ class EventHandler:
         A container for event listeners.
     """
 
-    listeners: dict[str | Event, list[EventListener]] = {}
+    listeners: dict[Event, list[EventListener]] = {}
 
     def __init__(self, client: "GatewayClient") -> None:
         self.client = client
-        self._after_init()
-
-    def _after_init(self) -> None:
-        for item in self.__dict__.values():
-            if isinstance(item, EventListener):
-                self.add_listener(item)
+    
+    def setup_listeners(self) -> None:
+        [
+            [self.add_listener(listener) for listener in listeners]
+            for listeners in self.__internal_listeners__.values()
+        ]
 
     def add_listener(self, event_listener: EventListener) -> EventListener:
         """
@@ -208,7 +235,7 @@ class EventHandler:
         event_listener.event_handler = self
         return event_listener
 
-    def dispatch(self, event: str | Event, *args: typing.Any) -> None:
+    def dispatch(self, event: Event, *args: typing.Any) -> None:
         """
         Dispatches events from the gateway.
         This method runs all the listeners registered in the container
@@ -226,19 +253,13 @@ class EventHandler:
         """
         self.client._logger.debug(f"Dispatching {event} event.")
 
-        invokes = [
-            lsnr(self, *args) if (lsnr.callback.__class__.__name__ == self.__class__.__name__) else lsnr(*args)
-            for lsnr in self.listeners.get(event, [])
-            if lsnr.max_trigger > lsnr.trigger_count
-        ]
-
-        if event == Event.INTERACTION_CREATE and (cb := getattr(self.client, "_handle_inters", None)):
-            invokes.append(cb(*args))
+        invokes = [lsnr( *args) for lsnr in self.listeners.get(event, []) if lsnr.max_trigger > lsnr.trigger_count]
         asyncio.gather(*invokes)
 
 
+
 def as_listener(
-    event: str | Event, *, max_trigger: int | float = float("inf")
+    event: Event, *, max_trigger: int | float = float("inf")
 ) -> typing.Callable[[typing.Callable[..., typing.Awaitable[typing.Any]]], EventListener]:
     """Creates a [wyvern.events.EventListener][] object.
 

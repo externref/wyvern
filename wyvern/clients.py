@@ -61,7 +61,8 @@ ux.create_logging_setup(_LOGGER)
 __all__: tuple[str, ...] = ("GatewayClient", "CommandsClient")
 
 
-class GatewayClient:
+class GatewayClient(events._InClassEventContainer):
+    __identity__: str = "bot_class"
     """The main bot class which acts as an interface between the Discord API and your bot.
 
     Parameters
@@ -108,10 +109,7 @@ class GatewayClient:
         self.allowed_mentions = allowed_mentions
         self._users = state_handlers.UsersState(self)
         self._members = state_handlers.MembersState(self)
-        self._logger = _LOGGER
-
-    def _listeners_setups(self) -> None:
-        ...
+        self._logger = _LOGGER 
 
     @property
     def users(self) -> state_handlers.UsersState:
@@ -147,7 +145,7 @@ class GatewayClient:
         ...
 
     def with_listener(
-        self, event: str | events.Event, *, max_trigger: int | float = float("inf")
+        self, event: events.Event, *, max_trigger: int | float = float("inf")
     ) -> typing.Callable[[typing.Callable[..., typing.Awaitable[typing.Any]]], events.EventListener]:
         """
         Creates and adds a new listenet to the client's event handler.
@@ -206,7 +204,7 @@ class GatewayClient:
             The status bot boots up with.
 
         """
-        self._listeners_setups()
+        self.event_handler.setup_listeners()
         self.event_handler.dispatch(events.Event.STARTING, self)
         self.gateway._start_activity = activity
         self.gateway._start_status = status
@@ -270,6 +268,7 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
     slash_groups: dict[str, "commands.slash_commands.SlashGroup"] = {}
     """List of slash command groups attached to the client in code."""
 
+    @events.as_listener(events.Event.INTERACTION_CREATE)
     async def _handle_inters(self, inter: interactions.Interaction) -> None:
         if isinstance(inter, interactions.ApplicationCommandInteraction):
             await self.process_application_commands(inter)

@@ -62,10 +62,11 @@ def payload_to_user(client: "GatewayClient", payload: dict[str, typing.Any]) -> 
 
 
 def payload_to_member(client: "GatewayClient", guild_id: Snowflake, payload: dict[str, typing.Any]) -> Member:
-    user = payload_to_user(client, payload=payload)
+    user = payload_to_user(client, payload=payload["user"])
     return Member(
         client=client,
         raw=payload,
+        user=user,
         id=user.id,
         username=user.username,
         discriminator=user.discriminator,
@@ -82,7 +83,7 @@ def payload_to_member(client: "GatewayClient", guild_id: Snowflake, payload: dic
         guild_id=guild_id,
         nickname=payload.get("nick"),
         premium_since=datetime.datetime.fromisoformat(p) if (p := payload.get("premium_since")) else None,
-        role_ids=[Snowflake.create(id) for id in payload["role_ids"]],
+        role_ids=[Snowflake.create(id) for id in payload["roles"]],
         joined_at=datetime.datetime.fromisoformat(payload["joined_at"]),
         deaf=payload.get("deaf"),
         mute=payload.get("mute"),

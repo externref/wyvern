@@ -27,6 +27,7 @@ import typing
 
 import attrs
 
+from wyvern._internals import BitWiseFlag
 from .base import DiscordObject, Snowflake
 
 if typing.TYPE_CHECKING:
@@ -117,7 +118,7 @@ class GuildNSFWLevel(enum.IntEnum):
     AGE_RESTRICTED = 3
 
 
-class GuildSystemChannelFlags(enum.IntEnum):
+class GuildSystemChannelFlags(BitWiseFlag):
     SUPPRESS_JOIN_NOTIFICATIONS = 1 << 0
     SUPPRESS_PREMIUM_SUBSCRIPTIONS = 1 << 1
     SUPPRESS_GUILD_REMINDER_NOTIFICATIONS = 1 << 2
@@ -131,7 +132,7 @@ class IntegrationExpireBehavior(enum.IntEnum):
 
 @attrs.define(kw_only=True, slots=True, repr=True)
 class Ban:
-    reason: typing.Optional[str]
+    reason: str | None
     user: User
 
 
