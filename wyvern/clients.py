@@ -62,7 +62,6 @@ __all__: tuple[str, ...] = ("GatewayClient", "CommandsClient")
 
 
 class GatewayClient(events._InClassEventContainer):
-    __identity__: str = "bot_class"
     """The main bot class which acts as an interface between the Discord API and your bot.
 
     Parameters
@@ -85,6 +84,7 @@ class GatewayClient(events._InClassEventContainer):
 
     """
 
+    __identity__: str = "bot_class"
     hooks: dict[str, utils.Hook] = {}
     plugins: dict[str, _plugins.Plugin] = {}
 
