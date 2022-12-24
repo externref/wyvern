@@ -20,6 +20,7 @@ theme:
     - navigation.top
     - content.code.annotate
   palette:
+
     - scheme: light
       toggle:
         icon: material/weather-sunny
@@ -28,6 +29,12 @@ theme:
       toggle:
         icon: material/weather-night
         name: Dark Mode
+    - scheme: pink
+      primary: pink
+      
+      toggle:
+        icon: material/lightbulb
+        name: Light Mode 2
 
 plugins:
   - mkdocstrings:
