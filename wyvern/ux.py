@@ -21,8 +21,12 @@
 # SOFTWARE.
 
 from __future__ import annotations
-import typing
+
+import enum
 import logging
+import typing
+
+__all__: tuple[str, ...] = ("LoggingFormatter", "create_logging_setup", "ANSI", "ANSIBuilder")
 
 
 class LoggingFormatter(logging.Formatter):
@@ -48,10 +52,10 @@ def create_logging_setup(logger: logging.Logger) -> None:
     stream = logging.StreamHandler()
     stream.setFormatter(LoggingFormatter())
     logger.addHandler(stream)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
 
-class ANSI:
+class ANSI(enum.IntEnum):
     NORMAL_FORMAT = 0
     BOLD_FORMAT = 1
     UNDERLINE_FORMAT = 4
@@ -77,7 +81,7 @@ class ANSIBuilder:
     bucket: list[str]
     current_cursor: str
 
-    def __enter__(self) -> "ANSIBuilder":
+    def __enter__(self) -> ANSIBuilder:
         self.bucket = []
         self.current_cursor = ""
         return self
@@ -85,19 +89,22 @@ class ANSIBuilder:
     def __exit__(self, *args: typing.Any) -> None:
         ...
 
-    def set_cursor(self, *args: int) -> "ANSIBuilder":
-        self.current_cursor = f"\033[{';'.join(map(str, args))}m"
+    def set_cursor(self, *args: ANSI | int) -> ANSIBuilder:
+        self.current_cursor = (
+            f"\033[{';'.join(map(lambda arg: str(arg.value) if isinstance(arg, ANSI) else str(arg), args))}m"
+        )
+        self.bucket.append(self.current_cursor)
         return self
 
-    def write(self, text: str) -> ANSIBuilder:
-        self.bucket.append(f"{self.current_cursor}{text}")
+    def write(self, text: str, *, newline: bool = False) -> ANSIBuilder:
+        self.bucket.append(text + "\n" if newline is True else "")
+
         return self
 
     def reset(self) -> ANSIBuilder:
         self.current_cursor = "\033[0m"
+        self.bucket.append(self.current_cursor)
         return self
 
     def get_str(self) -> str:
         return "".join(self.bucket)
-
-

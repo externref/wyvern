@@ -19,7 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+"""Utility functions and classes for the library."""
 from __future__ import annotations
 
 import ast
@@ -28,6 +28,8 @@ import inspect
 import typing
 
 import attrs
+
+__all__: tuple[str, ...] = ("Empty", "EMPTY", "get_arg_count", "create_timestamp", "Eval", "Hook", "as_hook")
 
 
 class Empty:
@@ -38,6 +40,18 @@ EMPTY = Empty()
 
 
 def get_arg_count(callable: typing.Callable[..., typing.Any]) -> int:
+    """Counts the number of args in a callable.
+
+    Parameters
+    ----------
+    callable : typing.Callable[..., typing.Any]
+        The callable to get arg count of.
+
+    Returns
+    -------
+    int
+        Number of arguments in a callable.
+    """
     return len(inspect.getargs(callable.__code__).args)
 
 
@@ -55,13 +69,11 @@ def create_timestamp(dt: datetime.datetime | datetime.timedelta, *, style: str =
 
     Parameters
     ----------
-
     dt : datetime.datetime | datetime.timedelta
         The datetime or timedelta to convert.
 
     Returns
     -------
-
     str
         The UNIX timestamp.
     """
@@ -98,13 +110,11 @@ def as_hook(name: str | None = None) -> typing.Callable[..., Hook]:
 
     Parameters
     ----------
-
     name : str
         Name of the hook.
 
     Returns
     -------
-
     wyvern.utils.Hook
         The hook that was created.
     """
@@ -143,7 +153,6 @@ class Eval:
 
         Parameters
         ----------
-
         code : str
             The code to evaluate.
         renv: dict[str, typing.Any]
@@ -151,7 +160,6 @@ class Eval:
 
         Returns
         -------
-
         typing.Any
             The result of the code.
 

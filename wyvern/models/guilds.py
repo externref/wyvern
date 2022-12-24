@@ -28,6 +28,7 @@ import typing
 import attrs
 
 from wyvern._internals import BitWiseFlag
+
 from .base import DiscordObject, Snowflake
 
 if typing.TYPE_CHECKING:

@@ -149,7 +149,7 @@ class Gateway:
         try:
             event = Event(t := payload["t"])
         except ValueError:
-            return 
+            return
         if event is Event.MESSAGE_CREATE:
             self._client.event_handler.dispatch(event, _converters.payload_to_message(self._client, payload["d"]))
         elif event is event.INTERACTION_CREATE:

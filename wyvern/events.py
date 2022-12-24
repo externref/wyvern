@@ -89,13 +89,11 @@ class Event(enum.Enum):
 @typing.final
 @attrs.define
 class EventListener:
-    """
-    Class representating a callable to be called when a specific event type is
+    """Class representating a callable to be called when a specific event type is
     dispatched.
 
     Parameters
     ----------
-
     event_type : str | wyvern.events.Event
         The type of event this listener belongs to.
     callback : typing.Callable[..., typing.Awaitable[typing.Any]]
@@ -107,7 +105,6 @@ class EventListener:
 
     Attributes
     ----------
-
     trigger_count: int
         Number of times this listener has been triggered
     """
@@ -167,7 +164,7 @@ class EventListener:
         if (await self.process_checks(*args)) is False:
             return
         assert (handler := self.event_handler) is not None
-        finalargs: tuple[typing.Any] = tuple()
+        finalargs: tuple[typing.Any, ...] = tuple()
         if self.__parent_identity__ == "-":
             finalargs = args
         elif self.__parent_identity__ == "bot_class":
@@ -183,7 +180,9 @@ class _InClassEventContainer:
     __internal_listeners__: dict[Event, list[EventListener]] = {}
 
     def __new__(cls: type[_InClassEventContainer], *args: typing.Any, **kwargs: typing.Any) -> _InClassEventContainer:
-        inst = super().__new__(cls,)
+        inst = super().__new__(
+            cls,
+        )
         for _type in inst.__class__.__mro__:
             for item in _type.__dict__.values():
                 if isinstance(item, EventListener):
@@ -193,41 +192,34 @@ class _InClassEventContainer:
 
 
 class EventHandler(_InClassEventContainer):
-    __identity__: str = "event_handler_class"  # this is meant for callback signature verification, don't override.
     """
     Event handler to deal with incoming events from the Gateway.
 
     Parameters
     ----------
-
     client : wyvern.clients.GatewayClient
         The client binded with the event handler.
 
     Attributes
     ----------
-
     listeners: dict[str | [wyvern.events.Event], list[wyvern.events.EventListener]]
         A container for event listeners.
     """
 
     listeners: dict[Event, list[EventListener]] = {}
+    __identity__: str = "event_handler_class"  # this is meant for callback signature verification, don't override.
 
     def __init__(self, client: "GatewayClient") -> None:
         self.client = client
-    
+
     def setup_listeners(self) -> None:
-        [
-            [self.add_listener(listener) for listener in listeners]
-            for listeners in self.__internal_listeners__.values()
-        ]
+        [[self.add_listener(listener) for listener in listeners] for listeners in self.__internal_listeners__.values()]
 
     def add_listener(self, event_listener: EventListener) -> EventListener:
-        """
-        Adds a listener to the handler.
+        """Adds a listener to the handler.
 
-        Arguments
-        ---------
-
+        Parameters
+        ----------
         event_listener: wyvern.events.EventListener
             The listener to be added.
         """
@@ -236,26 +228,21 @@ class EventHandler(_InClassEventContainer):
         return event_listener
 
     def dispatch(self, event: Event, *args: typing.Any) -> None:
-        """
-        Dispatches events from the gateway.
+        """Dispatches events from the gateway.
         This method runs all the listeners registered in the container
         for the specific event.
 
         Parameters
         ----------
-
-        event: str | wyvern.events.Event
+        event: wyvern.events.Event
             Name of the event to be dispatched.
         *args: tuple[typing.Any, ...]
             Arguments to provide in callbacks.
-
-
         """
         self.client._logger.debug(f"Dispatching {event} event.")
 
-        invokes = [lsnr( *args) for lsnr in self.listeners.get(event, []) if lsnr.max_trigger > lsnr.trigger_count]
+        invokes = [lsnr(*args) for lsnr in self.listeners.get(event, []) if lsnr.max_trigger > lsnr.trigger_count]
         asyncio.gather(*invokes)
-
 
 
 def as_listener(
@@ -265,15 +252,13 @@ def as_listener(
 
     Parameters
     ----------
-
-    event: str | wyvern.events.Event
+    event: wyvern.events.Event
         The event to listen.
     max_trigger: int | float
         Maximum number of times this listener has to be triggered.
 
     Returns
     -------
-
     wyvern.events.EventListener
         A EventListener object.
 

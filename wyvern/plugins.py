@@ -36,7 +36,6 @@ class Plugin:
 
     Parameters
     ----------
-
     name: str
         Name of the plugin.
     description : str | None
@@ -62,22 +61,20 @@ class Plugin:
             client.event_handler.add_listener(listener)
 
     def with_listener(
-        self, event: str | Event, *, max_trigger: int | float = float("inf")
+        self, event: Event, *, max_trigger: int | float = float("inf")
     ) -> typing.Callable[[typing.Callable[..., typing.Awaitable[typing.Any]]], EventListener]:
         """
         Creates and adds a new listenet to the client's event handler.
 
         Parameters
         ----------
-
-        event: str | wyvern.events.Event
+        event:  wyvern.events.Event
             The event to listen.
         max_trigger: int | float
             Maximum number of times this listener has to be triggered.
 
         Returns
         -------
-
         wyvern.events.EventListener
             A EventListener object.
         """

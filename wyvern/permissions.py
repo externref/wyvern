@@ -31,6 +31,8 @@ from wyvern._internals import BitWiseFlag
 if typing.TYPE_CHECKING:
     from wyvern.models.base import Snowflake
 
+__all__: tuple[str, ...] = ("Permissions", "PermissionOverwrites")
+
 
 class Permissions(BitWiseFlag):
     CREATE_INVITE = 1 << 0

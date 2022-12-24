@@ -68,13 +68,11 @@ class Activity:
 
     Parameters
     ----------
-
     name : str
         Name of the activity.
     type : wyvern.presences.ActivityType
         Type of the activity.
     url : The URL this activity points to.
-
     """
 
     name: str
