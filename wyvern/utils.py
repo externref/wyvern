@@ -23,10 +23,10 @@
 from __future__ import annotations
 
 import ast
-import io
 import contextlib
 import datetime
 import inspect
+import io
 import typing
 
 import attrs
