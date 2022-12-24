@@ -66,8 +66,7 @@ class GatewayClient(events._InClassEventContainer):
 
     Parameters
     ----------
-
-    token : str
+        token : str
         The bot token to use.
     intents : typing.SupportsInt | wyvern.intents.Intents
         The intents to use while logging in to the gateway.
@@ -81,12 +80,13 @@ class GatewayClient(events._InClassEventContainer):
         Discord API version to use.
     client_session : aiohttp.ClientSession | None
         ClientSession subclass to use, if any.
-
     """
 
     __identity__: str = "bot_class"
     hooks: dict[str, utils.Hook] = {}
+    """Mapping of loaded hook names to their objects."""
     plugins: dict[str, _plugins.Plugin] = {}
+    """Mapping of loaded plugin names to their objects."""
 
     def __init__(
         self,
@@ -109,7 +109,7 @@ class GatewayClient(events._InClassEventContainer):
         self.allowed_mentions = allowed_mentions
         self._users = state_handlers.UsersState(self)
         self._members = state_handlers.MembersState(self)
-        self._logger = _LOGGER 
+        self._logger = _LOGGER
 
     @property
     def users(self) -> state_handlers.UsersState:
@@ -118,22 +118,28 @@ class GatewayClient(events._InClassEventContainer):
 
         Returns
         -------
-
-        wyvern.state_handlers.UsersState
+                wyvern.state_handlers.UsersState
             The handler.
         """
         return self._users
 
     @property
     def members(self) -> state_handlers.MembersState:
+        """The member state for members in bot's cache. Similar to `users` cache.
+
+        Returns
+        -------
+        wyvern.state_handlers.MembersState
+                The member handler.
+        """
         return self._members
 
     @property
     def latency(self) -> float:
         """The heartbeat latency of the gateway connection.
 
-        Returns
-
+                Returns
+                -------
         float
             The latency.
         """
@@ -147,21 +153,18 @@ class GatewayClient(events._InClassEventContainer):
     def with_listener(
         self, event: events.Event, *, max_trigger: int | float = float("inf")
     ) -> typing.Callable[[typing.Callable[..., typing.Awaitable[typing.Any]]], events.EventListener]:
-        """
-        Creates and adds a new listenet to the client's event handler.
+        """Creates and adds a new listenet to the client's event handler.
 
         Parameters
         ----------
-
-        event: str | wyvern.events.Event
+            event: str | wyvern.events.Event
             The event to listen.
         max_trigger: int | float
             Maximum number of times this listener has to be triggered.
 
         Returns
         -------
-
-        wyvern.events.EventListener
+                wyvern.events.EventListener
             A EventListener object.
 
         ??? example
@@ -180,7 +183,6 @@ class GatewayClient(events._InClassEventContainer):
 
             client.run()
             ```
-
         """
 
         def inner(callback: typing.Callable[..., typing.Awaitable[typing.Any]]) -> events.EventListener:
@@ -197,12 +199,10 @@ class GatewayClient(events._InClassEventContainer):
 
         Parameters
         ----------
-
-        activity : wyvern.presences.Activity | None
+            activity : wyvern.presences.Activity | None
             The activity bot boots up with.
         status : wyvern.presences.Status | None
             The status bot boots up with.
-
         """
         self.event_handler.setup_listeners()
         self.event_handler.dispatch(events.Event.STARTING, self)
@@ -227,17 +227,30 @@ class GatewayClient(events._InClassEventContainer):
 
         Parameters
         ----------
-
-        activity : wyvern.presences.Activity | None
+                activity : wyvern.presences.Activity | None
             The activity bot boots up with.
         status : wyvern.presences.Status | None
             The status bot boots up with.
-
         """
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.start(activity=activity, status=status))
 
     def load_hooks(self, path: str) -> dict[str, utils.Hook]:
+        """Loads hooks from the provided path
+
+        ??? note
+            The path should be a python import path.
+
+        Parameters
+        ----------
+        path : str
+            Path to load hooks from.
+
+        Returns
+        -------
+        dict[str, wyvern.utils.Hook]
+            The hooks that were loaded.
+        """
         module = importlib.import_module(path)
         hooks = {hook.name: hook for hook in module.__dict__.values() if isinstance(hook, utils.Hook)}
         if any(overrided := [hook for hook in hooks.keys() if hook in self.hooks.keys()]):
@@ -246,6 +259,20 @@ class GatewayClient(events._InClassEventContainer):
         return hooks
 
     def get_hooks(self, *, awaitable: bool = True, non_awaitable: bool = True) -> list[utils.Hook]:
+        """Get's loaded hooks.
+
+        Parameters
+        ----------
+        awaitable : bool
+            If awaitable hooks should be added to return value.
+        non_awaitable : bool
+            If non-awaitable hooks should be added to return value.
+
+        Returns
+        -------
+        list[wyvern.utils.Hook]
+            List of the hooks.
+        """
         hooks: list[utils.Hook] = []
         if awaitable is True:
             hooks.extend([hook for hook in self.hooks.values() if inspect.isawaitable(hook.callback)])
@@ -254,6 +281,13 @@ class GatewayClient(events._InClassEventContainer):
         return hooks
 
     def add_plugin(self, plugin: _plugins.Plugin) -> None:
+        """Adds a plugin to the bot.
+
+        Parameters
+        ----------
+        plugin : wyvern.plugins.Plugin
+            The plugin to be added.
+        """
         if plugin.name in self.plugins.keys():
             raise exceptions.PluginException("Plugin %s is already loaded." % (plugin.name))
         self.plugins[plugin.name] = plugin
@@ -286,16 +320,16 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
         self.slash_groups[name] = group
 
     @typing.overload
-    def include(self, listener_or_command: events.EventListener) -> events.EventListener:
+    def add_item(self, listener_or_command: events.EventListener) -> events.EventListener:
         ...
 
     @typing.overload
-    def include(
+    def add_item(
         self, listener_or_command: commands.slash_commands.SlashCommand
     ) -> commands.slash_commands.SlashCommand:
         ...
 
-    def include(
+    def add_item(
         self, listener_or_command: events.EventListener | commands.slash_commands.SlashCommand | typing.Any
     ) -> events.EventListener | commands.slash_commands.SlashCommand:
         def inner() -> None:
@@ -315,7 +349,7 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
         -------------------
         * strings : [str][]
         * iterables : [list][] / [set][] / [tuple][]
-        * callables : function or a coroutine.
+        * callables : [builtins.function][] or a [asyncio.coroutine][].
         """
         if isinstance(prefix_or_function, str):
             self.prefix_type = str
@@ -339,7 +373,6 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
 
         Parameters
         ----------
-
         name : str
             Name of the command.
         description : str
@@ -347,7 +380,6 @@ class CommandsClient(GatewayClient, commands.CommandHandler):
 
         Returns
         -------
-
         typing.Callable[..., commands.slash_commands.SlashCommand]
             A [wyvern.commands.slash_commands.SlashCommand][] when called.
         """

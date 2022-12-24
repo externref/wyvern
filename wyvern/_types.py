@@ -20,12 +20,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import typing
 
 if typing.TYPE_CHECKING:
     from typing_extensions import TypeAlias
 
     from wyvern._internals import _ListenerArg
+    from wyvern.clients import CommandsClient
     from wyvern.commands.slash_commands import CommandChoice
     from wyvern.components.buttons import Button
     from wyvern.interactions.applications import (
@@ -45,7 +48,19 @@ if typing.TYPE_CHECKING:
     ButtonCallbackT: TypeAlias = typing.Callable[[Button, ComponentInteraction], typing.Awaitable[typing.Any]]
 
     class AppCommandCallbackT(typing.Protocol):
-        def __call__(self, inter: ApplicationCommandInteraction, /, *args: typing.Any) -> typing.Any:
+        @typing.overload
+        def __call__(
+            self, inter_or_client: CommandsClient, inter: ApplicationCommandInteraction, /, *args: typing.Any
+        ) -> typing.Any:
+            ...
+
+        @typing.overload
+        def __call__(self, inter_or_client: ApplicationCommandInteraction, /, *args: typing.Any) -> typing.Any:
+            ...
+
+        def __call__(
+            self, inter_or_client: ApplicationCommandInteraction | CommandsClient, /, *args: typing.Any
+        ) -> typing.Any:
             ...
 
     class EventListenerCallbackT(typing.Protocol):
