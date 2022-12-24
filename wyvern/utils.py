@@ -23,8 +23,10 @@
 from __future__ import annotations
 
 import ast
+import contextlib
 import datetime
 import inspect
+import io
 import typing
 
 import attrs
@@ -166,8 +168,14 @@ class Eval:
         """
         _fn_name = "__wyvern_eval"
         code = "\n".join(f"    {i}" for i in code.strip().splitlines())
-        parsed: typing.Any = ast.parse(f"async def {_fn_name}:\n{code}")
-        self.add_returns(parsed.body[0].body)
-        exec(compile(parsed, filename="<ast>", mode="exec"), renv)
-        fn = renv[_fn_name]
-        return await fn()
+        stdout, stderr = io.StringIO(), io.StringIO()
+        try:
+            parsed: typing.Any = ast.parse(f"async def {_fn_name}():\n{code}")
+            self.add_returns(parsed.body[0].body)
+            exec(compile(parsed, filename="<ast>", mode="exec"), renv)
+            fn = renv[_fn_name]
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                await fn()
+        except Exception as e:
+            return stdout.getvalue(), stderr.getvalue() + f"{type(e).__name__}: {e}"
+        return stdout.getvalue(), stderr.getvalue()
