@@ -1,1 +1,0 @@
-::: wyvern.interactions.base

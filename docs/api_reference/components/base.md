@@ -1,1 +1,0 @@
-::: wyvern.components.base
