@@ -1,2 +1,2 @@
-from .client import *
+from .bot import *
 from .intents import *

@@ -9,8 +9,10 @@ import typing
 
 import aiohttp
 
+from wyvern.events import lib_events
+
 if typing.TYPE_CHECKING:
-    from wyvern.api.client import GatewayClient
+    from wyvern.api.bot import Bot
 
 import attrs
 
@@ -31,7 +33,7 @@ class OPCode(enum.IntEnum):
 
 @attrs.define
 class Gateway:
-    client: GatewayClient
+    bot: Bot
     socket: aiohttp.ClientWebSocketResponse = attrs.field(init=False)
     latency: float = attrs.field(init=False, default=float("NaN"))
     heartbeat_interval: float = attrs.field(init=False, default=0)
@@ -39,8 +41,9 @@ class Gateway:
     last_heartbeat: float = attrs.field(init=False, default=0)
 
     async def connect(self) -> None:
-        self.socket = await self.client.rest.client_session.ws_connect(  # type: ignore
-            f"wss://gateway.discord.gg/?v={self.client.rest.api_version}&encoding=json"
+        self.bot.event_handler.dispatch(lib_events.StartingEvent(bot=self.bot))
+        self.socket = await self.bot.rest.client_session.ws_connect(  # type: ignore
+            f"wss://gateway.discord.gg/?v={self.bot.rest.api_version}&encoding=json"
         )
         await self.listen_gateway()
 
@@ -64,8 +67,8 @@ class Gateway:
         return {
             "op": 2,
             "d": {
-                "token": self.client.rest.token,
-                "intents": self.client.intents.value,
+                "token": self.bot.rest.token,
+                "intents": self.bot.intents.value,
                 "properties": {
                     "os": sys.platform,
                     "browser": "wyvern",
@@ -76,5 +79,4 @@ class Gateway:
 
     async def listen_gateway(self) -> None:
         async for msg in self.socket:
-            print(msg)
             await self.process_gw_event(json.loads(msg.data))  # type: ignore

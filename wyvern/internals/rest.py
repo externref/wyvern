@@ -4,17 +4,18 @@ import typing
 
 import attrs
 
-from wyvern.utils import UNDEFINED, Undefined
+from wyvern.utils.consts import UNDEFINED, Undefined
 
 if typing.TYPE_CHECKING:
     import aiohttp
 
-    from wyvern.api.client import GatewayClient
+    from wyvern.api.bot import Bot
 
+__all__: tuple[str,...] = ("RESTClient",)
 
 @attrs.define(kw_only=True)
 class RESTClient:
     token: str
-    client: GatewayClient
+    bot: Bot
     api_version: int
     client_session: aiohttp.ClientSession | Undefined = UNDEFINED
