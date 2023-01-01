@@ -48,7 +48,13 @@ plugins:
         text: "#FFFFFF"
 
 nav:
-  - Getting Started: index.md
+  - Getting Started: 
+    - Introduction: index.md
+    - Important links: urls.md
+  - API Reference:
+    - api:
+      - bot : api_reference/api/bot.md
+      - intents: api_reference/api/intents.md
 
 markdown_extensions:
   - admonition

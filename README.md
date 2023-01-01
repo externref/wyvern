@@ -48,14 +48,14 @@ async def hello(interaction: wyvern.ApplicationCommandInteraction) -> None:
 client.run()
 
 ```
-* Basic GatewayClient with listener. 
+* Basic Bot with listener. 
 ```py
 import wyvern
 
-# creating a GatewayClient instance and storing it into the client variable.
+# creating a Bot instance and storing it into the client variable.
 # this acts as the interface between your bot and the code.
 
-client = wyvern.GatewayClient("TOKEN", intents=wyvern.Intents.UNPRIVILEGED | wyvern.Intents.MESSAGE_CONTENT)
+client = wyvern.Bot("TOKEN", intents=wyvern.Intents.UNPRIVILEGED | wyvern.Intents.MESSAGE_CONTENT)
 
 # creating an EventListener object and adding it to the client's event handler using the
 # @client.with_listener decorator. You can set the maximum amount of time this listener will get triggered using
