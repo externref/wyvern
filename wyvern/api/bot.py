@@ -21,7 +21,7 @@ class Bot:
 
     Parameters
     ----------
-    token: str 
+    token: str
         The bot token to use while execution.
     api_version: int
         Discord API version in usage, defaults to 10.
@@ -47,6 +47,7 @@ class Bot:
         asyncio.run(bot.start())
         ```
     """
+
     aentered: bool = False
 
     def __init__(

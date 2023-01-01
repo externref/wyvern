@@ -11,7 +11,8 @@ if typing.TYPE_CHECKING:
 
     from wyvern.api.bot import Bot
 
-__all__: tuple[str,...] = ("RESTClient",)
+__all__: tuple[str, ...] = ("RESTClient",)
+
 
 @attrs.define(kw_only=True)
 class RESTClient:

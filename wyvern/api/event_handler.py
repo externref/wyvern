@@ -5,13 +5,16 @@ import typing
 
 import attrs
 
+from wyvern import types
 from wyvern.events.base import Event
 from wyvern.utils.consts import UNDEFINED, Undefined
-from wyvern import types 
+
 if typing.TYPE_CHECKING:
     from wyvern.api.bot import Bot
 
-__all__:tuple[str, ...] = ("EventListener", "EventHandler", "listener")
+__all__: tuple[str, ...] = ("EventListener", "EventHandler", "listener")
+
+
 @attrs.define(kw_only=True)
 class EventListener:
     type: type[Event]
