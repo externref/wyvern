@@ -22,28 +22,35 @@
 
 from __future__ import annotations
 
-import importlib
-import typing
-
-import attrs
+import logging
 
 
-@attrs.define
-class Hook:
-    name: str
-    callback: typing.Callable[..., typing.Any]
+class LoggingFormatter(logging.Formatter):
 
-    def __call__(self, *args: typing.Any, **kwds: typing.Any) -> None:
-        self.callback(*args, **kwds)
+    COLOR_CONFIGS = {
+        logging.DEBUG: "\x1b[33;49m",
+        logging.INFO: "\x1b[32;49m",
+        logging.WARNING: "\x1b[35;49m",
+        logging.ERROR: "\x1b[31;49m",
+        logging.CRITICAL: "\x1b[33;41;1m",
+    }
+
+    def format(self, record: logging.LogRecord) -> str:
+        log_format = f"[%(asctime)s : {record.levelname.rjust(7)}] | %(message)s "
+
+        formatter = logging.Formatter(
+            "".join((self.COLOR_CONFIGS.get(record.levelno, "\x1b[32;49m"), log_format, "\x1b[0m"))
+        )
+        return formatter.format(record)
 
 
-def hook(name: str | None = None) -> typing.Callable[[typing.Callable[..., typing.Any]], Hook]:
-    def decorator(callback: typing.Callable[..., typing.Any]) -> Hook:
-        return Hook(name or callback.__name__, callback)
+def create_logging_setup(logger: logging.Logger) -> None:
+    stream = logging.StreamHandler()
+    stream.setFormatter(LoggingFormatter())
+    logger.addHandler(stream)
+    logger.setLevel(logging.INFO)
 
-    return decorator
 
+main_logger = logging.getLogger("wyvern")
 
-def parse_hooks(import_path: str) -> dict[str, Hook]:
-    module = importlib.import_module(import_path)
-    return {_hook.name: _hook for _hook in module.__dict__.values() if isinstance(_hook, Hook)}
+create_logging_setup(main_logger)

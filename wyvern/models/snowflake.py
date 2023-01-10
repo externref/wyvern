@@ -22,28 +22,21 @@
 
 from __future__ import annotations
 
-import importlib
-import typing
-
-import attrs
+import abc
+import datetime
 
 
-@attrs.define
-class Hook:
-    name: str
-    callback: typing.Callable[..., typing.Any]
-
-    def __call__(self, *args: typing.Any, **kwds: typing.Any) -> None:
-        self.callback(*args, **kwds)
+class Snowflake(int):
+    ...
 
 
-def hook(name: str | None = None) -> typing.Callable[[typing.Callable[..., typing.Any]], Hook]:
-    def decorator(callback: typing.Callable[..., typing.Any]) -> Hook:
-        return Hook(name or callback.__name__, callback)
+class DiscordObject(abc.ABC):
+    id: Snowflake
 
-    return decorator
+    def __eq__(self, obj: object) -> bool:
+        return isinstance(obj, DiscordObject) and obj.id == self.id
 
-
-def parse_hooks(import_path: str) -> dict[str, Hook]:
-    module = importlib.import_module(import_path)
-    return {_hook.name: _hook for _hook in module.__dict__.values() if isinstance(_hook, Hook)}
+    @property
+    def created_at(self) -> datetime.datetime:
+        timestamp: float = ((self.id >> 22) + 1420070400000) / 1000
+        return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)

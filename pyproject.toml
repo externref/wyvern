@@ -37,6 +37,7 @@ pythonVersion = "3.8"
 typeCheckingMode = "strict"
 reportPrivateUsage = false
 reportImportCycles = false
+reportIncompatibleMethodOverride = false
 
 [tool.black]
 line-length = 120
