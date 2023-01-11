@@ -1,4 +1,6 @@
 # wyvern
+Undergoing a major rewrite, check the development branch
+
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/sarthhh/wyvern/master/docs/assets/wyvern.png" height=150 width=150><br><br>
