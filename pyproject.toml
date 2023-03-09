@@ -21,7 +21,7 @@ pre-commit = "^3.0.2"
 pygments = "^2.13.0"
 mkdocs = "^1.4.1"
 mkdocstrings = {extras = ["python"], version = "^0.19.0"}
-mkdocs-material = "^8.5.7"
+mkdocs-material = "^9.1.1"
 typing-extensions = "^4.4.0"
 
 [build-system]
