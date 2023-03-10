@@ -1,4 +1,3 @@
 sphinx
 furo
 myst-parser
-git+https://github.com/sarthhh/wyvern
