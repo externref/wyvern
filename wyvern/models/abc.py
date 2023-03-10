@@ -25,14 +25,14 @@ import abc as pyabc
 import typing
 
 if typing.TYPE_CHECKING:
-    from wyvern.api.bot import Bot
+    from wyvern.api.bot import GatewayBot
 
     from .snowflake import Snowflake
 
 
 class ImplementsMessage(pyabc.ABC):
     id: Snowflake
-    bot: Bot
+    bot: GatewayBot
 
     @pyabc.abstractmethod
     async def create_message(self, content: str) -> ...:

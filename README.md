@@ -2,6 +2,10 @@
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/sarthhh/wyvern/master/docs/assets/wyvern.png" height=150 width=150><br><br>
+</p>
+
+----
+
 <img src="https://img.shields.io/github/license/sarthhh/wyvern?style=flat-square">
 <img src="https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square">
 <img src="https://img.shields.io/badge/%20type_checker-pyright-%231674b1?style=flat-square">
@@ -9,17 +13,15 @@
 <img src="https://img.shields.io/github/last-commit/sarthhh/wyvern?style=flat-square">
 <img src="https://img.shields.io/pypi/pyversions/wyvern?style=flat-square">
 <img src="https://img.shields.io/pypi/v/wyvern?style=flat-square">
-<br><br>
-A [WIP] flexible and easy to use Discord API wrapper for python 🚀.
-</p>
 
+A [WIP] flexible and easy to use Discord API wrapper for python 🚀.
 > Warning: This library is very unstable and things might not work as expected. Feel free to create an issue.
 
 ## Important Links
 
 Support server: https://discord.gg/FyEE54u9GF
 
-Documentation: https://sarthhh.github.io/wyvern/
+Documentation: https://wyvern.readthedocs.io
 
 PYPI: https://pypi.org/project/wyvern
 
@@ -28,48 +30,32 @@ PYPI: https://pypi.org/project/wyvern
 $python -m pip install git+https://github.com/sarthhh/wyvern
 ```
 
-## Example Code:
+```python
+import asyncio
+import os
 
-* CommandsClient with commands support.
-```py
 import wyvern
 
-# creating a CommandsClient object to interaction with commands.
-client = wyvern.CommandsClient("TOKEN")
-
-# creating a slash command using with_slash_command decorator.
-@client.with_slash_command(name="hello", description="says a hello")
-async def hello(interaction: wyvern.ApplicationCommandInteraction) -> None:
-    # creating a response to the interaction.
-    await interaction.create_message_response("hi!")
+bot = wyvern.GatewayBot(os.environ["TOKEN"], intents=wyvern.Intents.UNPRIVILEGED)
 
 
-# running the bot.
-client.run()
-
-```
-* Basic Bot with listener. 
-```py
-import wyvern
-
-# creating a Bot instance and storing it into the client variable.
-# this acts as the interface between your bot and the code.
-
-client = wyvern.Bot("TOKEN", intents=wyvern.Intents.UNPRIVILEGED | wyvern.Intents.MESSAGE_CONTENT)
-
-# creating an EventListener object and adding it to the client's event handler using the
-# @client.with_listener decorator. You can set the maximum amount of time this listener will get triggered using
-# the `max_trigger kwarg in the listener decorator.`
+@bot.listener(wyvern.StartingEvent)
+async def starting(event: wyvern.StartingEvent) -> None:
+    bot.logger.info("Starting bot...")
 
 
-@client.as_listener(wyvern.Event.MESSAGE_CREATE)
-async def message_create(message: wyvern.Message) -> None:
-    """This coroutine is triggerd whenever the MESSAGE_CREATE event gets dispatched."""
-    if message.content and message.content.lower() == "!ping":
-        await message.respond("pong!")
+# or using the implemented decorators
 
 
-# runs the bot.
+@bot.on_started()
+async def started(event: wyvern.StartedEvent) -> None:
+    bot.logger.info(f"Logged in as {event.user.tag}")
 
-client.run()
+
+async def main():
+    async with bot:
+        await bot.start()
+
+
+asyncio.run(main())
 ```

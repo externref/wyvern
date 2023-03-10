@@ -26,7 +26,6 @@ import logging
 
 
 class LoggingFormatter(logging.Formatter):
-
     COLOR_CONFIGS = {
         logging.DEBUG: "\x1b[33;49m",
         logging.INFO: "\x1b[32;49m",

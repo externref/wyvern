@@ -22,11 +22,12 @@
 
 from __future__ import annotations
 
+import traceback
 import typing
 
 import aiohttp
 
-from wyvern import types
+from wyvern import logger, types
 from wyvern.api.event_decos import ImplementsEventDecos
 from wyvern.api.event_handler import EventHandler, EventListener
 from wyvern.api.gateway import GatewayImpl
@@ -35,10 +36,10 @@ from wyvern.api.rest_client import RESTClientImpl
 from wyvern.events.base import Event
 from wyvern.utils.consts import UNDEFINED, Undefined
 
-__all__: tuple[str, ...] = ("Bot",)
+__all__: tuple[str, ...] = ("GatewayBot",)
 
 
-class Bot(ImplementsEventDecos):
+class GatewayBot(ImplementsEventDecos):
     """
     The main bot class that interacts with the discord API through both REST and gateway paths.
 
@@ -49,33 +50,35 @@ class Bot(ImplementsEventDecos):
     api_version: int
         Discord API version in usage, defaults to 10.
     intents: typing.SupportsInt | Intents
-        Library's [wyvern.Intents][] builder or any object that returns the intent value when passed to `int()`
+        Library's :class:`Intents` builder or any object that returns the intent value when passed to :class:`int`
 
-    ??? example "Basic Bot instance"
-        ```python
-        import asyncio
+    Example
+    -------
+        .. highlight:: python
+        .. code-block:: python
 
-        import wyvern
+            import asyncio
 
-        bot = wyvern.Bot(
-            "BOT_TOKEN_HERE",
-            intents=(
-                wyvern.Intents.GUILD_MEMBERS
-                | wyvern.Intents.GUILDS
-                | wyvern.Intents.GUILD_MESSAGES
-                | wyvern.Intents.DIRECT_MESSAGES
-            ),
-        )
+            import wyvern
 
-        asyncio.run(bot.start())
-        ```
+            bot = wyvern.GatewayBot(
+                "BOT_TOKEN_HERE",
+                intents=(
+                    wyvern.Intents.GUILD_MEMBERS
+                    | wyvern.Intents.GUILDS
+                    | wyvern.Intents.GUILD_MESSAGES
+                    | wyvern.Intents.DIRECT_MESSAGES
+                ),
+            )
+
+            asyncio.run(bot.start())
+
     """
-
-    aentered: bool = False
 
     def __init__(
         self, token: str, *, api_version: int = 10, intents: typing.SupportsInt | Intents = Intents.UNPRIVILEGED
     ) -> None:
+        self.logger = logger.main_logger
         self.intents = Intents(int(intents))
         self.rest = RESTClientImpl(token=token, bot=self, api_version=api_version)
         self.gateway = GatewayImpl(self)
@@ -83,7 +86,6 @@ class Bot(ImplementsEventDecos):
 
     async def __aenter__(self) -> None:
         self.rest.client_session = aiohttp.ClientSession()
-        self.aentered = True
 
     async def __aexit__(self, *args: typing.Any) -> None:
         await self.rest.client_session.close()  # type: ignore
@@ -114,8 +116,28 @@ class Bot(ImplementsEventDecos):
 
         return decorator
 
-    async def start(self) -> None:
-        if not self.aentered:
-            async with self:
-                await self.gateway.connect()
-        await self.gateway.connect()
+    async def start(self, raise_exception: bool = False) -> None:
+        """Verifies the bot token and starts listening to the gateway.
+
+        Parameters
+        ----------
+        raise_exception: bool
+            Set to true if exceptions should be be raised at this entrypoint.
+
+        Raises
+        ------
+
+        """
+        try:
+            await self.gateway.connect()
+        except aiohttp.ClientResponseError as e:
+            self.logger.error("".join(traceback.format_exception(e)))  # type: ignore
+            self.logger.critical("Invalid token was passed to the GatewayBot constructor.")
+            if raise_exception is True:
+                raise e
+        except AssertionError as e:
+            self.logger.error("GatewayBot.start() should be used inside an async context manager. Example:")
+            self.logger.error("async with bot:")
+            self.logger.error("   await bot.start()")
+            if raise_exception is True:
+                raise e

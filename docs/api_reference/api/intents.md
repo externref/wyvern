@@ -1,1 +1,0 @@
-::: wyvern.api.intents

@@ -28,13 +28,17 @@ from wyvern import builders, models, types
 from wyvern.internals.rest import Endpoints, RequestRoute, RESTClient
 from wyvern.utils.consts import NULL, Null
 
-# if typing.TYPE_CHECKING:
-#     import discord_typings
+if typing.TYPE_CHECKING:
+    import discord_typings
 
 __all__: tuple[str, ...] = ("RESTClientImpl",)
 
 
 class RESTClientImpl(RESTClient):
+    async def fetch_current_user(self) -> models.GatewayBotUser:
+        data: discord_typings.UserData = await self.request(RequestRoute(Endpoints.get_current_user()))
+        return models.GatewayBotUser.from_partial(self.bot, models.PartialUser.from_payload(data))
+
     async def create_message(
         self,
         channel_id: types.Snowflakish[models.ImplementsMessage],

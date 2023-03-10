@@ -32,8 +32,7 @@ from wyvern.logger import main_logger
 from wyvern.utils.consts import UNDEFINED, Undefined
 
 if typing.TYPE_CHECKING:
-
-    from wyvern.api.bot import Bot
+    from wyvern.api.bot import GatewayBot
 
 
 __all__: tuple[str, ...] = ("RESTClient", "Endpoints")
@@ -42,13 +41,13 @@ __all__: tuple[str, ...] = ("RESTClient", "Endpoints")
 @attrs.define(kw_only=True)
 class RESTClient:
     token: str
-    bot: Bot
+    bot: GatewayBot
     api_version: int
     client_session: aiohttp.ClientSession | Undefined = UNDEFINED
 
     @property
     def headers(self) -> dict[str, multidict.istr]:
-        return {"Authorization": multidict.istr(f"Bot {self.token}")}
+        return {"Authorization": multidict.istr(f"GatewayBot {self.token}")}
 
     async def request(self, route: RequestRoute) -> typing.Any:
         headers = self.headers.copy()
@@ -56,6 +55,7 @@ class RESTClient:
         main_logger.debug(f"Creating a {route.type} request to {route.end_url} endpoint.")
         assert isinstance((session := self.client_session), aiohttp.ClientSession)
         res = await session.request(route.type, route.url, headers=headers, json=route.json)
+        res.raise_for_status()
         if res.status in (200, 201):
             return await res.json()
         if res.status in (204, 304):

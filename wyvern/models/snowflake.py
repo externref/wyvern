@@ -27,16 +27,28 @@ import datetime
 
 
 class Snowflake(int):
+    """Represents a discord ID, this class inherits from :class:`int`."""
+
     ...
 
 
 class DiscordObject(abc.ABC):
+    """Base class for all discord snowflake models. Models like :class:`.User` inherit from this."""
+
     id: Snowflake
+    """ID of the object."""
 
     def __eq__(self, obj: object) -> bool:
         return isinstance(obj, DiscordObject) and obj.id == self.id
 
     @property
     def created_at(self) -> datetime.datetime:
+        """Datetime at which the snowflake was created.
+
+        Returns
+        -------
+        datetime.datetime
+            Creation time.
+        """
         timestamp: float = ((self.id >> 22) + 1420070400000) / 1000
         return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)

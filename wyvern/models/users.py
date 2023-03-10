@@ -22,7 +22,6 @@
 
 from __future__ import annotations
 
-import abc
 import typing
 
 import attrs
@@ -36,7 +35,7 @@ if typing.TYPE_CHECKING:
 
     import discord_typings
 
-    from wyvern.api.bot import Bot
+    from wyvern.api.bot import GatewayBot
 
 
 @attrs.define(kw_only=True)
@@ -58,23 +57,19 @@ class UserLike(DiscordObject):
         """
         Returns
         -------
-        created_at : datetime.datetime
+        datetime.datetime
             The datetime when this user was created.
         """
         return super().created_at
 
     @property
     def tag(self) -> str:
-        """Return user tag ( username#disciminator )"""
+        """Return user tag ( ``username#disciminator`` )"""
         return f"{self.username}#{self.discriminator}"
-
-    @abc.abstractclassmethod
-    def from_payload(cls, *args: typing.Any, **kwargs: typing.Any) -> UserLike:
-        ...
 
 
 @attrs.define(kw_only=True)
-class PartialUser(DiscordObject):
+class PartialUser(UserLike):
     """Object representing a user object."""
 
     raw: discord_typings.UserData
@@ -107,12 +102,10 @@ class PartialUser(DiscordObject):
     """Integer value for user's public flags"""
 
     @classmethod
-    def from_payload(cls, payload: discord_typings.UserData, *, deps: dict[str, typing.Any]) -> PartialUser:
-        sf: type[Snowflake] = deps["Snowflake"]
-
+    def from_payload(cls, payload: discord_typings.UserData) -> PartialUser:
         return PartialUser(
             raw=payload,
-            id=sf(payload["id"]),
+            id=Snowflake(payload["id"]),
             username=payload["username"],
             discriminator=payload["discriminator"],
             avatar_hash=payload.get("avatar"),
@@ -130,7 +123,7 @@ class PartialUser(DiscordObject):
 
 @attrs.define(kw_only=True)
 class User(PartialUser, ImplementsMessage):
-    bot: Bot
+    bot: GatewayBot
     """The current bot application."""
     partial_user: Undefined | PartialUser = attrs.field(default=UNDEFINED)
     """The partial user this class was constructed from, if any."""
@@ -139,7 +132,7 @@ class User(PartialUser, ImplementsMessage):
         return await super().create_message(content)
 
     @classmethod
-    def from_partial(cls, bot: Bot, partial_user: PartialUser) -> User:
+    def from_partial(cls, bot: GatewayBot, partial_user: PartialUser) -> User:
         return User(
             raw=partial_user.raw,
             id=partial_user.id,
@@ -159,6 +152,25 @@ class User(PartialUser, ImplementsMessage):
             partial_user=partial_user,
         )
 
+
+class GatewayBotUser(User):
     @classmethod
-    def from_payload(cls, bot: Bot, payload: discord_typings.UserData, *, deps: dict[str, typing.Any]) -> User:
-        return cls.from_partial(bot, super().from_payload(payload, deps=deps))
+    def from_partial(cls, bot: GatewayBot, partial_user: PartialUser) -> GatewayBotUser:
+        return GatewayBotUser(
+            raw=partial_user.raw,
+            id=partial_user.id,
+            username=partial_user.username,
+            discriminator=partial_user.discriminator,
+            avatar_hash=partial_user.avatar_hash,
+            is_bot=partial_user.is_bot,
+            is_system=partial_user.is_system,
+            is_mfa_enabled=partial_user.is_mfa_enabled,
+            banner_hash=partial_user.banner_hash,
+            accent_color=partial_user.accent_color,
+            locale=partial_user.locale,
+            flags_value=partial_user.flags_value,
+            premium_type_value=partial_user.premium_type_value,
+            public_flags_value=partial_user.public_flags_value,
+            bot=bot,
+            partial_user=partial_user,
+        )

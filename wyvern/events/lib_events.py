@@ -22,9 +22,14 @@
 
 from __future__ import annotations
 
+import typing
+
 import attrs
 
 from wyvern.events.base import Event
+
+if typing.TYPE_CHECKING:
+    from wyvern.models.users import GatewayBotUser
 
 __all__: tuple[str, ...] = ("StartingEvent", "StartedEvent")
 
@@ -36,4 +41,4 @@ class StartingEvent(Event):
 
 @attrs.define(kw_only=True)
 class StartedEvent(Event):
-    ...
+    user: GatewayBotUser

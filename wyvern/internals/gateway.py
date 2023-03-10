@@ -34,7 +34,7 @@ import aiohttp
 from wyvern.events import lib_events
 
 if typing.TYPE_CHECKING:
-    from wyvern.api.bot import Bot
+    from wyvern.api.bot import GatewayBot
 
 import attrs
 
@@ -55,7 +55,7 @@ class OPCode(enum.IntEnum):
 
 @attrs.define
 class Gateway:
-    bot: Bot
+    bot: GatewayBot
     socket: aiohttp.ClientWebSocketResponse = attrs.field(init=False)
     latency: float = attrs.field(init=False, default=float("NaN"))
     heartbeat_interval: float = attrs.field(init=False, default=0)
@@ -100,5 +100,9 @@ class Gateway:
         }
 
     async def listen_gateway(self) -> None:
+        user = await self.bot.rest.fetch_current_user()
+
         async for msg in self.socket:
+            if self.heartbeat_interval == 0:
+                self.bot.event_handler.dispatch(lib_events.StartedEvent(bot=self.bot, user=user))
             await self.process_gw_event(json.loads(msg.data))  # type: ignore

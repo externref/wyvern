@@ -26,13 +26,17 @@ import typing
 
 
 class Undefined:
-    ...
+    """An instance of this class is used as a placeholder to represent attributes and variables which
+    are not defined *yet*."""
 
 
 UNDEFINED = Undefined()
+"""Instance of Undefined."""
 
 
 class Empty:
+    """This class is used for variables in an embed constructor to represent empty values."""
+
     def __xor__(self, other: object) -> object:
         return other
 
@@ -42,10 +46,14 @@ class Empty:
 
 
 EMPTY = Empty()
+"""Instance of Empty."""
 
 
 class Null:
-    ...
+    """Class to simulate difference between an argument provided as None v/s a `null` value to send to the discord API.
+    This class is used as a placeholder for arguments in REST methods.
+    """
 
 
 NULL = Null()
+"""Instance of Null."""

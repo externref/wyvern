@@ -27,11 +27,11 @@ import typing
 import attrs
 
 if typing.TYPE_CHECKING:
-    from wyvern.api.bot import Bot
+    from wyvern.api.bot import GatewayBot
 
 __all__: tuple[str] = ("Event",)
 
 
 @attrs.define(kw_only=True)
 class Event:
-    bot: Bot
+    bot: GatewayBot
