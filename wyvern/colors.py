@@ -27,7 +27,7 @@ import random
 import re
 import typing
 
-__all__: tuple[str, ...] = ("Color",)
+__all__: tuple[str, ...] = ("Color", "Colour")
 
 
 @typing.final
@@ -79,7 +79,7 @@ class Color:
         Returns
         -------
 
-        wyvern.Color
+        Color
             A Color object.
 
         Examples
@@ -115,7 +115,7 @@ class Color:
 
         Returns
         -------
-        wyvern.Color
+        Color
             A Color object.
 
         Examples
@@ -146,7 +146,7 @@ class Color:
 
         Returns
         -------
-        wyvern.Color
+        Color
             A Color object.
 
         Examples
@@ -178,7 +178,7 @@ class Color:
 
         Returns
         -------
-        wyvern.Color
+        Color
             A Color object.
 
         Examples
@@ -201,7 +201,7 @@ class Color:
         Returns
         -------
 
-        wyvern.Color
+        Color
             A Color object.
         """
         return cls.from_rgb(*[random.randint(0, 255) for _ in range(3)])
@@ -220,7 +220,7 @@ class Color:
         Returns
         -------
 
-        wyvern.Color
+        Color
             A Color object.
 
         Examples
@@ -249,7 +249,7 @@ class Color:
     @classmethod
     def default(cls) -> Color:
         """
-        Creates a Color object from the default color. This is `0x000000`. (Black)
+        Creates a Color object from the default color. This is ``0x000000``. (Black)
 
         Examples
         --------
@@ -297,75 +297,79 @@ class Color:
 
     @classmethod
     def red(cls) -> Color:
-        """Creates a Color object from the red color. This is `0xff0000`. (Red)"""
+        """Creates a Color object from the red color. This is ``0xff0000``. (Red)"""
         return cls(0xFF0000)
 
     @classmethod
     def green(cls) -> Color:
-        """Creates a Color object from the green color. This is `0x00ff00`. (Green)"""
+        """Creates a Color object from the green color. This is ``0x00ff00``. (Green)"""
         return cls(0x00FF00)
 
     @classmethod
     def blue(cls) -> Color:
-        """Creates a Color object from the blue color. This is `0x0000ff`. (Blue)"""
+        """Creates a Color object from the blue color. This is ``0x0000ff``. (Blue)"""
         return cls(0x0000FF)
 
     @classmethod
     def yellow(cls) -> Color:
-        """Creates a Color object from the yellow color. This is `0xffff00`. (Yellow)"""
+        """Creates a Color object from the yellow color. This is ``0xffff00``. (Yellow)"""
         return cls(0xFFFF00)
 
     @classmethod
     def cyan(cls) -> Color:
-        """Creates a Color object from the cyan color. This is `0x00ffff`. (Cyan)"""
+        """Creates a Color object from the cyan color. This is ``0x00ffff``. (Cyan)"""
         return cls(0x00FFFF)
 
     @classmethod
     def magenta(cls) -> Color:
-        """Creates a Color object from the magenta color. This is `0xff00ff`. (Magenta)"""
+        """Creates a Color object from the magenta color. This is ``0xff00ff``. (Magenta)"""
         return cls(0xFF00FF)
 
     @classmethod
     def black(cls) -> Color:
-        """Creates a Color object from the black color. This is `0x000000`. (Black)"""
+        """Creates a Color object from the black color. This is ``0x000000``. (Black)"""
         return cls(0x000000)
 
     @classmethod
     def white(cls) -> Color:
-        """Creates a Color object from the white color. This is `0xffffff`. (White)"""
+        """Creates a Color object from the white color. This is ``0xffffff``. (White)"""
         return cls(0xFFFFFF)
 
     @classmethod
     def gray(cls) -> Color:
-        """Creates a Color object from the gray color. This is `0x808080`. (Gray)"""
+        """Creates a Color object from the gray color. This is ``0x808080``. (Gray)"""
         return cls(0x808080)
 
     @classmethod
     def grey(cls) -> Color:
-        """Creates a Color object from the grey color. This is `0x808080`. (Grey)"""
+        """Creates a Color object from the grey color. This is ``0x808080``. (Grey)"""
         return cls(0x808080)
 
     @classmethod
     def orange(cls) -> Color:
-        """Creates a Color object from the orange color. This is `0xffa500`. (Orange)"""
+        """Creates a Color object from the orange color. This is ``0xffa500``. (Orange)"""
         return cls(0xFFA500)
 
     @classmethod
     def purple(cls) -> Color:
-        """Creates a Color object from the purple color. This is `#800080`. (Purple)"""
+        """Creates a Color object from the purple color. This is ``#800080``. (Purple)"""
         return cls(0x800080)
 
     @classmethod
     def brown(cls) -> Color:
-        """Creates a Color object from the brown color. This is `#a52a2a`. (Brown)"""
+        """Creates a Color object from the brown color. This is ``#a52a2a``. (Brown)"""
         return cls(0xA52A2A)
 
     @classmethod
     def silver(cls) -> Color:
-        """Creates a Color object from the silver color. This is `#c0c0c0`. (Silver)"""
+        """Creates a Color object from the silver color. This is ``#c0c0c0``. (Silver)"""
         return cls(0xC0C0C0)
 
     @classmethod
     def aqua(cls) -> Color:
-        """Creates a Color object from the aqua color. This is `#00ffff`. (Aqua)"""
+        """Creates a Color object from the aqua color. This is ``#00ffff``. (Aqua)"""
         return cls(0x00FFFF)
+
+
+Colour = Color
+"""An alias for the :class:`Color` class."""

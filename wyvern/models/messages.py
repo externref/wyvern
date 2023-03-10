@@ -26,9 +26,25 @@ import typing
 
 import attrs
 
+from wyvern.models.snowflake import DiscordObject, Snowflake
+
 
 @attrs.define(kw_only=True, slots=True, frozen=True)
 class AllowedMentions:
+    """Allowed mentions in a message sent from bot.
+
+    Parameters
+    ----------
+    users: bool
+        Set to `True` to mention users.
+    roles: bool
+        Set to `True` to mention roles.
+    everyone: bool
+        Set to `True` to allow everyone/here mentions.
+    replied_user: bool
+        Weather the replied users should be pinged.
+    """
+
     users: bool = False
     roles: bool = False
     everyone: bool = False
@@ -39,3 +55,9 @@ class AllowedMentions:
             "parse": [t for t in ("roles", "users", "everyone") if getattr(self, t, False) is True],
             "replied_user": self.replied_user,
         }
+
+
+@attrs.define(kw_only=True, slots=True, frozen=True)
+class PartialMessage(DiscordObject):
+    id: Snowflake
+    """ID of the message."""

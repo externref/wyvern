@@ -29,16 +29,27 @@ import attrs
 from wyvern.events.base import Event
 
 if typing.TYPE_CHECKING:
-    from wyvern.models.users import GatewayBotUser
+    from wyvern.models.users import BotUser
 
 __all__: tuple[str, ...] = ("StartingEvent", "StartedEvent")
 
 
 @attrs.define(kw_only=True)
 class StartingEvent(Event):
-    ...
+    """This event is dispatched when the bot is about to connect to the gateway.
+
+    .. note::
+        This event gets triggered only once in the runtime.
+    """
 
 
 @attrs.define(kw_only=True)
 class StartedEvent(Event):
-    user: GatewayBotUser
+    """The StartedEvent is dispatched when the :any:`GatewayBot.start` method is called
+    and the bot recieves first Websocket response from API after token verification.
+
+    .. note::
+        This event gets triggered only once in the runtime.
+    """
+
+    user: BotUser

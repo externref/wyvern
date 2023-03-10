@@ -41,6 +41,7 @@ __all__: tuple[str, ...] = ("EventListener", "EventHandler", "listener")
 class EventListener:
     """Represents an event listener, the callback of this class gets triggered whenever the event
     this listener is bound to gets triggered."""
+
     type: type[Event]
     """Type of event this listener listens to."""
     max_trigger: int | Undefined = UNDEFINED
@@ -58,12 +59,14 @@ class EventHandler:
     """Class handling dispatches and containing of the event listeners.
     An instance of this class is bound to the :class:`.GatewayBot` to handle events.
     """
+
     bot: GatewayBot
     listeners: dict[type[Event], list[EventListener]] = {}
-    """Mapping of :class:`Event` types to list of :class:`EventListener` s listening to the event."""
+    """Mapping of :class:`.Event` types to list of :class:`EventListener` s listening to the event."""
+
     def add_listener(self, lsnr: EventListener) -> None:
         """Adds a listener to the container.
-        
+
         Parameters
         ----------
         lsnr: EventListener
@@ -80,8 +83,8 @@ class EventHandler:
 def listener(
     event: type[Event], *, max_trigger: int | Undefined = UNDEFINED
 ) -> typing.Callable[[types.EventListenerCallbackT], EventListener]:
-    """Used to create an :class:`EventListener`. 
-    
+    """Used to create an :class:`EventListener`.
+
     Parameters
     ----------
     event: type[Event]
@@ -94,6 +97,7 @@ def listener(
     EventListener
         The listener that was created.
     """
+
     def decorator(callback: types.EventListenerCallbackT) -> EventListener:
         return EventListener(
             type=event,

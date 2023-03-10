@@ -117,7 +117,9 @@ class GatewayBot(ImplementsEventDecos):
         return decorator
 
     async def start(self, raise_exception: bool = False) -> None:
-        """Verifies the bot token and starts listening to the gateway.
+        """|coro|
+
+        Verifies the bot token and starts listening to the gateway.
 
         Parameters
         ----------

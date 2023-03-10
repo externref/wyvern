@@ -31,7 +31,16 @@ import attrs
 if typing.TYPE_CHECKING:
     import discord_typings
 
-__all__: tuple[str, ...] = ("ButtonStyle", "ComponentType", "Component")
+__all__: tuple[str, ...] = (
+    "ButtonStyle",
+    "ComponentType",
+    "Component",
+    "Button",
+    "TextInputStyle",
+    "TextInput",
+    "Modal",
+    "ActionRow",
+)
 
 
 class ButtonStyle(enum.IntEnum):

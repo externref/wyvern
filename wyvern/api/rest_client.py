@@ -35,9 +35,18 @@ __all__: tuple[str, ...] = ("RESTClientImpl",)
 
 
 class RESTClientImpl(RESTClient):
-    async def fetch_current_user(self) -> models.GatewayBotUser:
+    async def fetch_current_user(self) -> models.BotUser:
+        """|coro|
+        
+        Gets the current bot user.
+
+        Returns
+        -------
+        BotUser
+            The bot user.
+        """
         data: discord_typings.UserData = await self.request(RequestRoute(Endpoints.get_current_user()))
-        return models.GatewayBotUser.from_partial(self.bot, models.PartialUser.from_payload(data))
+        return models.BotUser.from_partial(self.bot, models.PartialUser.from_payload(data))
 
     async def create_message(
         self,
@@ -47,8 +56,12 @@ class RESTClientImpl(RESTClient):
         embeds: types.NullOr[typing.Sequence[builders.Embed]] = NULL,
         component: types.NullOr[builders.ActionRowBuilder] = NULL,
         components: types.NullOr[typing.Sequence[builders.ActionRowBuilder]] = NULL,
+        allowed_mentions: models.AllowedMentions = models.AllowedMentions(),
     ):
-        data: dict[str, typing.Any] = {"content": str(content) if content is not NULL else None}
+        data: dict[str, typing.Any] = {
+            "content": str(content) if content is not NULL else None,
+            "allowed_mentions": allowed_mentions.to_dict(),
+        }
         if embed is not NULL and embeds is not NULL:
             raise ValueError("expected only embed or only embeds argument, got both.")
         elif not isinstance(embed, Null):

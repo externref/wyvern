@@ -153,10 +153,10 @@ class User(PartialUser, ImplementsMessage):
         )
 
 
-class GatewayBotUser(User):
+class BotUser(User):
     @classmethod
-    def from_partial(cls, bot: GatewayBot, partial_user: PartialUser) -> GatewayBotUser:
-        return GatewayBotUser(
+    def from_partial(cls, bot: GatewayBot, partial_user: PartialUser) -> BotUser:
+        return BotUser(
             raw=partial_user.raw,
             id=partial_user.id,
             username=partial_user.username,

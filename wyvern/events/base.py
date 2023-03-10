@@ -34,4 +34,9 @@ __all__: tuple[str] = ("Event",)
 
 @attrs.define(kw_only=True)
 class Event:
+    """The base event class.
+    All library ( or custom ) events are derived from this class.
+    """
+
     bot: GatewayBot
+    """The bot bound to the event."""
