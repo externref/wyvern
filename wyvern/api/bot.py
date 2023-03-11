@@ -74,7 +74,8 @@ class GatewayBot(ImplementsEventDecos):
             asyncio.run(bot.start())
 
     """
-
+    rest: RESTClientImpl
+    """The restclient attached to the bot."""
     def __init__(
         self, token: str, *, api_version: int = 10, intents: typing.SupportsInt | Intents = Intents.UNPRIVILEGED
     ) -> None:

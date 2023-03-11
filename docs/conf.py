@@ -10,19 +10,32 @@ copyright = "2023, sarthhh"
 author = "sarthhh"
 release = "0.2.0"
 
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.intersphinx", "sphinx.ext.napoleon", "myst_parser"]
-intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
-}
+# sphinx configs
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
+    "myst_parser",
+    "sphinx.ext.viewcode",
+]
+html_css_files = ["style.css"]
+html_static_path = ["_static"]
 html_theme = "furo"
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
-autodoc_inherit_docstrings = True
-html_css_files = [
-    "style.css",
-]
 
-html_static_path = ["_static"]
+# intersphinx configs
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+}
+
+# autodoc configs
+autodoc_inherit_docstrings = True
+autodoc_default_options = {
+    "members": True,
+}
+
+# rst vars
 rst_prolog = """
 .. |coro| replace:: This function is a |coroutine_link|_.
 .. |maybecoro| replace:: This function *could be a* |coroutine_link|_.

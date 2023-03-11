@@ -7,6 +7,21 @@ from wyvern.api import event_handler as handler
 
 
 class ImplementsEventDecos:
+    """Interface for event decorators in :class:`.GatewayBot`,
+    this class is purely for the bot class to inherit from.
+
+    Example
+    -------
+
+    .. highlight:: python
+    .. code-block:: python
+
+        @bot.on_started()
+        async def started(event: wyvern.StartedEvent) -> None:
+            bot.logger.info(f"Logged in as {event.user.tag}")
+
+    """
+
     event_handler: handler.EventHandler
 
     def _make_deco(
@@ -21,9 +36,21 @@ class ImplementsEventDecos:
     def on_starting(
         self, **kwargs: typing.Any
     ) -> typing.Callable[[types.EventListenerCallbackT], handler.EventListener]:
+        """Used to create a :class:`.StartingEvent` listener.
+
+        Returns
+        -------
+        EventListener
+            The listener that was created."""
         return self._make_deco(events.StartingEvent, **kwargs)
 
     def on_started(
         self, **kwargs: typing.Any
     ) -> typing.Callable[[types.EventListenerCallbackT], handler.EventListener]:
+        """Used to create a :class:`.StartedEvent` listener.
+
+        Returns
+        -------
+        EventListener
+            The listener that was created."""
         return self._make_deco(events.StartedEvent, **kwargs)

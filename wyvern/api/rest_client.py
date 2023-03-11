@@ -35,9 +35,12 @@ __all__: tuple[str, ...] = ("RESTClientImpl",)
 
 
 class RESTClientImpl(RESTClient):
+    """Class handling operations related to REST/HTTP requests to the discord API.
+    An instance of this class is binded with the :class:`.GatewayBot` instance."""
+    
     async def fetch_current_user(self) -> models.BotUser:
         """|coro|
-        
+
         Gets the current bot user.
 
         Returns

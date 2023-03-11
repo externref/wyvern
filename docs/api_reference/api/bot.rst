@@ -8,3 +8,4 @@ The class to connect your application with the Discord API.
 
 .. autoclass:: GatewayBot
     :members:
+    :show-inheritance:

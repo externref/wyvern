@@ -13,7 +13,8 @@ if typing.TYPE_CHECKING:
 
     from wyvern.api.bot import GatewayBot
 
-__all__: tuple[str, ...] = ("GuildMember", )
+__all__: tuple[str, ...] = ("GuildMember",)
+
 
 @attrs.define(kw_only=True)
 class GuildMember(User):
