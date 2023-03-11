@@ -75,7 +75,11 @@ class GatewayBot(ImplementsEventDecos):
 
     """
     rest: RESTClientImpl
-    """The restclient attached to the bot."""
+    """The REST handler attached to the instance."""
+    intents: Intents
+    """Intents being used by the bot."""
+    event_handler: EventHandler
+    """The :class:`.EventHandler` attached to the instance."""
     def __init__(
         self, token: str, *, api_version: int = 10, intents: typing.SupportsInt | Intents = Intents.UNPRIVILEGED
     ) -> None:
