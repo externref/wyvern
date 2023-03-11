@@ -1,3 +1,25 @@
+# MIT License
+
+# Copyright (c) 2022 Sarthak
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from __future__ import annotations
 
 import colorsys
@@ -5,10 +27,7 @@ import random
 import re
 import typing
 
-__all__: tuple[str, ...] = (
-    "Color",
-    "Colour",
-)
+__all__: tuple[str, ...] = ("Color",)
 
 
 @typing.final
@@ -144,7 +163,7 @@ class Color:
         return cls.from_rgb(*[int(round(c * 255)) for c in colorsys.hsv_to_rgb(h, s, v)])
 
     @classmethod
-    def from_hsl(cls, h: float, s: float, l: float) -> Color:
+    def from_hsl(cls, h: float, s: float, l: float) -> Color:  # noqa: E741
         """
         Creates a Color object from HSL values.
 
@@ -331,5 +350,22 @@ class Color:
         """Creates a Color object from the orange color. This is `0xffa500`. (Orange)"""
         return cls(0xFFA500)
 
+    @classmethod
+    def purple(cls) -> Color:
+        """Creates a Color object from the purple color. This is `#800080`. (Purple)"""
+        return cls(0x800080)
 
-Colour = Color
+    @classmethod
+    def brown(cls) -> Color:
+        """Creates a Color object from the brown color. This is `#a52a2a`. (Brown)"""
+        return cls(0xA52A2A)
+
+    @classmethod
+    def silver(cls) -> Color:
+        """Creates a Color object from the silver color. This is `#c0c0c0`. (Silver)"""
+        return cls(0xC0C0C0)
+
+    @classmethod
+    def aqua(cls) -> Color:
+        """Creates a Color object from the aqua color. This is `#00ffff`. (Aqua)"""
+        return cls(0x00FFFF)

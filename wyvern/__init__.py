@@ -1,3 +1,5 @@
+# type: ignore
+
 # MIT License
 
 # Copyright (c) 2022 Sarthak
@@ -19,15 +21,30 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""
+wyvern 🚀
+--------
+
+A feature rich library which allows you to interact with the discord API using 
+bots.
+
+"""
 
 
-from .clients import *
-from .components import *
-from .constructors import *
-from .events import *
-from .exceptions import *
-from .intents import *
-from .models import *
-from .rest import *
+from . import commands, extensions, utils  # noqa: 401
+from .aliases import *  # noqa: F403
+from .clients import *  # noqa: F403
+from .components import *  # noqa: F403
+from .constructors import *  # noqa: F403
+from .events import *  # noqa: F403
+from .exceptions import *  # noqa: F403
+from .files import *  # noqa: F403
+from .intents import *  # noqa: F403
+from .interactions import *  # noqa: F403
+from .models import *  # noqa: F403
+from .permissions import *  # noqa: F403
+from .plugins import *  # noqa: F403
+from .presences import *  # noqa: F403
+from .rest import *  # noqa: F403
 
-__version__ = "0.0.1a"
+__version__: str = "0.1.1"

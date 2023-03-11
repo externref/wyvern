@@ -1,1 +1,1 @@
-::: wyvern.clients.GatewayClient
+::: wyvern.clients

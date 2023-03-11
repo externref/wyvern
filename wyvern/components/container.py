@@ -26,9 +26,14 @@ import typing
 
 from .base import ButtonStyle, Component, ComponentType
 from .buttons import Button
+from .selects import Select, SelectOption, SelectType
 
 if typing.TYPE_CHECKING:
+    from wyvern.models.channels import ChannelType
     from wyvern.models.emojis import CustomEmoji
+
+
+__all__: tuple[str, ...] = ("ActionRowContainer",)
 
 
 class ActionRowContainer(Component):
@@ -48,12 +53,63 @@ class ActionRowContainer(Component):
     def to_payload(self) -> dict[str, typing.Any]:
         return {"type": int(self.type), "components": [item.to_payload() for item in self.items]}
 
+    def add_select(
+        self,
+        *,
+        type: SelectType = SelectType.STRING,
+        custom_id: str,
+        options: typing.Sequence[SelectOption] = (),
+        channel_types: typing.Sequence[ChannelType] = (),
+        min_values: int | None = None,
+        max_values: int | None = None,
+        disabled: bool = False,
+    ) -> Select:
+        """Adds a select menu to the container.
+
+        Parameters
+        ----------
+
+        type: SelectType
+            Type of the select
+        custom_id: str
+            Custom ID of the select.
+        options: list[SelectOption]
+            Options attached to the select.
+        channel_types: list[ChannelType] | None
+            Channel types for CHANNEL type select.
+        min_values: int | None
+            Minimum selections
+        max_values: int | None
+            Maximum selections
+        disabled: bool
+            True if the select is disabled.
+
+        Returns
+        -------
+
+        Select
+            The select that was created.
+        """
+
+        self.items.append(
+            select := Select(
+                type=type,
+                custom_id=custom_id,
+                options=list(options),
+                channel_types=list(channel_types),
+                min_values=min_values,
+                max_values=max_values,
+                disabled=disabled,
+            )
+        )
+        return select
+
     def add_button(
         self,
         *,
         style: ButtonStyle = ButtonStyle.SECONDARY,
         label: str | None = None,
-        emoji: str | "CustomEmoji" | None = None,
+        emoji: str | CustomEmoji | None = None,
         custom_id: str | None = None,
         disabled: bool = False,
         url: str | None = None,

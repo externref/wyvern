@@ -27,6 +27,8 @@ import typing
 
 import attrs
 
+from wyvern import utils
+
 __all__: tuple[str, ...] = ("EmbedAuthor", "EmbedFooter", "EmbedField", "Embed", "EmbedConstructor")
 
 
@@ -115,12 +117,15 @@ class EmbedConstructor:
         timestamp: datetime.datetime | None = None,
     ) -> None:
 
-        self._payload: dict[str, typing.Any] = {"type": "rich", "fields": []}
-        self._payload["title"] = title
-        self._payload["description"] = description
-        self._payload["color"] = color or colour
-        self._payload["url"] = url
-        self._payload["timestamp"] = timestamp
+        self._payload: dict[str, typing.Any] = {
+            "type": "rich",
+            "fields": [],
+            "title": title,
+            "description": description,
+            "color": color or colour,
+            "url": url,
+            "timestamp": int(timestamp.timestamp()) if isinstance(timestamp, datetime.datetime) else None,
+        }
 
     def add_field(self, *, name: str, value: str, inline: bool = True) -> "EmbedConstructor":
         """Adds a field to the embed.
@@ -194,18 +199,27 @@ class EmbedConstructor:
     def edit_init(
         self,
         *,
-        title: str | None = None,
-        description: str | None = None,
-        color: int = 0,
-        colour: int = 0,
-        url: str | None = None,
-        timestamp: datetime.datetime | None = None,
+        title: str | None | utils.Empty = utils.EMPTY,
+        description: str | None | utils.Empty = utils.EMPTY,
+        color: int | utils.Empty = utils.EMPTY,
+        colour: int | utils.Empty = utils.EMPTY,
+        url: str | None | utils.Empty = utils.EMPTY,
+        timestamp: datetime.datetime | None | utils.Empty = utils.EMPTY,
     ) -> "EmbedConstructor":
-        self._payload["title"] = title or self._payload.get("title")
-        self._payload["description"] = description or self._payload.get("description")
-        self._payload["color"] = color or colour or self._payload.get("color")
-        self._payload["url"] = url or self._payload.get("url")
-        self._payload["timestamp"] = timestamp or self._payload.get("timestamp")
+        if title != utils.EMPTY:
+            self._payload["title"] = title
+        if description != utils.EMPTY:
+            self._payload["description"] = description
+        if color != utils.EMPTY:
+            self._payload["color"] = color
+        if colour != utils.EMPTY:
+            self._payload["color"] = colour
+        if url != utils.EMPTY:
+            self._payload["url"] = url
+        if timestamp != utils.EMPTY:
+            self._payload["timestamp"] = (
+                int(timestamp.timestamp()) if isinstance(timestamp, datetime.datetime) else None
+            )
         return self
 
     def build(self) -> "Embed":
@@ -254,3 +268,9 @@ class Embed:
         embed = EmbedConstructor()
         embed._payload = self.payload
         return embed
+
+    @classmethod
+    def from_payload(cls, payload: dict[str, typing.Any]) -> "Embed":
+        const = EmbedConstructor()
+        const._payload = payload
+        return const.build()

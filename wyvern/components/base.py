@@ -22,8 +22,11 @@
 
 from __future__ import annotations
 
+import abc
 import enum
 import typing
+
+__all__: tuple[str, ...] = ("ButtonStyle", "ComponentType")
 
 
 class ButtonStyle(enum.IntEnum):
@@ -64,12 +67,9 @@ class ComponentType(enum.IntEnum):
     CHANNEL_SELECT = 8
 
 
-class Component:
+class Component(abc.ABC):
     """Represents a discord component.
     Is the base class for other components."""
-
-    type: ComponentType
-    """Type of the component."""
 
     def to_payload(self) -> dict[str, typing.Any]:
         return {}

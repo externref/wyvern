@@ -24,6 +24,8 @@ from __future__ import annotations
 
 import enum
 
+__all__: tuple[str, ...] = ("WSEventEnums",)
+
 
 class WSEventEnums(enum.IntFlag):
     DISPATCH = 0

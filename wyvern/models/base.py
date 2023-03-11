@@ -19,15 +19,28 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
 
 import datetime
+import typing
+
+from wyvern._internals import _ListenerArg
 
 
 def default_avatar_for(discriminator: int) -> str:
     return f"embed/avatars{discriminator % 5}.png"
 
 
-class DiscordObject:
+__all__: tuple[str, ...] = ("DiscordObject", "Snowflake")
+
+
+class Snowflake(int):
+    @classmethod
+    def create(cls, sf: typing.Any) -> "Snowflake":
+        return cls(sf)
+
+
+class DiscordObject(_ListenerArg):
     """
     Represents a discord object.
 
@@ -46,7 +59,7 @@ class DiscordObject:
     """
 
     def __init__(self, _id: int) -> None:
-        self.id = _id
+        self.id = Snowflake.create(_id)
 
     def __eq__(self, obj: object) -> bool:
         if not isinstance(obj, DiscordObject):

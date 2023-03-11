@@ -140,8 +140,6 @@ dmypy.json
 #Pycharm
 .idea/
 
-#VSCode
-.vscode/
-
 # Cython debug symbols
 cython_debug/
+.vscode/

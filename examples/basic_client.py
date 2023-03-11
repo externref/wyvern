@@ -28,15 +28,15 @@ import wyvern
 client = wyvern.GatewayClient("TOKEN", intents=wyvern.Intents.UNPRIVILEGED | wyvern.Intents.MESSAGE_CONTENT)
 
 # creating an EventListener object and adding it to the client's event handler using the
-# @client.listen decorator. You can set the maximum amount of time this listener will get triggered using
+# @client.with_listener decorator. You can set the maximum amount of time this listener will get triggered using
 # the `max_trigger kwarg in the listener decorator.`
 
 
-@client.listener(wyvern.Event.MESSAGE_CREATE)
+@client.with_listener(wyvern.Event.MESSAGE_CREATE)
 async def message_create(message: wyvern.Message) -> None:
     """This coroutine is triggerd whenever the MESSAGE_CREATE event gets dispatched."""
     if message.content and message.content.lower() == "!ping":
-        await message.reply("pong!")
+        await message.respond("pong!")
 
 
 # runs the bot.

@@ -3,6 +3,7 @@ repo_url: https://github.com/sarthhh/wyvern
 site_description: Documentation for the Discord API wrapper, wyvern.
 site_author: sarth
 copyright: Copyright sarthhh ( 2022 - present )
+site_url: https://sarthhh.github.io/wyvern
 
 theme:
   name: "material"
@@ -17,9 +18,9 @@ theme:
     - navigation.tracking
     - navigation.tabs
     - navigation.top
-    - toc.integrate
     - content.code.annotate
   palette:
+
     - scheme: light
       toggle:
         icon: material/weather-sunny
@@ -28,6 +29,12 @@ theme:
       toggle:
         icon: material/weather-night
         name: Dark Mode
+    - scheme: pink
+      primary: pink
+      
+      toggle:
+        icon: material/lightbulb
+        name: Light Mode 2
 
 plugins:
   - mkdocstrings:
@@ -35,36 +42,61 @@ plugins:
         python:
           options:
             docstring_style: numpy
+            merge_init_into_class: false
+            inherited_members: true
           import:
             - https://docs.python.org/3.9/objects.inv
   - search
-  
+  - social:
+      cards_color:
+        fill: "#3761A3" 
+        text: "#FFFFFF"
+
+
 
 nav:
   - Getting Started: index.md
   - API Reference:
-      
- 
       - clients: api_reference/clients.md
       - colors: api_reference/colors.md
       - components:
-        - base: api_reference/components/base.md
-        - buttons: api_reference/components/buttons.md
-        - container: api_reference/components/container.md
+          - base: api_reference/components/base.md
+          - buttons: api_reference/components/buttons.md
+          - container: api_reference/components/container.md
+          - modals: api_reference/components/modals.md
+          - selects: api_reference/components/selects.md
       - constructors:
-        - embed: api_reference/constructors/embeds.md
+          - embed: api_reference/constructors/embeds.md
       - events: api_reference/events.md
+      - extensions: 
+          - tasks: api_reference/extensions/tasks.md
+      - interactions:
+          - applications: api_reference/interactions/applications.md
+          - base: api_reference/interactions/base.md
+          - components: api_reference/interactions/components.md
+          - localizations: api_reference/interactions/localizations.md
       - intents: api_reference/intents.md
+      - plugins: api_reference/plugins.md
+      - presences: api_reference/presences.md
       - models:
           - base: api_reference/models/base.md
           - messages: api_reference/models/messages.md
-        
+          - members: api_reference/models/members.md
+          - users: api_reference/models/users.md
+      - state_handlers:
+          - users: api_reference/state_handlers/users.md
       - rest: api_reference/rest.md
-  - Examples:
-      - Basic Bot: examples/basic_bot.md
-      - Custom Event Handler: examples/custom_event_handler.md
+      - utils: api_reference/utils.md
+
+  - Commands API Reference:
+      - client: commands/client.md
+      - command_handler: commands/command_handler.md
+      - slash_commands: commands/slash_commands.md
+  - Guide:
+      - Basic Bot: guide/basic_bot.md
 
 markdown_extensions:
+  - admonition
   - attr_list
   - md_in_html
   - pymdownx.highlight:
@@ -72,12 +104,13 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
-
+  - pymdownx.details
+  - pymdownx.superfences
 
 extra:
-  version: 0.0.1a
+  version: 0.0.4a
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/sarthhh/wyvern
     - icon: fontawesome/brands/discord
-      link: ...
+      link: https://discord.gg/FyEE54u9GF

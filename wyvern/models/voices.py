@@ -19,7 +19,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from __future__ import annotations
 
 import datetime
@@ -27,35 +26,46 @@ import typing
 
 import attrs
 
-from .base import DiscordObject
+from .base import DiscordObject, Snowflake
 
 if typing.TYPE_CHECKING:
-    from wyvern.clients import GatewayClient
+    from .users import User
+
+__all__: tuple[str, ...] = (
+    "VoiceState",
+    "VoiceRegion",
+)
 
 
-@attrs.define(kw_only=True, slots=True, repr=True, eq=True)
-class User(DiscordObject):
-    _client: "GatewayClient"
-    id: int
-    username: str
-    discriminator: int
-    avatar_hash: str | None
-    is_bot: bool
-    is_system: bool
-    is_mfa_enabled: bool
-    banner_hash: str | None
-    accent_color: int | None
-    locale: str | None
-    flags_value: int | None
-    premium_type_value: int | None
-    public_flags_value: int | None
+@attrs.define(kw_only=True, slots=True, repr=True)
+class VoiceState(DiscordObject):
+    raw: dict[str, typing.Any]
+    guild_id: Snowflake
+    channel_id: Snowflake
+    user_id: Snowflake
+    member: typing.Optional[User]
+    session_id: str
+    deaf: bool
+    mute: bool
+    self_deaf: bool
+    self_mute: bool
+    self_stream: bool
+    self_video: bool
+    suppress: bool
+    request_to_speak_timestamp: typing.Optional[datetime.datetime]
 
     @property
     def created_at(self) -> datetime.datetime:
-        return self.get_created_at(self.id)
+        """Datetime at which voice state was created."""
+        return super().created_at
 
 
-@typing.final
-class BotUser(User):
-    async def edit(self, username: str | None = None, avatar: bytes | None = None) -> "BotUser":
-        return await self._client.rest.edit_client_user(username, avatar)
+@attrs.define(kw_only=True, slots=True, repr=True)
+class VoiceRegion:
+    raw: dict[str, typing.Any]
+    name: str
+    id: str
+    vip: bool
+    optimal: bool
+    deprecated: bool
+    custom: bool
