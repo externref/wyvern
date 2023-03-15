@@ -53,3 +53,4 @@ class StartedEvent(Event):
     """
 
     user: BotUser
+    """The bot user that the client is logged in as."""
