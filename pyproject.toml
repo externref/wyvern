@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.8"
 aiohttp = "^3.8.1"
-attrs = "^22.1.0"
+attrs = ">=22.1,<24.0"
 colorama = "^0.4.6"
 
 [tool.poetry.dev-dependencies]
